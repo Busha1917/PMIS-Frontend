@@ -4,13 +4,13 @@ import { cn } from '../utils'
 export function Table({ children }: { children: ReactNode }) {
   return (
     <div className="w-full overflow-x-auto">
-      <table className="w-full text-sm">{children}</table>
+      <table className="w-full min-w-full border-collapse text-sm">{children}</table>
     </div>
   )
 }
 
 export function TableHeader({ children }: { children: ReactNode }) {
-  return <thead className="border-b border-slate-200 bg-slate-50">{children}</thead>
+  return <thead>{children}</thead>
 }
 
 export function TableBody({ children }: { children: ReactNode }) {
@@ -27,7 +27,13 @@ export function TableRow({ children, className, ...props }: HTMLAttributes<HTMLT
 
 export function TableHead({ children, className, ...props }: ThHTMLAttributes<HTMLTableCellElement> & { children: ReactNode }) {
   return (
-    <th className={cn('px-4 py-3 text-left font-medium text-slate-500', className)} {...props}>
+    <th
+      className={cn(
+        'px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.18em] text-slate-300',
+        className
+      )}
+      {...props}
+    >
       {children}
     </th>
   )
