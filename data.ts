@@ -1,0 +1,144 @@
+import {
+  BarChart3,
+  CalendarDays,
+  FileText,
+  FolderOpen,
+  Handshake,
+  LayoutDashboard,
+  Layers,
+  LockKeyhole,
+  Settings,
+  ShieldCheck,
+  Users,
+  UserCircle2,
+} from 'lucide-react'
+
+import type {
+  AdminPage,
+  BaseDataItem,
+  EngagementRecord,
+  EventRecord,
+  NavigationItem,
+  OpportunityRecord,
+  PartnerRecord,
+  AgreementRecord,
+  RoleRecord,
+  UserRecord,
+  PermissionRecord,
+} from './types'
+
+export const navigationItems: NavigationItem[] = [
+  { label: 'Dashboard', page: 'dashboard', icon: LayoutDashboard, group: 'MAIN' },
+  { label: 'Events & Visits', page: 'events', icon: CalendarDays, group: 'MAIN' },
+  { label: 'Opportunities', page: 'opportunities', icon: Handshake, group: 'MAIN' },
+  { label: 'Engagement', page: 'engagement', icon: FolderOpen, group: 'MAIN' },
+  { label: 'Agreements', page: 'agreements', icon: FileText, group: 'MAIN' },
+  { label: 'Partners', page: 'partners', icon: Users, group: 'MAIN' },
+  { label: 'Base Data', page: 'baseData', icon: Layers, group: 'BASE DATA' },
+  { label: 'Users', page: 'users', icon: UserCircle2, group: 'USER MANAGEMENT' },
+  { label: 'Roles', page: 'roles', icon: ShieldCheck, group: 'USER MANAGEMENT' },
+]
+
+export const events: EventRecord[] = [
+  { id: 'evt-001', no: 1, title: 'AI Innovation Summit 2025', type: 'Conference / Forum', date: '15 May 2025 8:30 am', venue: 'Rhythm Lounge', status: 'Draft' },
+  { id: 'evt-002', no: 2, title: 'Devon Lane', type: 'Concert', date: '15 May 2025 8:00 am', venue: 'The Bridge', status: 'Draft' },
+  { id: 'evt-003', no: 3, title: 'Darrell Steward', type: 'Art/Culture', date: '15 May 2025 8:30 am', venue: 'Rhythm Lounge', status: 'Approved' },
+  { id: 'evt-004', no: 4, title: 'Wade Warren', type: 'Art/Culture', date: '15 May 2025 9:30 am', venue: 'The Ear Worm', status: 'Approved' },
+  { id: 'evt-005', no: 5, title: 'Courtney Henry', type: 'Sport', date: '15 May 2025 8:30 am', venue: 'Euterpe’s Hall', status: 'Accepted' },
+  { id: 'evt-006', no: 6, title: 'Bessie Cooper', type: 'AGM', date: '15 May 2025 8:30 am', venue: 'The BeatRoot', status: 'Accepted' },
+  { id: 'evt-007', no: 7, title: 'Kathryn Murphy', type: 'Workshop', date: '15 May 2025 9:00 am', venue: 'The Bridge', status: 'Accepted' },
+  { id: 'evt-008', no: 8, title: 'Brooklyn Simmons', type: 'Webinar', date: '15 May 2025 8:00 am', venue: 'Vibe Hotel', status: 'Rejected' },
+  { id: 'evt-009', no: 9, title: 'Robert Fox', type: 'Art/Culture', date: '15 May 2025 9:00 am', venue: 'Quaver’s', status: 'Rejected' },
+  { id: 'evt-010', no: 10, title: 'Albert Flores', type: 'Concert', date: '15 May 2025 9:00 am', venue: 'The Song Gallery', status: 'Accepted' },
+]
+
+export const opportunities: OpportunityRecord[] = [
+  { id: 'opp-001', no: 1, title: 'UNESCO Digital Transformation Partnership', source: 'UNESCO outreach', date: '14 APR 2020', division: 'Finance', status: 'Draft' },
+  { id: 'opp-002', no: 2, title: 'Joint AI Research Lab with Google DeepMind', source: 'AI Innovation Summit', date: '24 FEB 2020', division: 'Marketing', status: 'Draft' },
+  { id: 'opp-003', no: 3, title: 'Scholarship Program', source: 'AI Innovation Summit', date: '24 FEB 2020', division: 'Product', status: 'Approved' },
+  { id: 'opp-004', no: 4, title: 'UNESCO Digital Transformation Partnership', source: 'UNESCO outreach', date: '12 FEB 2020', division: 'Engineering', status: 'Approved' },
+  { id: 'opp-005', no: 5, title: 'UNESCO Digital Transformation Partnership', source: 'UNESCO outreach', date: '26 MAR 2020', division: 'Business', status: 'Accepted' },
+  { id: 'opp-006', no: 6, title: 'UNESCO Digital Transformation Partnership', source: 'AI Innovation Summit', date: '15 MAR 2020', division: 'Design', status: 'Accepted' },
+  { id: 'opp-007', no: 7, title: 'Scholarship Program', source: 'AI Innovation Summit', date: '10 MAR 2020', division: 'Market Management', status: 'Accepted' },
+  { id: 'opp-008', no: 8, title: 'Scholarship Program', source: 'AI Innovation Summit', date: '3 FEB 2020', division: 'Core Platform', status: 'Rejected' },
+  { id: 'opp-009', no: 9, title: 'Joint AI Research Lab with Google DeepMind', source: 'UNESCO outreach', date: '28 APR 2020', division: 'Production System', status: 'Rejected' },
+  { id: 'opp-010', no: 10, title: 'Joint AI Research Lab with Google DeepMind', source: 'UNESCO outreach', date: '17 MAR 2020', division: 'Finance', status: 'Accepted' },
+]
+
+export const engagements: EngagementRecord[] = [
+  { id: 'eng-001', no: 1, type: 'Negotiation', date: '14 APR 2020', status: 'Draft' },
+  { id: 'eng-002', no: 2, type: 'Workshop', date: '24 FEB 2020', status: 'Draft' },
+  { id: 'eng-003', no: 3, type: 'Meeting', date: '24 FEB 2020', status: 'Approved' },
+  { id: 'eng-004', no: 4, type: 'Follow-Up', date: '12 FEB 2020', status: 'Approved' },
+  { id: 'eng-005', no: 5, type: 'Site Visit', date: '26 MAR 2020', status: 'Accepted' },
+  { id: 'eng-006', no: 6, type: 'Negotiation', date: '15 MAR 2020', status: 'Accepted' },
+  { id: 'eng-007', no: 7, type: 'Negotiation', date: '10 MAR 2020', status: 'Accepted' },
+  { id: 'eng-008', no: 8, type: 'Workshop', date: '3 FEB 2020', status: 'Rejected' },
+  { id: 'eng-009', no: 9, type: 'Workshop', date: '28 APR 2020', status: 'Rejected' },
+  { id: 'eng-010', no: 10, type: 'Negotiation', date: '17 MAR 2020', status: 'Accepted' },
+]
+
+export const agreements: AgreementRecord[] = [
+  { id: 'agr-001', no: 1, title: 'MoU for AI Capacity Building', type: 'MoU', date: '14 APR 2020', startDate: '14 APR 2020', endDate: '14 APR 2021', status: 'Draft' },
+  { id: 'agr-002', no: 2, title: 'Research Collaboration Framework', type: 'MoU', date: '24 FEB 2020', startDate: '24 FEB 2020', endDate: '24 FEB 2021', status: 'Draft' },
+  { id: 'agr-003', no: 3, title: 'MoU for AI Capacity Building', type: 'MoU', date: '24 FEB 2020', startDate: '24 FEB 2020', endDate: '24 FEB 2021', status: 'Approved' },
+  { id: 'agr-004', no: 4, title: 'MoU for AI Capacity Building', type: 'MoU', date: '12 FEB 2020', startDate: '12 FEB 2020', endDate: '12 FEB 2021', status: 'Approved' },
+  { id: 'agr-005', no: 5, title: 'MoU for AI Capacity Building', type: 'MoU', date: '26 MAR 2020', startDate: '26 MAR 2020', endDate: '26 MAR 2021', status: 'Accepted' },
+  { id: 'agr-006', no: 6, title: 'MoU for AI Capacity Building', type: 'MoU', date: '15 MAR 2020', startDate: '15 MAR 2020', endDate: '15 MAR 2021', status: 'Accepted' },
+  { id: 'agr-007', no: 7, title: 'MoU for AI Capacity Building', type: 'MoU', date: '10 MAR 2020', startDate: '10 MAR 2020', endDate: '10 MAR 2021', status: 'Accepted' },
+  { id: 'agr-008', no: 8, title: 'MoU for AI Capacity Building', type: 'MoU', date: '3 FEB 2020', startDate: '3 FEB 2020', endDate: '3 FEB 2021', status: 'Rejected' },
+  { id: 'agr-009', no: 9, title: 'MoU for AI Capacity Building', type: 'MoU', date: '28 APR 2020', startDate: '28 APR 2020', endDate: '28 APR 2021', status: 'Rejected' },
+  { id: 'agr-010', no: 10, title: 'MoU for AI Capacity Building', type: 'MoU', date: '17 MAR 2020', startDate: '17 MAR 2020', endDate: '17 MAR 2021', status: 'Accepted' },
+]
+
+export const partners: PartnerRecord[] = [
+  { id: 'prt-001', no: 1, name: 'Individual Booking Engine', type: 'International Organization', country: 'USA', organization: 'CBRE', contact: 'Akash Maurya', status: 'Draft' },
+  { id: 'prt-002', no: 2, name: 'Web Individual', type: 'Private Sector', country: 'UK', organization: 'Google', contact: 'Sidharth Yadav', status: 'Draft' },
+  { id: 'prt-003', no: 3, name: 'Hotel added to BE Corpo', type: 'Private Sector', country: 'Russia', organization: 'OWP', contact: 'Naushad Khan', status: 'Approved' },
+  { id: 'prt-004', no: 4, name: 'Hotel added to Web Corpo', type: 'Private Sector', country: 'China', organization: 'OWP', contact: 'Santosh Machindra', status: 'Approved' },
+  { id: 'prt-005', no: 5, name: 'Web Corpo', type: 'Academic', country: 'France', organization: 'CBRE', contact: 'Devendra Sharma', status: 'Accepted' },
+  { id: 'prt-006', no: 6, name: 'Web Corpo', type: 'Academic', country: 'India', organization: 'Google', contact: 'Amit Singh', status: 'Accepted' },
+  { id: 'prt-007', no: 7, name: 'Other', type: 'Academic', country: 'India', organization: 'CW', contact: 'Digvijay Katiyar', status: 'Accepted' },
+  { id: 'prt-008', no: 8, name: 'Web Individual', type: 'Academic', country: 'China', organization: 'OWP', contact: 'Kapil Kumar Sengar', status: 'Rejected' },
+  { id: 'prt-009', no: 9, name: 'Corpo Booking Engine', type: 'International Organization', country: 'Russia', organization: 'CW', contact: 'Vinayak Kamble', status: 'Rejected' },
+  { id: 'prt-010', no: 10, name: 'Corpo Booking Engine', type: 'International Organization', country: 'France', organization: 'CW', contact: 'Kamal Verma', status: 'Accepted' },
+]
+
+export const baseData: BaseDataItem[] = [
+  { id: 'base-001', title: 'Administration', description: 'This is the place to set administration address' },
+  { id: 'base-002', title: 'Sector', description: 'This is the place to set Sector' },
+  { id: 'base-003', title: 'Opportunity Source', description: 'This is the place to set opportunity source' },
+]
+
+export const users: UserRecord[] = [
+  { id: 'usr-001', no: 1, name: 'Ralph Edwards', email: 'felicia.reid@example.com', phone: '+251 911 34 22 12', position: 'Content Writer', status: 'Active' },
+  { id: 'usr-002', no: 2, name: 'Guy Hawkins', email: 'debra.holt@example.com', phone: '+251 911 34 22 12', position: 'Design Operation Lead', status: 'Active' },
+  { id: 'usr-003', no: 3, name: 'Wade Warren', email: 'georgia.young@example.com', phone: '+251 911 34 22 12', position: 'Visual Designer', status: 'Active' },
+  { id: 'usr-004', no: 4, name: 'Theresa Webb', email: 'alma.lawson@example.com', phone: '+251 911 34 22 12', position: 'Design Lead', status: 'Active' },
+  { id: 'usr-005', no: 5, name: 'Floyd Miles', email: 'debbie.baker@example.com', phone: '+251 911 34 22 12', position: 'Data Analyst', status: 'Active' },
+  { id: 'usr-006', no: 6, name: 'Robert Fox', email: 'jackson.graham@example.com', phone: '+251 911 34 22 12', position: 'Design Manager', status: 'Active' },
+  { id: 'usr-007', no: 7, name: 'Brooklyn Simmons', email: 'michael.mitc@example.com', phone: '+251 911 34 22 12', position: 'Senior Product Manager', status: 'Active' },
+  { id: 'usr-008', no: 8, name: 'Cody Fisher', email: 'kenzi.lawson@example.com', phone: '+251 911 34 22 12', position: 'Engineering Lead (Backend)', status: 'Active' },
+  { id: 'usr-009', no: 9, name: 'Jacob Jones', email: 'nathan.roberts@example.com', phone: '+251 911 34 22 12', position: 'Product Admin', status: 'Active' },
+  { id: 'usr-010', no: 10, name: 'Bessie Cooper', email: 'jessica.hanson@example.com', phone: '+251 911 34 22 12', position: 'Product Executive', status: 'Active' },
+]
+
+export const roles: RoleRecord[] = [
+  { id: 'role-001', no: 1, name: 'Administrator', description: 'Full platform access', permissions: 42 },
+  { id: 'role-002', no: 2, name: 'Finance Officer', description: 'Payment and reporting tools', permissions: 16 },
+  { id: 'role-003', no: 3, name: 'Support Agent', description: 'User support workflows', permissions: 12 },
+  { id: 'role-004', no: 4, name: 'Auditor', description: 'Read-only review access', permissions: 8 },
+]
+
+export const dashboardMetrics = [
+  { label: 'Total Partners', value: '124' },
+  { label: 'Open Opportunities', value: '58' },
+  { label: 'Active Engagements', value: '18' },
+]
+
+export const dashboardActivity = [
+  'New engagement workflow created',
+  'Partnership agreement submitted for review',
+  'AI research collaboration request approved',
+  'Partner onboarding completed for new institution',
+]
