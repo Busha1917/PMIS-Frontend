@@ -39,7 +39,7 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
                         className={cn(
                           'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-all duration-200',
                           isActive
-                            ? 'bg-[#001f3f] text-white shadow-md'
+                            ? 'bg-[#161A61] text-white shadow-md'
                             : 'text-slate-700 hover:bg-slate-50'
                         )}
                       >

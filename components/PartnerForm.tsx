@@ -45,7 +45,7 @@ export function PartnerForm({ onSubmit, onCancel }: PartnerFormProps) {
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Status</label>
-              <select className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10">
+              <select className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10">
                 <option>Draft</option>
                 <option>Approved</option>
                 <option>Accepted</option>
@@ -57,7 +57,7 @@ export function PartnerForm({ onSubmit, onCancel }: PartnerFormProps) {
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-700">Notes</label>
             <textarea
-              className="min-h-[120px] w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10"
+              className="min-h-[120px] w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
               placeholder="Enter any partner notes"
             />
           </div>

@@ -12,7 +12,7 @@ export function AdminDashboard() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-sm font-medium text-slate-500">{metric.label}</p>
-                  <p className="mt-3 text-3xl font-bold text-[#001f3f]">{metric.value}</p>
+                  <p className="mt-3 text-3xl font-bold text-[#161A61]">{metric.value}</p>
                 </div>
                 <div className="rounded-xl bg-gradient-to-br from-[#ff9500]/10 to-orange-50 p-3 text-[#ff9500]">
                   {metric.label === 'Total Partners' ? (
@@ -62,11 +62,11 @@ export function AdminDashboard() {
             <div className="grid gap-3">
               <div className="rounded-xl bg-gradient-to-br from-blue-50 to-slate-50 p-4">
                 <p className="text-xs uppercase tracking-widest font-bold text-slate-500">System status</p>
-                <p className="mt-2 text-lg font-bold text-[#001f3f]">Online</p>
+                <p className="mt-2 text-lg font-bold text-[#161A61]">Online</p>
               </div>
               <div className="rounded-xl bg-gradient-to-br from-orange-50 to-slate-50 p-4">
                 <p className="text-xs uppercase tracking-widest font-bold text-slate-500">Latest update</p>
-                <p className="mt-2 text-lg font-bold text-[#001f3f]">Real-time analytics</p>
+                <p className="mt-2 text-lg font-bold text-[#161A61]">Real-time analytics</p>
               </div>
             </div>
           </CardContent>

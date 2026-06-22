@@ -41,7 +41,7 @@ export function UserForm({ onSubmit, onCancel }: UserFormProps) {
           <div className="grid gap-4 xl:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Status</label>
-              <select className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10">
+              <select className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10">
                 <option>Active</option>
                 <option>Pending</option>
                 <option>Inactive</option>

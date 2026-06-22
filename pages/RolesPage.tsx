@@ -19,7 +19,7 @@ export function RolesPage() {
           <div className="flex-1 min-w-0">
             <Input
               placeholder="Search roles..."
-              className="w-full max-w-xl rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10"
+              className="w-full max-w-xl rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
             />
           </div>
           <div className="flex flex-wrap items-center gap-3">

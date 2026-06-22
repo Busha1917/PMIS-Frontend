@@ -19,7 +19,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         <div className="flex flex-col justify-center gap-8 px-4 py-6">
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Login</p>
-            <h1 className="mt-4 text-4xl font-bold text-[#001f3f]">
+            <h1 className="mt-4 text-4xl font-bold text-[#161A61]">
               Partnership Management<br />Information
             </h1>
           </div>
@@ -74,7 +74,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         </div>
 
         {/* Right Section */}
-        <div className="relative hidden overflow-hidden rounded-3xl bg-[#001f3f] p-8 text-white md:block">
+        <div className="relative hidden overflow-hidden rounded-3xl bg-[#161A61] p-8 text-white md:block">
           <div className="mb-6 flex justify-center">
             <img src="/images/logo.png" alt="EAII logo" className="h-24 w-24 rounded-full border-4 border-white bg-white/5" />
           </div>

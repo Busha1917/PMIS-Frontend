@@ -26,7 +26,7 @@ export function EventForm({ onSubmit, onCancel }: EventFormProps) {
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Event Type</label>
-              <select className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10">
+              <select className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10">
                 <option>Select event type</option>
                 <option>Conference / Forum</option>
                 <option>Concert</option>
@@ -38,7 +38,7 @@ export function EventForm({ onSubmit, onCancel }: EventFormProps) {
               <label className="mb-2 block text-sm font-medium text-slate-700">Date & Time</label>
               <Input
                 type="datetime-local"
-                className="h-12 rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10"
+                className="h-12 rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
               />
             </div>
             <div>
@@ -54,7 +54,7 @@ export function EventForm({ onSubmit, onCancel }: EventFormProps) {
                 <p className="text-sm font-semibold text-slate-900">Partner Representatives</p>
               </div>
               <textarea
-                className="min-h-[120px] w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10"
+                className="min-h-[120px] w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
                 placeholder="Enter partner representatives"
               />
             </div>
@@ -64,7 +64,7 @@ export function EventForm({ onSubmit, onCancel }: EventFormProps) {
                 <p className="text-sm font-semibold text-slate-900">EAII Representatives</p>
               </div>
               <textarea
-                className="min-h-[120px] w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10"
+                className="min-h-[120px] w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
                 placeholder="Enter EAII representatives"
               />
             </div>
@@ -74,14 +74,14 @@ export function EventForm({ onSubmit, onCancel }: EventFormProps) {
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Agreements Reached</label>
               <textarea
-                className="min-h-[120px] w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10"
+                className="min-h-[120px] w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
                 placeholder="Enter agreements reached"
               />
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Action Points</label>
               <textarea
-                className="min-h-[120px] w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10"
+                className="min-h-[120px] w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
                 placeholder="Enter action points"
               />
             </div>
@@ -90,7 +90,7 @@ export function EventForm({ onSubmit, onCancel }: EventFormProps) {
           <div className="grid gap-4 xl:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Status</label>
-              <select className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10">
+              <select className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10">
                 <option>Select status</option>
                 <option>Draft</option>
                 <option>Approved</option>

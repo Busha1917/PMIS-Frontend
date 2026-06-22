@@ -41,7 +41,7 @@ export function PageHeaderCard({
             <div className="flex-1 min-w-0">
               <Input
                 placeholder={searchPlaceholder}
-                className="w-full max-w-sm rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10"
+                className="w-full max-w-sm rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
                 onChange={(event: ChangeEvent<HTMLInputElement>) => onSearch?.(event.target.value)}
               />
             </div>

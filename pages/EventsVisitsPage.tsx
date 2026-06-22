@@ -101,7 +101,7 @@ export function EventsVisitsPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-sm text-slate-500">Rows per page</span>
-                <select className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-[#001f3f] focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10">
+                <select className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-[#161A61] focus:outline-none focus:ring-2 focus:ring-[#161A61]/10">
                   <option>10</option>
                   <option>20</option>
                   <option>50</option>
@@ -117,7 +117,7 @@ export function EventsVisitsPage() {
                   type="button"
                   className={
                     pageNumber === 1
-                      ? 'min-w-[2.2rem] rounded-full bg-[#001f3f] px-3 py-2 text-sm font-semibold text-white shadow-sm'
+                      ? 'min-w-[2.2rem] rounded-full bg-[#161A61] px-3 py-2 text-sm font-semibold text-white shadow-sm'
                       : 'min-w-[2.2rem] rounded-full bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200'
                   }
                 >

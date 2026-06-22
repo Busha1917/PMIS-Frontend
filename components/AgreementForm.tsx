@@ -26,7 +26,7 @@ export function AgreementForm({ onSubmit, onCancel }: AgreementFormProps) {
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Type</label>
-              <select className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10">
+              <select className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10">
                 <option>MoU</option>
                 <option>Contract</option>
                 <option>Service Level</option>
@@ -34,22 +34,22 @@ export function AgreementForm({ onSubmit, onCancel }: AgreementFormProps) {
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Start Date</label>
-              <Input type="date" className="h-12 rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10" />
+              <Input type="date" className="h-12 rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10" />
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">End Date</label>
-              <Input type="date" className="h-12 rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10" />
+              <Input type="date" className="h-12 rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10" />
             </div>
           </div>
 
           <div className="grid gap-4 xl:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Effective Date</label>
-              <Input type="date" className="h-12 rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10" />
+              <Input type="date" className="h-12 rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10" />
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Status</label>
-              <select className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10">
+              <select className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10">
                 <option>Draft</option>
                 <option>Approved</option>
                 <option>Accepted</option>
@@ -61,7 +61,7 @@ export function AgreementForm({ onSubmit, onCancel }: AgreementFormProps) {
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-700">Agreement Summary</label>
             <textarea
-              className="min-h-[120px] w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10"
+              className="min-h-[120px] w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
               placeholder="Enter agreement summary"
             />
           </div>

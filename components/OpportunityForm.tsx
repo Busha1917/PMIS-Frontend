@@ -30,7 +30,7 @@ export function OpportunityForm({ onSubmit, onCancel }: OpportunityFormProps) {
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Date</label>
-              <Input type="date" className="h-12 rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10" />
+              <Input type="date" className="h-12 rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10" />
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Division</label>
@@ -41,7 +41,7 @@ export function OpportunityForm({ onSubmit, onCancel }: OpportunityFormProps) {
           <div className="grid gap-4 xl:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Status</label>
-              <select className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10">
+              <select className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10">
                 <option>Draft</option>
                 <option>Approved</option>
                 <option>Accepted</option>
@@ -51,7 +51,7 @@ export function OpportunityForm({ onSubmit, onCancel }: OpportunityFormProps) {
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Notes</label>
               <textarea
-                className="min-h-[120px] w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10"
+                className="min-h-[120px] w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
                 placeholder="Enter additional notes"
               />
             </div>
