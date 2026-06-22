@@ -139,6 +139,7 @@ function App() {
       activePage={page}
       title={pageMeta.title}
       description={pageMeta.description}
+      hideHeader={page === 'events'}
       onNavigate={handleNavigate}
     >
       {renderPage()}

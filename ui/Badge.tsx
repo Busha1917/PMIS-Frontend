@@ -3,13 +3,14 @@ import { cn } from '../utils'
 
 type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
   children: ReactNode
-  tone?: 'default' | 'success' | 'warning' | 'muted'
+  tone?: 'default' | 'success' | 'warning' | 'muted' | 'danger'
 }
 
 const tones = {
   default: 'bg-slate-950 text-white',
   success: 'bg-emerald-100 text-emerald-700',
   warning: 'bg-amber-100 text-amber-800',
+  danger: 'bg-rose-100 text-rose-700',
   muted: 'bg-slate-100 text-slate-600',
 }
 
