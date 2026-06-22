@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Plus, Filter, Eye, Pencil, Trash2 } from 'lucide-react'
+import { Plus, Filter } from 'lucide-react'
 import { Badge, Button, Input } from '../ui'
 import { DataTable } from '../components/DataTable'
 import { EngagementForm } from '../components/EngagementForm'
 import { PageHeaderCard } from '../components/PageHeaderCard'
+import { TableActionButtons } from '../components/TableActionButtons'
 import { engagements } from '../data'
 
 export function EngagementPage() {
@@ -47,19 +48,7 @@ export function EngagementPage() {
             },
             {
               label: 'Action',
-              render: () => (
-                <div className="flex items-center justify-center gap-2">
-                  <Button variant="ghost" iconOnly className="rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 p-2">
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" iconOnly className="rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 p-2">
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button variant="danger" iconOnly className="rounded-xl p-2 text-white">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ),
+              render: () => <TableActionButtons onView={() => undefined} onEdit={() => undefined} onDelete={() => undefined} />, 
               headClassName: 'bg-[#0b265a] text-white text-center',
               cellClassName: 'text-center',
             },

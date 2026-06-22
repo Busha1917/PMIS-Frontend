@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { Plus, Filter, Eye, Pencil, Trash2 } from 'lucide-react'
-import { Badge, Button, Input } from '../ui'
+import { Plus } from 'lucide-react'
+import { Badge, Button } from '../ui'
 import { EventForm } from '../components/EventForm'
 import { DataTable } from '../components/DataTable'
 import { PageHeaderCard } from '../components/PageHeaderCard'
+import { TableActionButtons } from '../components/TableActionButtons'
+import { ConfirmationModal } from '../components/ConfirmationModal'
 import type { EventRecord } from '../types'
-import { events } from '../data'
+import { events as initialEvents } from '../data'
 
 function getStatusTone(status: string) {
   switch (status) {
@@ -20,7 +22,66 @@ function getStatusTone(status: string) {
 }
 
 export function EventsVisitsPage() {
+  const [events, setEvents] = useState<EventRecord[]>(initialEvents)
   const [showForm, setShowForm] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState<EventRecord | null>(null)
+  const [formMode, setFormMode] = useState<'create' | 'edit' | 'preview'>('create')
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+
+  const handleAddNew = () => {
+    setSelectedEvent(null)
+    setFormMode('create')
+    setShowForm(true)
+  }
+
+  const handleView = (event: EventRecord) => {
+    setSelectedEvent(event)
+    setFormMode('preview')
+    setShowForm(true)
+  }
+
+  const handleEdit = (event: EventRecord) => {
+    setSelectedEvent(event)
+    setFormMode('edit')
+    setShowForm(true)
+  }
+
+  const handleDelete = (event: EventRecord) => {
+    setSelectedEvent(event)
+    setShowDeleteModal(true)
+  }
+
+  const handleSubmit = (eventData: EventRecord) => {
+    if (formMode === 'edit' && selectedEvent) {
+      setEvents((current) => current.map((item) => (item.id === selectedEvent.id ? eventData : item)))
+    } else {
+      setEvents((current) => [
+        ...current,
+        {
+          ...eventData,
+          id: `evt-${Date.now()}`,
+          no: current.length + 1,
+        },
+      ])
+    }
+    setShowForm(false)
+    setSelectedEvent(null)
+    setFormMode('create')
+  }
+
+  const handleCancel = () => {
+    setShowForm(false)
+    setSelectedEvent(null)
+    setFormMode('create')
+  }
+
+  const confirmDelete = () => {
+    if (!selectedEvent) return
+    setEvents((current) => current.filter((item) => item.id !== selectedEvent.id))
+    setShowDeleteModal(false)
+    setSelectedEvent(null)
+    setFormMode('create')
+  }
 
   return (
     <div className="space-y-6">
@@ -29,11 +90,16 @@ export function EventsVisitsPage() {
         subtitle="Partnership Management Information System — Overview"
         searchPlaceholder="Search events..."
         addLabel="Add Events & Visit"
-        onAdd={() => setShowForm((current) => !current)}
+        onAdd={handleAddNew}
       />
 
       {showForm ? (
-        <EventForm onSubmit={() => setShowForm(false)} onCancel={() => setShowForm(false)} />
+        <EventForm
+          event={selectedEvent}
+          mode={formMode}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+        />
       ) : (
         <>
           <DataTable
@@ -79,17 +145,11 @@ export function EventsVisitsPage() {
               {
                 label: 'Action',
                 render: (event: EventRecord) => (
-                  <div className="flex items-center justify-center gap-2">
-                    <Button variant="ghost" iconOnly className="rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 p-2">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" iconOnly className="rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 p-2">
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="danger" iconOnly className="rounded-xl p-2 text-white">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <TableActionButtons
+                    onView={() => handleView(event)}
+                    onEdit={() => handleEdit(event)}
+                    onDelete={() => handleDelete(event)}
+                  />
                 ),
                 headClassName: 'bg-[#0b265a] text-white text-center',
                 cellClassName: 'text-center',
@@ -107,7 +167,7 @@ export function EventsVisitsPage() {
                   <option>50</option>
                 </select>
               </div>
-              <p className="text-sm text-slate-600">Showing 1 to 10 of 20 entries</p>
+              <p className="text-sm text-slate-600">Showing 1 to 10 of {events.length} entries</p>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <Button variant="outline" className="!px-4">&lt; Back</Button>
@@ -129,6 +189,14 @@ export function EventsVisitsPage() {
           </div>
         </>
       )}
+
+      <ConfirmationModal
+        open={showDeleteModal}
+        title="Delete event"
+        message="Are you sure you want to delete this event? This action cannot be undone."
+        onCancel={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }
