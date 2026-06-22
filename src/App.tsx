@@ -139,7 +139,13 @@ function App() {
       activePage={page}
       title={pageMeta.title}
       description={pageMeta.description}
-      hideHeader={page === 'events'}
+      hideHeader={
+        page === 'events' ||
+        page === 'opportunities' ||
+        page === 'engagement' ||
+        page === 'agreements' ||
+        page === 'partners'
+      }
       onNavigate={handleNavigate}
     >
       {renderPage()}

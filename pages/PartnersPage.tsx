@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Plus, Filter, Eye, Pencil, Trash2 } from 'lucide-react'
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
+import { Badge, Button, Input } from '../ui'
 import { DataTable } from '../components/DataTable'
+import { PageHeaderCard } from '../components/PageHeaderCard'
 import { PartnerForm } from '../components/PartnerForm'
 import { partners } from '../data'
 
@@ -10,41 +11,14 @@ export function PartnersPage() {
 
   return (
     <div className="space-y-6">
-      <Card className="rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-        <CardContent className="p-6">
-          <div className="flex flex-col gap-6">
-            <div className="max-w-2xl">
-              <p className="header-font text-xl font-semibold tracking-[-0.01em] text-slate-950">
-                Partner Registration
-              </p>
-              <p className="mt-2 text-sm text-slate-600">
-                Manage partnership organizations
-              </p>
-            </div>
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex-1 min-w-0">
-                <Input
-                  placeholder="Search partners..."
-                  className="w-full max-w-xl rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/10"
-                />
-              </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <Button variant="outline" className="!px-5">
-                  <Filter className="h-4 w-4" />
-                  Filter
-                </Button>
-                <Button
-                  className="!bg-[#ff9500] !text-white !hover:bg-[#e68a00]"
-                  onClick={() => setShowForm((current) => !current)}
-                >
-                  <Plus className="h-4 w-4" />
-                  Add Partner
-                </Button>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <PageHeaderCard
+        title="Partner Registration"
+        subtitle="Manage partnership organizations"
+        searchPlaceholder="Search partners..."
+        addLabel="Add Record"
+        onAdd={() => setShowForm((current) => !current)}
+        onExport={() => undefined}
+      />
 
       {showForm ? (
         <PartnerForm onSubmit={() => setShowForm(false)} onCancel={() => setShowForm(false)} />
