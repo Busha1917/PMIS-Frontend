@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Plus, Filter } from 'lucide-react'
-import { Badge, Input } from '../ui'
+import { Input } from '../ui'
 import { DataTable } from '../components/DataTable'
 import { AgreementForm } from '../components/AgreementForm'
 import { PageHeaderCard } from '../components/PageHeaderCard'
+import { StatusBadge } from '../components/StatusBadge'
 import { TableActionButtons } from '../components/TableActionButtons'
 import { agreements } from '../data'
 
@@ -41,11 +42,7 @@ export function AgreementsPage() {
             { label: 'End Date', render: (item) => item.endDate, headClassName: 'bg-[#0b265a] text-white' },
             {
               label: 'Status',
-              render: (item) => (
-                <Badge tone={item.status === 'Approved' ? 'success' : item.status === 'Rejected' ? 'warning' : 'muted'}>
-                  {item.status}
-                </Badge>
-              ),
+              render: (item) => <StatusBadge status={item.status} />,
               headClassName: 'bg-[#0b265a] text-white text-center',
               cellClassName: 'text-center',
             },

@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Plus, Filter } from 'lucide-react'
-import { Badge, Button, Input } from '../ui'
+import { Button, Input } from '../ui'
 import { DataTable } from '../components/DataTable'
 import { EngagementForm } from '../components/EngagementForm'
 import { PageHeaderCard } from '../components/PageHeaderCard'
+import { StatusBadge } from '../components/StatusBadge'
 import { TableActionButtons } from '../components/TableActionButtons'
 import { engagements } from '../data'
 
@@ -38,11 +39,7 @@ export function EngagementPage() {
             { label: 'Date', render: (item) => item.date, headClassName: 'bg-[#0b265a] text-white' },
             {
               label: 'Status',
-              render: (item) => (
-                <Badge tone={item.status === 'Approved' ? 'success' : item.status === 'Rejected' ? 'warning' : 'muted'}>
-                  {item.status}
-                </Badge>
-              ),
+              render: (item) => <StatusBadge status={item.status} />,
               headClassName: 'bg-[#0b265a] text-white text-center',
               cellClassName: 'text-center',
             },

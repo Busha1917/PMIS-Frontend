@@ -30,7 +30,7 @@ export function PageHeaderCard({
   extraActions,
 }: PageHeaderCardProps) {
   return (
-    <Card className={className ?? 'rounded-[2rem] border border-slate-200 bg-white shadow-sm'}>
+    <Card className={className ?? 'rounded-[2rem] bg-white shadow-sm'}>
       <CardContent className="p-6">
         <div className="flex flex-col gap-6">
           <div className="max-w-2xl">

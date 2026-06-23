@@ -1,20 +1,35 @@
 import { navigationItems } from '../data'
+import { X } from 'lucide-react'
 import type { AdminPage } from '../types'
+import { Button } from '../ui'
 import { cn } from '../utils'
 
 type SidebarProps = {
   activePage: AdminPage
   onNavigate: (page: AdminPage) => void
+  onToggleSidebar?: () => void
+  className?: string
 }
 
-const groups = ['MAIN', 'BASE DATA', 'USER MANAGEMENT'] as const
+const groups = ['DASHBOARD', 'MAIN', 'BASE DATA', 'USER MANAGEMENT'] as const
 
-export function Sidebar({ activePage, onNavigate }: SidebarProps) {
+export function Sidebar({ activePage, onNavigate, onToggleSidebar, className }: SidebarProps) {
   return (
-    <aside className="hidden w-72 shrink-0 border-r border-slate-200 bg-white lg:block">
+    <aside className={cn('w-72 shrink-0 border-r border-slate-200 bg-white', className)}>
       <div className="flex h-full flex-col">
-        <div className="border-b border-slate-200 px-5 py-6">
-          <img src="/images/logo.png" alt="EAII logo" className="h-14 w-14 rounded-full border-2 border-slate-100 bg-white object-cover shadow-sm" />
+        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-6">
+          <div className="flex flex-1 justify-center">
+            <img src="/images/logo.png" alt="EAII logo" className="h-20 w-20 rounded-full border-2 border-slate-100 bg-white object-cover shadow-sm" />
+          </div>
+          <Button
+            variant="ghost"
+            iconOnly
+            className="rounded-full border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 p-2"
+            onClick={onToggleSidebar}
+            aria-label="Close sidebar"
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-3 py-4">

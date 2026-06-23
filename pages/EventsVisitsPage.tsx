@@ -1,25 +1,14 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
-import { Badge, Button } from '../ui'
+import { Button } from '../ui'
 import { EventForm } from '../components/EventForm'
 import { DataTable } from '../components/DataTable'
 import { PageHeaderCard } from '../components/PageHeaderCard'
+import { StatusBadge } from '../components/StatusBadge'
 import { TableActionButtons } from '../components/TableActionButtons'
 import { ConfirmationModal } from '../components/ConfirmationModal'
 import type { EventRecord } from '../types'
 import { events as initialEvents } from '../data'
-
-function getStatusTone(status: string) {
-  switch (status) {
-    case 'Approved':
-    case 'Accepted':
-      return 'success'
-    case 'Rejected':
-      return 'danger'
-    default:
-      return 'muted'
-  }
-}
 
 export function EventsVisitsPage() {
   const [events, setEvents] = useState<EventRecord[]>(initialEvents)
@@ -134,11 +123,7 @@ export function EventsVisitsPage() {
               },
               {
                 label: 'Status',
-                render: (event: EventRecord) => (
-                  <Badge tone={getStatusTone(event.status)} className="rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em]">
-                    {event.status}
-                  </Badge>
-                ),
+                render: (event: EventRecord) => <StatusBadge status={event.status} />,
                 headClassName: 'bg-[#0b265a] text-white text-center',
                 cellClassName: 'text-center',
               },

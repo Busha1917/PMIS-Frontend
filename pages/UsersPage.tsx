@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Plus, Filter } from 'lucide-react'
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
+import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
 import { DataTable } from '../components/DataTable'
+import { StatusBadge } from '../components/StatusBadge'
 import { UserForm } from '../components/UserForm'
 import { TableActionButtons } from '../components/TableActionButtons'
 import { users } from '../data'
@@ -51,7 +52,7 @@ export function UsersPage() {
             { label: 'Email', render: (user) => user.email, headClassName: 'bg-[#0b265a] text-white' },
             { label: 'Phone Number', render: (user) => user.phone, headClassName: 'bg-[#0b265a] text-white' },
             { label: 'Position', render: (user) => user.position, headClassName: 'bg-[#0b265a] text-white' },
-            { label: 'Status', render: (user) => <Badge tone={user.status === 'Active' ? 'success' : user.status === 'Inactive' ? 'muted' : 'warning'}>{user.status}</Badge>, headClassName: 'bg-[#0b265a] text-white text-center', cellClassName: 'text-center' },
+            { label: 'Status', render: (user) => <StatusBadge status={user.status} />, headClassName: 'bg-[#0b265a] text-white text-center', cellClassName: 'text-center' },
             {
               label: 'Action',
               render: () => <TableActionButtons onView={() => undefined} onEdit={() => undefined} onDelete={() => undefined} />,

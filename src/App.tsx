@@ -71,6 +71,7 @@ function getPageFromPath(pathname: string): AdminPage {
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [page, setPage] = useState<AdminPage>(() => getPageFromPath(window.location.pathname))
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 1024)
 
   useEffect(() => {
     const handlePopState = () => {
@@ -103,6 +104,10 @@ function App() {
     if (window.location.pathname !== nextPath) {
       window.history.pushState({}, '', nextPath)
     }
+  }
+
+  const handleToggleSidebar = () => {
+    setSidebarOpen((current) => !current)
   }
 
   const renderPage = () => {
@@ -147,6 +152,8 @@ function App() {
         page === 'partners'
       }
       onNavigate={handleNavigate}
+      sidebarOpen={sidebarOpen}
+      onToggleSidebar={handleToggleSidebar}
     >
       {renderPage()}
     </AppLayout>
