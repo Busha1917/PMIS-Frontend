@@ -4,6 +4,7 @@ import { Button, Input } from '../ui'
 import { DataTable } from '../components/DataTable'
 import { EngagementForm } from '../components/EngagementForm'
 import { PageHeaderCard } from '../components/PageHeaderCard'
+import { PageToolbar } from '../components/PageToolbar'
 import { StatusBadge } from '../components/StatusBadge'
 import { TableActionButtons } from '../components/TableActionButtons'
 import { engagements } from '../data'
@@ -16,10 +17,13 @@ export function EngagementPage() {
       <PageHeaderCard
         title="Partnership Engagements"
         subtitle="Track engagement meetings and outcomes"
+      />
+      <PageToolbar
         searchPlaceholder="Search engagements..."
         addLabel="Add Record"
+        onSearch={() => undefined}
+        onFilter={() => undefined}
         onAdd={() => setShowForm((current) => !current)}
-        onExport={() => undefined}
       />
 
       {showForm ? (

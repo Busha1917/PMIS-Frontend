@@ -4,6 +4,7 @@ import { Input } from '../ui'
 import { DataTable } from '../components/DataTable'
 import { AgreementForm } from '../components/AgreementForm'
 import { PageHeaderCard } from '../components/PageHeaderCard'
+import { PageToolbar } from '../components/PageToolbar'
 import { StatusBadge } from '../components/StatusBadge'
 import { TableActionButtons } from '../components/TableActionButtons'
 import { agreements } from '../data'
@@ -16,10 +17,13 @@ export function AgreementsPage() {
       <PageHeaderCard
         title="Agreement Management"
         subtitle="Manage partnership agreements and legal documents"
+      />
+      <PageToolbar
         searchPlaceholder="Search agreements..."
         addLabel="Add Record"
+        onSearch={() => undefined}
+        onFilter={() => undefined}
         onAdd={() => setShowForm((current) => !current)}
-        onExport={() => undefined}
       />
 
       {showForm ? (

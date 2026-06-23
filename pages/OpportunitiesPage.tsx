@@ -4,6 +4,7 @@ import { Button, Input } from '../ui'
 import { DataTable } from '../components/DataTable'
 import { OpportunityForm } from '../components/OpportunityForm'
 import { PageHeaderCard } from '../components/PageHeaderCard'
+import { PageToolbar } from '../components/PageToolbar'
 import { StatusBadge } from '../components/StatusBadge'
 import { TableActionButtons } from '../components/TableActionButtons'
 import { opportunities } from '../data'
@@ -16,10 +17,13 @@ export function OpportunitiesPage() {
       <PageHeaderCard
         title="Partnership Opportunities"
         subtitle="Register Partnership Opportunities and track outcomes"
+      />
+      <PageToolbar
         searchPlaceholder="Search opportunities..."
         addLabel="Add Record"
+        onSearch={() => undefined}
+        onFilter={() => undefined}
         onAdd={() => setShowForm((current) => !current)}
-        onExport={() => undefined}
       />
 
       {showForm ? (

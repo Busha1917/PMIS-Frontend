@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from '../ui'
 import { EventForm } from '../components/EventForm'
+import { PageToolbar } from '../components/PageToolbar'
 import { DataTable } from '../components/DataTable'
 import { PageHeaderCard } from '../components/PageHeaderCard'
 import { StatusBadge } from '../components/StatusBadge'
@@ -77,8 +78,12 @@ export function EventsVisitsPage() {
       <PageHeaderCard
         title="Events & Visits"
         subtitle="Partnership Management Information System — Overview"
+      />
+      <PageToolbar
         searchPlaceholder="Search events..."
         addLabel="Add Events & Visit"
+        onSearch={() => undefined}
+        onFilter={() => undefined}
         onAdd={handleAddNew}
       />
 

@@ -3,6 +3,7 @@ import { Plus, Filter } from 'lucide-react'
 import { Button, Input } from '../ui'
 import { DataTable } from '../components/DataTable'
 import { PageHeaderCard } from '../components/PageHeaderCard'
+import { PageToolbar } from '../components/PageToolbar'
 import { PartnerForm } from '../components/PartnerForm'
 import { StatusBadge } from '../components/StatusBadge'
 import { TableActionButtons } from '../components/TableActionButtons'
@@ -16,10 +17,13 @@ export function PartnersPage() {
       <PageHeaderCard
         title="Partner Registration"
         subtitle="Manage partnership organizations"
+      />
+      <PageToolbar
         searchPlaceholder="Search partners..."
         addLabel="Add Record"
+        onSearch={() => undefined}
+        onFilter={() => undefined}
         onAdd={() => setShowForm((current) => !current)}
-        onExport={() => undefined}
       />
 
       {showForm ? (
