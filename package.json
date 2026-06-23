@@ -50,17 +50,13 @@
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.12",
     "@tolgee/react": "^6.2.7",
-    "@types/date-fns": "^2.5.3",
     "@types/mapbox-gl": "^3.4.1",
-    "@types/react-select": "^5.0.0",
     "@yudiel/react-qr-scanner": "^2.4.1",
     "axios": "^1.11.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
-    "et-calendar": "^1.1.4",
-    "formik": "^2.4.6",
     "html2canvas": "^1.4.1",
     "html5-qrcode": "^2.3.8",
     "jose": "^6.1.2",
@@ -107,7 +103,7 @@
     "@typescript-eslint/eslint-plugin": "^8.41.0",
     "@typescript-eslint/parser": "^8.41.0",
     "@vitejs/plugin-react": "^5.0.0",
-    "@vitest/ui": "^3.2.4",
+    "@vitest/ui": "^4.1.9",
     "autoprefixer": "^10.4.21",
     "baseline-browser-mapping": "^2.10.38",
     "eslint": "^9.33.0",
@@ -125,7 +121,7 @@
     "tailwindcss": "^3.4.17",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.39.1",
-    "vite": "^7.1.2",
-    "vitest": "^3.2.4"
+    "vite": "^8.1.0",
+    "vitest": "^4.1.9"
   }
 }
