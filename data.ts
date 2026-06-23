@@ -28,6 +28,7 @@ import type {
 } from './types'
 
 export const navigationItems: NavigationItem[] = [
+  { label: 'Dashboard', page: 'dashboard', icon: LayoutDashboard, group: 'DASHBOARD' },
   { label: 'Events & Visits', page: 'events', icon: CalendarDays, group: 'MAIN' },
   { label: 'Opportunities', page: 'opportunities', icon: Handshake, group: 'MAIN' },
   { label: 'Engagement', page: 'engagement', icon: FolderOpen, group: 'MAIN' },

@@ -38,9 +38,11 @@ export function Sidebar({ activePage, onNavigate, onToggleSidebar, className }: 
             
             return (
               <div key={group} className="mb-4">
-                <p className="px-3 pb-3 text-xs font-bold uppercase tracking-widest text-[#ff9500]">
-                  {group}
-                </p>
+                {group !== 'DASHBOARD' ? (
+                  <p className="px-3 pb-3 text-xs font-bold uppercase tracking-widest text-[#ff9500]">
+                    {group}
+                  </p>
+                ) : null}
                 <div className="space-y-2">
                   {groupItems.map((item) => {
                     const Icon = item.icon
