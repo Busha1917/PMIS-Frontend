@@ -4,6 +4,10 @@ const config: Config = {
   content: ['./index.html', './src/**/*.{ts,tsx}', './**/*.{ts,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Montserrat', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont',
+          'Segoe UI', 'sans-serif'],
+      },
       colors: {
         primary: {
           50: '#f0f3ff',
