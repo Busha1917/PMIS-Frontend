@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui'
+import { cn } from '../utils'
+import { Card, CardHeader, CardTitle } from '../ui'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table'
 
 type DataColumn<T> = {
@@ -19,25 +20,32 @@ type DataTableProps<T> = {
 
 export function DataTable<T>({ title, items, rowKey, columns, className }: DataTableProps<T>) {
   return (
-    <Card className={className ?? 'overflow-hidden rounded-[2rem] border border-slate-200 shadow-sm'}>
+    <Card className={className ?? 'overflow-hidden rounded-[14px] border border-slate-200 shadow-sm'}>
       {title ? (
-        <CardHeader className="bg-[#0b265a] px-6 py-4">
+        <CardHeader className="bg-[#0b265a] px-6 py-4 rounded-t-[14px]">
           <CardTitle className="text-sm uppercase tracking-[0.2em] text-white">{title}</CardTitle>
         </CardHeader>
       ) : null}
 
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <tr>
-                {columns.map((column) => (
-                  <TableHead key={column.label} className={column.headClassName}>
-                    {column.label}
-                  </TableHead>
-                ))}
-              </tr>
-            </TableHeader>
+      <div className="overflow-x-auto bg-[#0b265a] rounded-t-[14px]">
+        <Table className="bg-transparent">
+          <TableHeader>
+            <TableRow className="h-[70px] text-white">
+              {columns.map((column, index) => (
+                <TableHead
+                  key={column.label}
+                  className={cn(
+                    column.headClassName,
+                    'bg-transparent text-white py-0 align-middle',
+                    index === 0 && 'rounded-tl-[14px]',
+                    index === columns.length - 1 && 'rounded-tr-[14px]'
+                  )}
+                >
+                  {column.label}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
 
             <TableBody>
               {items.map((item) => (
@@ -52,7 +60,6 @@ export function DataTable<T>({ title, items, rowKey, columns, className }: DataT
             </TableBody>
           </Table>
         </div>
-      </CardContent>
     </Card>
   )
 }
