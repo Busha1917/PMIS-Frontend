@@ -13,7 +13,7 @@ export function TableActionButtons({ onView, onEdit, onDelete }: TableActionButt
       <Button
         variant="ghost"
         iconOnly
-        className="rounded-full border border-slate-200 bg-slate-50 text-[#1F2B70] hover:bg-slate-100 p-2"
+        className="text-[#161A61] hover:bg-[#E8EEFF] p-2"
         onClick={onView}
       >
         <Eye className="h-4 w-4" />
@@ -21,7 +21,7 @@ export function TableActionButtons({ onView, onEdit, onDelete }: TableActionButt
       <Button
         variant="ghost"
         iconOnly
-        className="rounded-full border border-slate-200 bg-white text-[#1F2B70] hover:bg-slate-50 p-2"
+        className="text-[#161A61] hover:bg-[#F5F7FF] p-2"
         onClick={onEdit}
       >
         <Edit3 className="h-4 w-4" />
@@ -29,7 +29,7 @@ export function TableActionButtons({ onView, onEdit, onDelete }: TableActionButt
       <Button
         variant="ghost"
         iconOnly
-        className="rounded-full border border-red-100 bg-white text-[#FF3B30] hover:bg-red-50 p-2"
+        className="text-[#FF383C] hover:bg-[#FFF1F1] p-2"
         onClick={onDelete}
       >
         <Trash2 className="h-4 w-4" />
