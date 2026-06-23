@@ -1,6 +1,7 @@
 import type { FormEvent } from 'react'
 import { LockKeyhole, Mail } from 'lucide-react'
 import { Button, Card, Input, Label } from '../ui'
+import { Footer } from '../layout/Footer'
 
 type LoginPageProps = {
   onLogin?: () => void
@@ -81,6 +82,9 @@ export function LoginPage({ onLogin }: LoginPageProps) {
             <img src="/images/login.png" alt="Login illustration" className="w-full h-full object-cover" />
           </div>
         </div>
+      </div>
+      <div className="mx-auto max-w-6xl">
+        <Footer />
       </div>
     </div>
   )

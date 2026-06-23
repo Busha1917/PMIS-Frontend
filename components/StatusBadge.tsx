@@ -10,23 +10,23 @@ const getStatusStyle = (status: string) => {
   const normalized = status.toLowerCase()
 
   if (normalized === 'draft') {
-    return 'bg-[#B8CBDD] text-white'
+    return 'bg-[#B8C9DA] text-[#1F1F1F]'
   }
 
   if (normalized === 'approved') {
-    return 'bg-[#34C759] text-white'
+    return 'bg-[#A6E5B4] text-[#1B7A3B]'
   }
 
   if (normalized === 'accepted') {
-    return 'bg-[#9EE7B9] text-white'
+    return 'bg-[#D6ECD8] text-[#33A852]'
   }
 
   if (normalized === 'rejected') {
-    return 'bg-[#FF6B6B] text-white'
+    return 'bg-[#F6A8A8] text-[#D62828]'
   }
 
   if (normalized === 'active') {
-    return 'bg-[#28A745] text-white'
+    return 'bg-[#D6ECD8] text-[#33A852]'
   }
 
   return 'bg-slate-100 text-slate-600'
@@ -37,7 +37,7 @@ export function StatusBadge({ status, className, ...props }: StatusBadgeProps) {
     <Badge
       tone="default"
       className={cn(
-        'inline-flex h-[25px] w-[90px] items-center justify-center gap-[10px] rounded-[4px] px-[10px] py-[4px] text-[11px] font-semibold uppercase tracking-[0.08em]',
+        'inline-flex h-[40px] min-w-[140px] items-center justify-center gap-[10px] rounded-lg px-[16px] py-[4px] text-[16px] font-medium normal-case tracking-normal',
         getStatusStyle(status),
         className
       )}

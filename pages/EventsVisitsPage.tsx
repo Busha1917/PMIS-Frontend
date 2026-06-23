@@ -7,6 +7,7 @@ import { DataTable } from '../components/DataTable'
 import { PageHeaderCard } from '../components/PageHeaderCard'
 import { StatusBadge } from '../components/StatusBadge'
 import { TableActionButtons } from '../components/TableActionButtons'
+import { TablePagination } from '../components/TablePagination'
 import { ConfirmationModal } from '../components/ConfirmationModal'
 import type { EventRecord } from '../types'
 import { events as initialEvents } from '../data'
@@ -147,36 +148,7 @@ export function EventsVisitsPage() {
             ]}
           />
 
-          <div className="flex flex-col gap-3 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-sm text-slate-500">Rows per page</span>
-                <select className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-[#161A61] focus:outline-none focus:ring-2 focus:ring-[#161A61]/10">
-                  <option>10</option>
-                  <option>20</option>
-                  <option>50</option>
-                </select>
-              </div>
-              <p className="text-sm text-slate-600">Showing 1 to 10 of {events.length} entries</p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 text-sm">
-              <Button variant="outline" className="!px-4">&lt; Back</Button>
-              {[1, 2, 3, 4, 5].map((pageNumber) => (
-                <button
-                  key={pageNumber}
-                  type="button"
-                  className={
-                    pageNumber === 1
-                      ? 'min-w-[2.2rem] rounded-full bg-[#161A61] px-3 py-2 text-sm font-semibold text-white shadow-sm'
-                      : 'min-w-[2.2rem] rounded-full bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200'
-                  }
-                >
-                  {pageNumber}
-                </button>
-              ))}
-              <Button variant="outline" className="!px-4">Next &gt;</Button>
-            </div>
-          </div>
+          <TablePagination totalEntries={events.length} />
         </>
       )}
 

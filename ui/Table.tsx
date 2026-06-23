@@ -19,7 +19,7 @@ export function TableBody({ children }: { children: ReactNode }) {
 
 export function TableRow({ children, className, ...props }: HTMLAttributes<HTMLTableRowElement> & { children: ReactNode }) {
   return (
-    <tr className={cn('transition-colors hover:bg-slate-50', className)} {...props}>
+    <tr className={cn('transition-colors', className)} {...props}>
       {children}
     </tr>
   )

@@ -7,6 +7,7 @@ import { PageHeaderCard } from '../components/PageHeaderCard'
 import { PageToolbar } from '../components/PageToolbar'
 import { StatusBadge } from '../components/StatusBadge'
 import { TableActionButtons } from '../components/TableActionButtons'
+import { TablePagination } from '../components/TablePagination'
 import { opportunities } from '../data'
 
 export function OpportunitiesPage() {
@@ -29,34 +30,38 @@ export function OpportunitiesPage() {
       {showForm ? (
         <OpportunityForm onSubmit={() => setShowForm(false)} onCancel={() => setShowForm(false)} />
       ) : (
-        <DataTable
-          items={opportunities}
-          rowKey={(item) => item.id}
-          columns={[
-            {
-              label: 'No.',
-              render: (item) => <span className="font-semibold text-slate-900">{item.no}</span>,
-              headClassName: 'bg-[#0b265a] text-white text-center',
-              cellClassName: 'text-center',
-            },
-            { label: 'Title', render: (item) => item.title, headClassName: 'bg-[#0b265a] text-white' },
-            { label: 'Source', render: (item) => item.source, headClassName: 'bg-[#0b265a] text-white' },
-            { label: 'Date', render: (item) => item.date, headClassName: 'bg-[#0b265a] text-white' },
-            { label: 'Division', render: (item) => item.division, headClassName: 'bg-[#0b265a] text-white' },
-            {
-              label: 'Status',
-              render: (item) => <StatusBadge status={item.status} />,
-              headClassName: 'bg-[#0b265a] text-white text-center',
-              cellClassName: 'text-center',
-            },
-            {
-              label: 'Action',
-              render: () => <TableActionButtons onView={() => undefined} onEdit={() => undefined} onDelete={() => undefined} />, 
-              headClassName: 'bg-[#0b265a] text-white text-center',
-              cellClassName: 'text-center',
-            },
-          ]}
-        />
+        <>
+          <DataTable
+            items={opportunities}
+            rowKey={(item) => item.id}
+            columns={[
+              {
+                label: 'No.',
+                render: (item) => <span className="font-semibold text-slate-900">{item.no}</span>,
+                headClassName: 'bg-[#0b265a] text-white text-center',
+                cellClassName: 'text-center',
+              },
+              { label: 'Title', render: (item) => item.title, headClassName: 'bg-[#0b265a] text-white' },
+              { label: 'Source', render: (item) => item.source, headClassName: 'bg-[#0b265a] text-white' },
+              { label: 'Date', render: (item) => item.date, headClassName: 'bg-[#0b265a] text-white' },
+              { label: 'Division', render: (item) => item.division, headClassName: 'bg-[#0b265a] text-white' },
+              {
+                label: 'Status',
+                render: (item) => <StatusBadge status={item.status} />,
+                headClassName: 'bg-[#0b265a] text-white text-center',
+                cellClassName: 'text-center',
+              },
+              {
+                label: 'Action',
+                render: () => <TableActionButtons onView={() => undefined} onEdit={() => undefined} onDelete={() => undefined} />, 
+                headClassName: 'bg-[#0b265a] text-white text-center',
+                cellClassName: 'text-center',
+              },
+            ]}
+          />
+
+          <TablePagination totalEntries={opportunities.length} />
+        </>
       )}
     </div>
   )
