@@ -46,7 +46,7 @@ const pageRoutes: Record<AdminPage, { path: string; title: string; description: 
   baseData: {
     path: '/base-data',
     title: 'Base Data',
-    description: 'Configure core reference data for the system.',
+    description: 'Register and manage base data.',
   },
   users: {
     path: '/users',
@@ -149,7 +149,8 @@ function App() {
         page === 'opportunities' ||
         page === 'engagement' ||
         page === 'agreements' ||
-        page === 'partners'
+        page === 'partners' ||
+        page === 'baseData'
       }
       onNavigate={handleNavigate}
       sidebarOpen={sidebarOpen}
