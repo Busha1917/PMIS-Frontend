@@ -1,5 +1,5 @@
 import { navigationItems } from '../data'
-import { Menu } from 'lucide-react'
+import { Menu, LogOut } from 'lucide-react'
 import type { AdminPage } from '../types'
 import { cn } from '../utils'
 
@@ -9,11 +9,12 @@ type SidebarProps = {
   onNavigate: (page: AdminPage) => void
   onToggleSidebar?: () => void
   className?: string
+  onLogout?: () => void
 }
 
 const groups = ['DASHBOARD', 'MAIN', 'BASE DATA', 'USER MANAGEMENT'] as const
 
-export function Sidebar({ activePage, collapsed, onNavigate, onToggleSidebar, className }: SidebarProps) {
+export function Sidebar({ activePage, collapsed, onNavigate, onToggleSidebar, className, onLogout }: SidebarProps) {
   return (
     <aside
       className={cn(
@@ -102,15 +103,23 @@ export function Sidebar({ activePage, collapsed, onNavigate, onToggleSidebar, cl
           })}
         </div>
 
-        {/* Footer info — hidden when collapsed */}
-        {!collapsed && (
-          <div className="border-t border-slate-200 p-4">
-            <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
-              <p className="font-bold text-slate-900">EAII Partnership System</p>
-              <p className="mt-1 text-xs leading-relaxed">Mock data dashboard ready for extension.</p>
-            </div>
-          </div>
-        )}
+        {/* Footer — Logout button */}
+        <div className="border-t border-slate-200 p-4">
+          <button
+            type="button"
+            onClick={onLogout}
+            className={cn(
+              'flex items-center rounded-xl text-sm font-semibold transition-all duration-200',
+              collapsed
+                ? 'justify-center w-full py-3 text-slate-500 hover:bg-red-50 hover:text-[#ff383c]'
+                : 'w-full gap-3 px-4 py-3 text-left text-slate-700 hover:bg-red-50 hover:text-[#ff383c]'
+            )}
+            title={collapsed ? 'Logout' : undefined}
+          >
+            <LogOut className="h-5 w-5 flex-shrink-0" />
+            {!collapsed && <span>Logout</span>}
+          </button>
+        </div>
       </div>
     </aside>
   )

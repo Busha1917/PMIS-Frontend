@@ -10,6 +10,7 @@ import { PartnersPage } from '../pages/PartnersPage'
 import { RolesPage } from '../pages/RolesPage'
 import { UsersPage } from '../pages/UsersPage'
 import { LoginPage } from '../pages/LoginPage'
+import { ConfirmationModal } from '../components/ConfirmationModal'
 import type { AdminPage } from '../types'
 
 const pageRoutes: Record<AdminPage, { path: string; title: string; description: string }> = {
@@ -72,6 +73,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [page, setPage] = useState<AdminPage>(() => getPageFromPath(window.location.pathname))
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 1024)
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
 
   useEffect(() => {
     const handlePopState = () => {
@@ -140,26 +142,40 @@ function App() {
   }
 
   return (
-    <AppLayout
-      activePage={page}
-      title={pageMeta.title}
-      description={pageMeta.description}
-      hideHeader={
-        page === 'events' ||
-        page === 'opportunities' ||
-        page === 'engagement' ||
-        page === 'agreements' ||
-        page === 'partners' ||
-        page === 'baseData' ||
-        page === 'users' ||
-        page === 'roles'
-      }
-      onNavigate={handleNavigate}
-      sidebarOpen={sidebarOpen}
-      onToggleSidebar={handleToggleSidebar}
-    >
-      {renderPage()}
-    </AppLayout>
+    <>
+      <AppLayout
+        activePage={page}
+        title={pageMeta.title}
+        description={pageMeta.description}
+        hideHeader={
+          page === 'events' ||
+          page === 'opportunities' ||
+          page === 'engagement' ||
+          page === 'agreements' ||
+          page === 'partners' ||
+          page === 'baseData' ||
+          page === 'users' ||
+          page === 'roles'
+        }
+        onNavigate={handleNavigate}
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={handleToggleSidebar}
+        onLogout={() => setShowLogoutModal(true)}
+      >
+        {renderPage()}
+      </AppLayout>
+
+      <ConfirmationModal
+        open={showLogoutModal}
+        title="Confirm Logout"
+        message="Are you sure you want to log out of the EAII Partnership System?"
+        onCancel={() => setShowLogoutModal(false)}
+        onConfirm={() => {
+          setShowLogoutModal(false)
+          setIsAuthenticated(false)
+        }}
+      />
+    </>
   )
 }
 

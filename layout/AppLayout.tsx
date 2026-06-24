@@ -15,6 +15,7 @@ type AppLayoutProps = {
   onNavigate: (page: AdminPage) => void
   sidebarOpen?: boolean
   onToggleSidebar?: () => void
+  onLogout?: () => void
 }
 
 export function AppLayout({
@@ -26,6 +27,7 @@ export function AppLayout({
   onNavigate,
   sidebarOpen = true,
   onToggleSidebar,
+  onLogout,
 }: AppLayoutProps) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-950">
@@ -36,10 +38,11 @@ export function AppLayout({
           collapsed={!sidebarOpen}
           onNavigate={onNavigate}
           onToggleSidebar={onToggleSidebar}
+          onLogout={onLogout}
         />
 
         <div className="flex min-h-screen flex-1 flex-col overflow-hidden">
-          <Header title={title ?? ''} onToggleSidebar={onToggleSidebar} />
+          <Header title={title ?? ''} />
           <main className="flex-1 px-4 py-5 sm:px-6 lg:px-8">
             {!hideHeader && title && (
               <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
