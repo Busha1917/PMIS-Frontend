@@ -4,10 +4,10 @@ import { Button, Input } from '../ui'
 
 type PageToolbarProps = {
   searchPlaceholder: string
-  addLabel: string
+  addLabel?: string
   onSearch?: (value: string) => void
   onFilter?: () => void
-  onAdd: () => void
+  onAdd?: () => void
 }
 
 export function PageToolbar({
@@ -31,10 +31,12 @@ export function PageToolbar({
           <Filter className="h-4 w-4" />
           Filter
         </Button>
-        <Button className="!bg-[#ff9500] !text-white !hover:bg-[#e68a00]" onClick={onAdd}>
-          <Plus className="h-4 w-4" />
-          {addLabel}
-        </Button>
+        {onAdd && (
+          <Button className="!bg-[#ff9500] !text-white !hover:bg-[#e68a00]" onClick={onAdd}>
+            <Plus className="h-4 w-4" />
+            {addLabel}
+          </Button>
+        )}
       </div>
     </div>
   )

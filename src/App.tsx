@@ -150,7 +150,9 @@ function App() {
         page === 'engagement' ||
         page === 'agreements' ||
         page === 'partners' ||
-        page === 'baseData'
+        page === 'baseData' ||
+        page === 'users' ||
+        page === 'roles'
       }
       onNavigate={handleNavigate}
       sidebarOpen={sidebarOpen}

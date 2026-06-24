@@ -1,67 +1,126 @@
 import { useState } from 'react'
-import { Plus, Filter } from 'lucide-react'
-import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
 import { DataTable } from '../components/DataTable'
+import { PageHeaderCard } from '../components/PageHeaderCard'
+import { PageToolbar } from '../components/PageToolbar'
 import { StatusBadge } from '../components/StatusBadge'
-import { UserForm } from '../components/UserForm'
 import { TableActionButtons } from '../components/TableActionButtons'
-import { users } from '../data'
+import { TablePagination } from '../components/TablePagination'
+import { ConfirmationModal } from '../components/ConfirmationModal'
+import { UserForm } from '../components/UserForm'
+import type { UserRecord } from '../types'
+import { users as initialUsers } from '../data'
 
 export function UsersPage() {
+  const [users, setUsers] = useState<UserRecord[]>(initialUsers)
   const [showForm, setShowForm] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<UserRecord | null>(null)
+  const [formMode, setFormMode] = useState<'create' | 'edit' | 'preview'>('create')
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+
+  const handleAddNew = () => {
+    setSelectedUser(null)
+    setFormMode('create')
+    setShowForm(true)
+  }
+
+  const handleView = (user: UserRecord) => {
+    setSelectedUser(user)
+    setFormMode('preview')
+    setShowForm(true)
+  }
+
+  const handleEdit = (user: UserRecord) => {
+    setSelectedUser(user)
+    setFormMode('edit')
+    setShowForm(true)
+  }
+
+  const handleDelete = (user: UserRecord) => {
+    setSelectedUser(user)
+    setShowDeleteModal(true)
+  }
+
+  const handleSubmit = () => {
+    setShowForm(false)
+    setSelectedUser(null)
+    setFormMode('create')
+  }
+
+  const handleCancel = () => {
+    setShowForm(false)
+    setSelectedUser(null)
+    setFormMode('create')
+  }
+
+  const confirmDelete = () => {
+    if (!selectedUser) return
+    setUsers((current) => current.filter((item) => item.id !== selectedUser.id))
+    setShowDeleteModal(false)
+    setSelectedUser(null)
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-6">
-        <div className="max-w-2xl">
-          <p className="header-font text-xl font-semibold tracking-[-0.01em] text-slate-950">User Management</p>
-          <p className="mt-2 text-sm text-slate-600">Register and manage users information.</p>
-        </div>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex-1 min-w-0">
-            <Input
-              placeholder="Search users..."
-              className="w-full max-w-xl rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
-            />
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <Button variant="outline" className="!px-5">
-              <Filter className="h-4 w-4" />
-              Filter
-            </Button>
-            <Button
-              className="!bg-[#ff9500] !text-white !hover:bg-[#e68a00]"
-              onClick={() => setShowForm((current) => !current)}
-            >
-              <Plus className="h-4 w-4" />
-              Add User
-            </Button>
-          </div>
-        </div>
-      </div>
+      <PageHeaderCard
+        title="User Management"
+        subtitle="Register and manage users information."
+      />
+      <PageToolbar
+        searchPlaceholder="Search users..."
+        onSearch={() => undefined}
+        onFilter={() => undefined}
+      />
 
       {showForm ? (
-        <UserForm onSubmit={() => setShowForm(false)} onCancel={() => setShowForm(false)} />
+        <UserForm onSubmit={handleSubmit} onCancel={handleCancel} />
       ) : (
-        <DataTable
-          items={users}
-          rowKey={(user) => user.id}
-          columns={[
-            { label: 'No.', render: (user) => <span className="font-semibold text-slate-900">{user.no}</span>, headClassName: 'bg-[#0b265a] text-white text-center', cellClassName: 'text-center' },
-            { label: 'Full Name', render: (user) => user.name, headClassName: 'bg-[#0b265a] text-white' },
-            { label: 'Email', render: (user) => user.email, headClassName: 'bg-[#0b265a] text-white' },
-            { label: 'Phone Number', render: (user) => user.phone, headClassName: 'bg-[#0b265a] text-white' },
-            { label: 'Position', render: (user) => user.position, headClassName: 'bg-[#0b265a] text-white' },
-            { label: 'Status', render: (user) => <StatusBadge status={user.status} />, headClassName: 'bg-[#0b265a] text-white text-center', cellClassName: 'text-center' },
-            {
-              label: 'Action',
-              render: () => <TableActionButtons onView={() => undefined} onEdit={() => undefined} onDelete={() => undefined} />,
-              headClassName: 'bg-[#0b265a] text-white text-center',
-              cellClassName: 'text-center',
-            },
-          ]}
-        />
+        <>
+          <DataTable
+            items={users}
+            rowKey={(user) => user.id}
+            columns={[
+              {
+                label: 'No.',
+                render: (user: UserRecord) => <span className="font-semibold text-slate-900">{user.no}</span>,
+                headClassName: 'bg-[#0b265a] text-white text-center',
+                cellClassName: 'text-center',
+              },
+              { label: 'Full Name', render: (user: UserRecord) => user.name, headClassName: 'bg-[#0b265a] text-white' },
+              { label: 'Email', render: (user: UserRecord) => user.email, headClassName: 'bg-[#0b265a] text-white' },
+              { label: 'Phone Number', render: (user: UserRecord) => user.phone, headClassName: 'bg-[#0b265a] text-white' },
+              { label: 'Position', render: (user: UserRecord) => user.position, headClassName: 'bg-[#0b265a] text-white' },
+              {
+                label: 'Status',
+                render: (user: UserRecord) => <StatusBadge status={user.status} />,
+                headClassName: 'bg-[#0b265a] text-white text-center',
+                cellClassName: 'text-center',
+              },
+              {
+                label: 'Action',
+                render: (user: UserRecord) => (
+                  <TableActionButtons
+                    onView={() => handleView(user)}
+                    onEdit={() => handleEdit(user)}
+                    onDelete={() => handleDelete(user)}
+                  />
+                ),
+                headClassName: 'bg-[#0b265a] text-white text-center',
+                cellClassName: 'text-center',
+              },
+            ]}
+          />
+
+          <TablePagination totalEntries={users.length} />
+        </>
       )}
+
+      <ConfirmationModal
+        open={showDeleteModal}
+        title="Delete user"
+        message="Are you sure you want to delete this user? This action cannot be undone."
+        onCancel={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }
