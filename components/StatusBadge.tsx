@@ -1,6 +1,5 @@
 import type { HTMLAttributes } from 'react'
 import { cn } from '../utils'
-import { Badge } from '../ui'
 
 type StatusBadgeProps = HTMLAttributes<HTMLSpanElement> & {
   status: string
@@ -34,8 +33,7 @@ const getStatusStyle = (status: string) => {
 
 export function StatusBadge({ status, className, ...props }: StatusBadgeProps) {
   return (
-    <Badge
-      tone="default"
+    <span
       className={cn(
         'inline-flex h-[40px] min-w-[140px] items-center justify-center gap-[10px] rounded-lg px-[16px] py-[4px] text-[16px] font-medium normal-case tracking-normal',
         getStatusStyle(status),
@@ -44,6 +42,6 @@ export function StatusBadge({ status, className, ...props }: StatusBadgeProps) {
       {...props}
     >
       {status}
-    </Badge>
+    </span>
   )
 }
