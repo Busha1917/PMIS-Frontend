@@ -148,21 +148,21 @@ export function AgreementForm({ agreement, mode = 'create', onSubmit, onCancel }
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Start Date</label>
               <Input
-                type="text"
+                type="datetime-local"
                 value={formState.startDate}
                 onChange={(e) => setFormState((current) => ({ ...current, startDate: e.target.value }))}
-                placeholder="e.g. 14 APR 2020"
                 required
+                className="h-12 rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10 disabled:bg-slate-100"
               />
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">End Date</label>
               <Input
-                type="text"
+                type="datetime-local"
                 value={formState.endDate}
                 onChange={(e) => setFormState((current) => ({ ...current, endDate: e.target.value }))}
-                placeholder="e.g. 14 APR 2021"
                 required
+                className="h-12 rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10 disabled:bg-slate-100"
               />
             </div>
           </div>
@@ -171,11 +171,11 @@ export function AgreementForm({ agreement, mode = 'create', onSubmit, onCancel }
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Effective Date</label>
               <Input
-                type="text"
+                type="datetime-local"
                 value={formState.date}
                 onChange={(e) => setFormState((current) => ({ ...current, date: e.target.value }))}
-                placeholder="e.g. 14 APR 2020"
                 required
+                className="h-12 rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10 disabled:bg-slate-100"
               />
             </div>
             <div>

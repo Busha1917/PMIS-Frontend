@@ -48,7 +48,7 @@ export function Sidebar({ activePage, collapsed, onNavigate, onToggleSidebar, cl
             type="button"
             onClick={onToggleSidebar}
             aria-label="Toggle sidebar"
-            className="absolute -right-[1px] top-1/2 -translate-y-1/2 flex h-10 w-6 items-center justify-center rounded-r-lg border border-l-0 border-slate-200 bg-white text-slate-500 shadow-sm transition hover:bg-slate-50"
+            className="absolute -right-[1px] bottom-0 translate-y-1/2 flex h-10 w-6 items-center justify-center rounded-r-lg border border-l-0 border-slate-200 bg-white text-slate-500 shadow-sm transition hover:bg-slate-50"
           >
             <Menu className="h-4 w-4" />
           </button>

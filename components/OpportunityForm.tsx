@@ -133,11 +133,11 @@ export function OpportunityForm({ opportunity, mode = 'create', onSubmit, onCanc
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">Date</label>
               <Input
-                type="text"
+                type="datetime-local"
                 value={formState.date}
                 onChange={(e) => setFormState((current) => ({ ...current, date: e.target.value }))}
-                placeholder="e.g. 24 FEB 2025"
                 required
+                className="h-12 rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10 disabled:bg-slate-100"
               />
             </div>
             <div>
