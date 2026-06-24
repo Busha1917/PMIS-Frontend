@@ -18,7 +18,7 @@ export function Sidebar({ activePage, collapsed, onNavigate, onToggleSidebar, cl
     <aside
       className={cn(
         'relative shrink-0 border-r border-slate-200 bg-white transition-all duration-300 ease-in-out',
-        collapsed ? 'w-[68px]' : 'w-72',
+        collapsed ? 'w-[60px]' : 'w-60',
         className
       )}
     >
