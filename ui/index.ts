@@ -1,13 +1,8 @@
 export { Badge } from './Badge'
 export { Button } from './Button'
 export { Card, CardContent, CardHeader, CardTitle } from './Card'
+export { Drawer } from './Drawer'
 export { Input, Label } from './Form'
+export { Modal } from './Modal'
 export { Progress } from './Progress'
-export {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from './Table'
+export { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './Table'

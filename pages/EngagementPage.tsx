@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { DataTable } from '../components/DataTable'
 import { EngagementForm } from '../components/EngagementForm'
 import { PageHeaderCard } from '../components/PageHeaderCard'
@@ -8,15 +7,57 @@ import { StatusBadge } from '../components/StatusBadge'
 import { TableActionButtons } from '../components/TableActionButtons'
 import { TablePagination } from '../components/TablePagination'
 import { ConfirmationModal } from '../components/ConfirmationModal'
+import { FilterDrawer } from '../components/FilterDrawer'
+import type { FilterValues } from '../components/FilterDrawer'
 import type { EngagementRecord } from '../types'
 import { engagements as initialEngagements } from '../data'
+
+const FILTER_FIELDS = [
+  {
+    key: 'status',
+    label: 'Status',
+    type: 'select' as const,
+    options: [
+      { label: 'Draft', value: 'Draft' },
+      { label: 'Approved', value: 'Approved' },
+      { label: 'Accepted', value: 'Accepted' },
+      { label: 'Rejected', value: 'Rejected' },
+    ],
+  },
+  {
+    key: 'type',
+    label: 'Engagement Type',
+    type: 'select' as const,
+    options: [
+      { label: 'Negotiation', value: 'Negotiation' },
+      { label: 'Workshop', value: 'Workshop' },
+      { label: 'Meeting', value: 'Meeting' },
+      { label: 'Follow-Up', value: 'Follow-Up' },
+      { label: 'Site Visit', value: 'Site Visit' },
+    ],
+  },
+]
 
 export function EngagementPage() {
   const [engagements, setEngagements] = useState<EngagementRecord[]>(initialEngagements)
   const [showForm, setShowForm] = useState(false)
+  const [showFilter, setShowFilter] = useState(false)
   const [selectedEngagement, setSelectedEngagement] = useState<EngagementRecord | null>(null)
   const [formMode, setFormMode] = useState<'create' | 'edit' | 'preview'>('create')
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [activeFilters, setActiveFilters] = useState<FilterValues>({})
+
+  const filteredEngagements = useMemo(() => {
+    return engagements.filter(item => {
+      if (searchQuery && !item.type.toLowerCase().includes(searchQuery.toLowerCase())) return false
+      if (activeFilters.status && item.status !== activeFilters.status) return false
+      if (activeFilters.type && item.type !== activeFilters.type) return false
+      return true
+    })
+  }, [engagements, searchQuery, activeFilters])
+
+  const isFiltering = searchQuery !== '' || Object.keys(activeFilters).length > 0
 
   const handleAddNew = () => {
     setSelectedEngagement(null)
@@ -43,15 +84,13 @@ export function EngagementPage() {
 
   const handleSubmit = (formData: EngagementRecord) => {
     if (formMode === 'edit' && selectedEngagement) {
-      setEngagements((current) => current.map((item) => (item.id === selectedEngagement.id ? formData : item)))
+      setEngagements(current =>
+        current.map(item => (item.id === selectedEngagement.id ? formData : item))
+      )
     } else {
-      setEngagements((current) => [
+      setEngagements(current => [
         ...current,
-        {
-          ...formData,
-          id: `eng-${Date.now()}`,
-          no: current.length + 1,
-        },
+        { ...formData, id: `eng-${Date.now()}`, no: current.length + 1 },
       ])
     }
     setShowForm(false)
@@ -67,7 +106,7 @@ export function EngagementPage() {
 
   const confirmDelete = () => {
     if (!selectedEngagement) return
-    setEngagements((current) => current.filter((item) => item.id !== selectedEngagement.id))
+    setEngagements(current => current.filter(item => item.id !== selectedEngagement.id))
     setShowDeleteModal(false)
     setSelectedEngagement(null)
     setFormMode('create')
@@ -82,8 +121,8 @@ export function EngagementPage() {
       <PageToolbar
         searchPlaceholder="Search engagements..."
         addLabel="Add Engagement"
-        onSearch={() => undefined}
-        onFilter={() => undefined}
+        onSearch={setSearchQuery}
+        onFilter={() => setShowFilter(true)}
         onAdd={showForm ? undefined : handleAddNew}
       />
 
@@ -97,41 +136,57 @@ export function EngagementPage() {
       ) : (
         <>
           <DataTable
-            items={engagements}
-            rowKey={(item) => item.id}
+            items={filteredEngagements}
+            rowKey={item => item.id}
+            emptyVariant={isFiltering ? 'search' : 'empty'}
             columns={[
               {
                 label: 'No.',
-                render: (item) => <span className="font-semibold text-slate-900">{item.no}</span>,
+                render: item => <span className="font-semibold text-slate-900">{item.no}</span>,
                 headClassName: 'bg-[#0b265a] text-white text-center',
                 cellClassName: 'text-center',
               },
-              { label: 'Engagement Type', render: (item) => item.type, headClassName: 'bg-[#0b265a] text-white' },
-              { label: 'Date', render: (item) => item.date, headClassName: 'bg-[#0b265a] text-white' },
+              {
+                label: 'Engagement Type',
+                render: item => item.type,
+                headClassName: 'bg-[#0b265a] text-white',
+              },
+              {
+                label: 'Date',
+                render: item => item.date,
+                headClassName: 'bg-[#0b265a] text-white',
+              },
               {
                 label: 'Status',
-                render: (item) => <StatusBadge status={item.status} />,
+                render: item => <StatusBadge status={item.status} />,
                 headClassName: 'bg-[#0b265a] text-white text-center',
                 cellClassName: 'text-center',
               },
               {
                 label: 'Action',
-                render: (item) => (
+                render: item => (
                   <TableActionButtons
                     onView={() => handleView(item)}
                     onEdit={() => handleEdit(item)}
                     onDelete={() => handleDelete(item)}
                   />
-                ), 
+                ),
                 headClassName: 'bg-[#0b265a] text-white text-center',
                 cellClassName: 'text-center',
               },
             ]}
           />
-
-          <TablePagination totalEntries={engagements.length} />
+          <TablePagination totalEntries={filteredEngagements.length} />
         </>
       )}
+
+      <FilterDrawer
+        open={showFilter}
+        onClose={() => setShowFilter(false)}
+        onApply={setActiveFilters}
+        fields={FILTER_FIELDS}
+        title="Filter Engagements"
+      />
 
       <ConfirmationModal
         open={showDeleteModal}
