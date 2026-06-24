@@ -81,10 +81,10 @@ export function PartnersPage() {
       />
       <PageToolbar
         searchPlaceholder="Search partners..."
-        addLabel="Add Record"
+        addLabel="Add Partners"
         onSearch={() => undefined}
         onFilter={() => undefined}
-        onAdd={handleAddNew}
+        onAdd={showForm ? undefined : handleAddNew}
       />
 
       {showForm ? (

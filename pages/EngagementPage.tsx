@@ -81,10 +81,10 @@ export function EngagementPage() {
       />
       <PageToolbar
         searchPlaceholder="Search engagements..."
-        addLabel="Add Record"
+        addLabel="Add Engagement"
         onSearch={() => undefined}
         onFilter={() => undefined}
-        onAdd={handleAddNew}
+        onAdd={showForm ? undefined : handleAddNew}
       />
 
       {showForm ? (

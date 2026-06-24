@@ -81,10 +81,10 @@ export function OpportunitiesPage() {
       />
       <PageToolbar
         searchPlaceholder="Search opportunities..."
-        addLabel="Add Record"
+        addLabel="Add Opportunities"
         onSearch={() => undefined}
         onFilter={() => undefined}
-        onAdd={handleAddNew}
+        onAdd={showForm ? undefined : handleAddNew}
       />
 
       {showForm ? (

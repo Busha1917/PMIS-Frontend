@@ -81,10 +81,10 @@ export function AgreementsPage() {
       />
       <PageToolbar
         searchPlaceholder="Search agreements..."
-        addLabel="Add Record"
+        addLabel="Add Agreements"
         onSearch={() => undefined}
         onFilter={() => undefined}
-        onAdd={handleAddNew}
+        onAdd={showForm ? undefined : handleAddNew}
       />
 
       {showForm ? (

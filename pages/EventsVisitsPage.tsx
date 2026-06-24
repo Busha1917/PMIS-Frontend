@@ -85,7 +85,7 @@ export function EventsVisitsPage() {
         addLabel="Add Events & Visit"
         onSearch={() => undefined}
         onFilter={() => undefined}
-        onAdd={handleAddNew}
+        onAdd={showForm ? undefined : handleAddNew}
       />
 
       {showForm ? (
