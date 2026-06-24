@@ -1,17 +1,77 @@
 import { useState } from 'react'
-import { Plus, Filter } from 'lucide-react'
-import { Button, Input } from '../ui'
+import { Plus } from 'lucide-react'
 import { DataTable } from '../components/DataTable'
+import { PartnerForm } from '../components/PartnerForm'
 import { PageHeaderCard } from '../components/PageHeaderCard'
 import { PageToolbar } from '../components/PageToolbar'
-import { PartnerForm } from '../components/PartnerForm'
 import { StatusBadge } from '../components/StatusBadge'
 import { TableActionButtons } from '../components/TableActionButtons'
 import { TablePagination } from '../components/TablePagination'
-import { partners } from '../data'
+import { ConfirmationModal } from '../components/ConfirmationModal'
+import type { PartnerRecord } from '../types'
+import { partners as initialPartners } from '../data'
 
 export function PartnersPage() {
+  const [partners, setPartners] = useState<PartnerRecord[]>(initialPartners)
   const [showForm, setShowForm] = useState(false)
+  const [selectedPartner, setSelectedPartner] = useState<PartnerRecord | null>(null)
+  const [formMode, setFormMode] = useState<'create' | 'edit' | 'preview'>('create')
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+
+  const handleAddNew = () => {
+    setSelectedPartner(null)
+    setFormMode('create')
+    setShowForm(true)
+  }
+
+  const handleView = (item: PartnerRecord) => {
+    setSelectedPartner(item)
+    setFormMode('preview')
+    setShowForm(true)
+  }
+
+  const handleEdit = (item: PartnerRecord) => {
+    setSelectedPartner(item)
+    setFormMode('edit')
+    setShowForm(true)
+  }
+
+  const handleDelete = (item: PartnerRecord) => {
+    setSelectedPartner(item)
+    setShowDeleteModal(true)
+  }
+
+  const handleSubmit = (formData: PartnerRecord) => {
+    if (formMode === 'edit' && selectedPartner) {
+      setPartners((current) => current.map((item) => (item.id === selectedPartner.id ? formData : item)))
+    } else {
+      setPartners((current) => [
+        ...current,
+        {
+          ...formData,
+          id: `prt-${Date.now()}`,
+          no: current.length + 1,
+        },
+      ])
+    }
+    setShowForm(false)
+    setSelectedPartner(null)
+    setFormMode('create')
+  }
+
+  const handleCancel = () => {
+    setShowForm(false)
+    setSelectedPartner(null)
+    setFormMode('create')
+  }
+
+  const confirmDelete = () => {
+    if (!selectedPartner) return
+    setPartners((current) => current.filter((item) => item.id !== selectedPartner.id))
+    setShowDeleteModal(false)
+    setSelectedPartner(null)
+    setFormMode('create')
+  }
 
   return (
     <div className="space-y-6">
@@ -24,11 +84,16 @@ export function PartnersPage() {
         addLabel="Add Record"
         onSearch={() => undefined}
         onFilter={() => undefined}
-        onAdd={() => setShowForm((current) => !current)}
+        onAdd={handleAddNew}
       />
 
       {showForm ? (
-        <PartnerForm onSubmit={() => setShowForm(false)} onCancel={() => setShowForm(false)} />
+        <PartnerForm
+          partner={selectedPartner}
+          mode={formMode}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+        />
       ) : (
         <>
           <DataTable
@@ -54,7 +119,13 @@ export function PartnersPage() {
               },
               {
                 label: 'Action',
-                render: () => <TableActionButtons onView={() => undefined} onEdit={() => undefined} onDelete={() => undefined} />, 
+                render: (item) => (
+                  <TableActionButtons
+                    onView={() => handleView(item)}
+                    onEdit={() => handleEdit(item)}
+                    onDelete={() => handleDelete(item)}
+                  />
+                ), 
                 headClassName: 'bg-[#0b265a] text-white text-center',
                 cellClassName: 'text-center',
               },
@@ -64,6 +135,14 @@ export function PartnersPage() {
           <TablePagination totalEntries={partners.length} />
         </>
       )}
+
+      <ConfirmationModal
+        open={showDeleteModal}
+        title="Delete Partner"
+        message="Are you sure you want to delete this partner? This action cannot be undone."
+        onCancel={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }
