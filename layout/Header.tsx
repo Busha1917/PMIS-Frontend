@@ -1,11 +1,11 @@
-import { Bell, Globe2 } from 'lucide-react'
+import { Bell, Globe } from 'lucide-react'
 
 export function Header(): JSX.Element {
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white shadow-[0_1px_0_rgba(15,23,42,0.03)]">
       <div className="flex h-[82px] items-center justify-end gap-5 px-4 sm:px-6 lg:px-8">
-        <div className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-slate-700 md:flex">
-          <Globe2 className="h-5 w-5 text-[#1f2863]" />
+        <div className="hidden items-center gap-2 text-slate-700 md:flex">
+          <Globe className="h-5 w-5 text-[#1f2863]" />
           <span className="text-sm font-semibold tracking-[0.01em]">ENG</span>
         </div>
 
@@ -20,7 +20,7 @@ export function Header(): JSX.Element {
           </span>
         </button>
 
-        <div className="flex items-center gap-4 rounded-full border border-slate-200 bg-white px-4 py-2">
+        <div className="flex items-center gap-4">
           <div className="text-right leading-tight">
             <p className="text-[15px] font-semibold text-slate-900">Alexander M.</p>
             <p className="text-xs text-slate-500">alexmorgan@gmail.com</p>
