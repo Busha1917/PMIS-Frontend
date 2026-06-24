@@ -30,8 +30,8 @@ export function AppLayout({
   onLogout,
 }: AppLayoutProps) {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-950">
-      <div className="flex min-h-screen">
+    <div className="h-screen bg-slate-50 text-slate-950 overflow-hidden">
+      <div className="flex h-screen">
         {/* Sidebar — always visible, collapses to icon-only */}
         <Sidebar
           activePage={activePage}
@@ -41,9 +41,9 @@ export function AppLayout({
           onLogout={onLogout}
         />
 
-        <div className="flex min-h-screen flex-1 flex-col overflow-hidden">
+        <div className="flex h-screen flex-1 flex-col overflow-hidden">
           <Header title={title ?? ''} />
-          <main className="flex-1 px-4 py-5 sm:px-6 lg:px-8">
+          <main className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8">
             {!hideHeader && title && (
               <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                 <div>
