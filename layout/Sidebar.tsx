@@ -1,11 +1,11 @@
 import { navigationItems } from '../data'
-import { X } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import type { AdminPage } from '../types'
-import { Button } from '../ui'
 import { cn } from '../utils'
 
 type SidebarProps = {
   activePage: AdminPage
+  collapsed: boolean
   onNavigate: (page: AdminPage) => void
   onToggleSidebar?: () => void
   className?: string
@@ -13,37 +13,63 @@ type SidebarProps = {
 
 const groups = ['DASHBOARD', 'MAIN', 'BASE DATA', 'USER MANAGEMENT'] as const
 
-export function Sidebar({ activePage, onNavigate, onToggleSidebar, className }: SidebarProps) {
+export function Sidebar({ activePage, collapsed, onNavigate, onToggleSidebar, className }: SidebarProps) {
   return (
-    <aside className={cn('w-72 shrink-0 border-r border-slate-200 bg-white', className)}>
+    <aside
+      className={cn(
+        'relative shrink-0 border-r border-slate-200 bg-white transition-all duration-300 ease-in-out',
+        collapsed ? 'w-[68px]' : 'w-72',
+        className
+      )}
+    >
       <div className="flex h-full flex-col">
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-6">
-          <div className="flex flex-1 justify-center">
-            <img src="/images/logo.png" alt="EAII logo" className="h-20 w-20 rounded-full border-2 border-slate-100 bg-white object-cover shadow-sm" />
-          </div>
-          <Button
-            variant="ghost"
-            iconOnly
-            className="rounded-full border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 p-2"
+
+        {/* Header — logo centered, toggle tab at right edge */}
+        <div className="relative flex items-center justify-center border-b border-slate-200 py-6">
+          {collapsed ? (
+            /* Collapsed: small logo icon only */
+            <img
+              src="/images/logo.png"
+              alt="EAII logo"
+              className="h-9 w-9 rounded-full border border-slate-200 bg-white object-cover shadow-sm"
+            />
+          ) : (
+            /* Expanded: full logo */
+            <img
+              src="/images/logo.png"
+              alt="EAII logo"
+              className="h-20 w-20 rounded-full border-2 border-slate-100 bg-white object-cover shadow-sm"
+            />
+          )}
+
+          {/* Toggle tab — always at right edge */}
+          <button
+            type="button"
             onClick={onToggleSidebar}
-            aria-label="Close sidebar"
+            aria-label="Toggle sidebar"
+            className="absolute -right-[1px] top-1/2 -translate-y-1/2 flex h-10 w-6 items-center justify-center rounded-r-lg border border-l-0 border-slate-200 bg-white text-slate-500 shadow-sm transition hover:bg-slate-50"
           >
-            <X className="h-4 w-4" />
-          </Button>
+            <Menu className="h-4 w-4" />
+          </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-3 py-4">
+        {/* Nav items */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden py-4">
           {groups.map((group) => {
             const groupItems = navigationItems.filter((item) => item.group === group)
-            
+
             return (
               <div key={group} className="mb-4">
-                {group !== 'DASHBOARD' ? (
-                  <p className="px-3 pb-3 text-xs font-bold uppercase tracking-widest text-[#ff9500]">
+                {/* Group label — only visible when expanded */}
+                {group !== 'DASHBOARD' && !collapsed && (
+                  <p className="px-4 pb-2 text-xs font-bold uppercase tracking-widest text-[#ff9500]">
                     {group}
                   </p>
-                ) : null}
-                <div className="space-y-2">
+                )}
+                {/* Spacer in collapsed mode between groups */}
+                {group !== 'DASHBOARD' && collapsed && <div className="mb-1" />}
+
+                <div className="space-y-1">
                   {groupItems.map((item) => {
                     const Icon = item.icon
                     const isActive = activePage === item.page
@@ -52,16 +78,21 @@ export function Sidebar({ activePage, onNavigate, onToggleSidebar, className }: 
                       <button
                         key={item.label}
                         type="button"
+                        title={collapsed ? item.label : undefined}
                         onClick={() => onNavigate(item.page)}
                         className={cn(
-                          'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition-all duration-200',
+                          'flex w-full items-center rounded-xl text-sm font-semibold transition-all duration-200',
+                          collapsed
+                            ? 'justify-center px-0 py-3'
+                            : 'gap-3 px-4 py-3 text-left',
                           isActive
                             ? 'bg-[#161A61] text-white shadow-md'
                             : 'text-slate-700 hover:bg-slate-50'
                         )}
                       >
                         <Icon className="h-5 w-5 flex-shrink-0" />
-                        <span>{item.label}</span>
+                        {/* Label — hidden when collapsed */}
+                        {!collapsed && <span>{item.label}</span>}
                       </button>
                     )
                   })}
@@ -71,12 +102,15 @@ export function Sidebar({ activePage, onNavigate, onToggleSidebar, className }: 
           })}
         </div>
 
-        <div className="border-t border-slate-200 p-4">
-          <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
-            <p className="font-bold text-slate-900">EAII Partnership System</p>
-            <p className="mt-1 text-xs leading-relaxed">Mock data dashboard ready for extension.</p>
+        {/* Footer info — hidden when collapsed */}
+        {!collapsed && (
+          <div className="border-t border-slate-200 p-4">
+            <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
+              <p className="font-bold text-slate-900">EAII Partnership System</p>
+              <p className="mt-1 text-xs leading-relaxed">Mock data dashboard ready for extension.</p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </aside>
   )

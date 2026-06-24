@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Menu, Search, Users } from 'lucide-react'
+import { Search, Users } from 'lucide-react'
 import { Button } from '../ui'
 import type { AdminPage } from '../types'
 import { Footer } from './Footer'
@@ -24,32 +24,21 @@ export function AppLayout({
   hideHeader = false,
   children,
   onNavigate,
-  sidebarOpen = false,
+  sidebarOpen = true,
   onToggleSidebar,
 }: AppLayoutProps) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-950">
       <div className="flex min-h-screen">
-        {sidebarOpen ? (
-          <div className="fixed inset-0 z-20 bg-slate-950/20 lg:hidden" onClick={onToggleSidebar} />
-        ) : null}
+        {/* Sidebar — always visible, collapses to icon-only */}
         <Sidebar
           activePage={activePage}
+          collapsed={!sidebarOpen}
           onNavigate={onNavigate}
           onToggleSidebar={onToggleSidebar}
-          className={sidebarOpen ? 'fixed inset-y-0 left-0 z-30 block lg:static lg:block' : 'hidden'}
         />
-        {!sidebarOpen ? (
-          <button
-            type="button"
-            onClick={onToggleSidebar}
-            className="fixed left-4 top-4 z-40 inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-lg transition hover:bg-slate-50"
-            aria-label="Open sidebar"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-        ) : null}
-        <div className="flex min-h-screen flex-1 flex-col">
+
+        <div className="flex min-h-screen flex-1 flex-col overflow-hidden">
           <Header title={title ?? ''} onToggleSidebar={onToggleSidebar} />
           <main className="flex-1 px-4 py-5 sm:px-6 lg:px-8">
             {!hideHeader && title && (
