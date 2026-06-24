@@ -10,23 +10,23 @@ const getStatusStyle = (status: string) => {
   const normalized = status.toLowerCase()
 
   if (normalized === 'draft') {
-    return 'bg-[#B8C9DA] text-[#1F1F1F]'
+    return 'bg-[#B0C4D8] text-[#4A5568]'
   }
 
   if (normalized === 'approved') {
-    return 'bg-[#A6E5B4] text-[#1B7A3B]'
+    return 'bg-[#34C759]/50 text-[#05651D]'
   }
 
   if (normalized === 'accepted') {
-    return 'bg-[#D6ECD8] text-[#33A852]'
+    return 'bg-[#CEE7D4] text-[#34A853]'
   }
 
   if (normalized === 'rejected') {
-    return 'bg-[#F6A8A8] text-[#D62828]'
+    return 'bg-[#F89E9E] text-[#BE1616]'
   }
 
   if (normalized === 'active') {
-    return 'bg-[#D6ECD8] text-[#33A852]'
+    return 'bg-[#4BCB6B] text-white'
   }
 
   return 'bg-slate-100 text-slate-600'
