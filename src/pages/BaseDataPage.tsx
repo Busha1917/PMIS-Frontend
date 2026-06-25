@@ -31,7 +31,7 @@ export function BaseDataPage() {
 
       {/* Cards */}
       <div className="grid gap-4 lg:grid-cols-3">
-        {baseData.map((item) => (
+        {baseData.map(item => (
           <Card key={item.id} className="overflow-hidden">
             <CardContent className="flex items-center gap-4 py-5">
               {/* Icon */}
@@ -48,9 +48,7 @@ export function BaseDataPage() {
               </div>
 
               {/* View Button */}
-              <Button
-                className="flex-shrink-0 bg-[#FF9500] hover:bg-[#e08600] text-white font-medium px-5 py-2 rounded-lg"
-              >
+              <Button className="flex-shrink-0 bg-[#FF9500] hover:bg-[#e08600] text-white font-medium px-5 py-2 rounded-lg">
                 View
               </Button>
             </CardContent>

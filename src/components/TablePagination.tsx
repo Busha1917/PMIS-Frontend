@@ -54,14 +54,17 @@ export function TablePagination({ totalEntries }: TablePaginationProps) {
           type="button"
           variant="outline"
           className="h-10 rounded-md border-slate-200 bg-white px-4 text-slate-700 shadow-sm hover:bg-slate-50"
-          onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+          onClick={() => setCurrentPage(page => Math.max(1, page - 1))}
           disabled={currentPage === 1}
         >
           &lt; Back
         </Button>
         {pageNumbers.map((pageNumber, index) =>
           pageNumber === 'ellipsis' ? (
-            <span key={`ellipsis-${index}`} className="flex h-10 min-w-10 items-center justify-center px-1 text-slate-400">
+            <span
+              key={`ellipsis-${index}`}
+              className="flex h-10 min-w-10 items-center justify-center px-1 text-slate-400"
+            >
               ...
             </span>
           ) : (
@@ -83,7 +86,7 @@ export function TablePagination({ totalEntries }: TablePaginationProps) {
           type="button"
           variant="outline"
           className="h-10 rounded-md border-slate-200 bg-white px-4 text-slate-700 shadow-sm hover:bg-slate-50"
-          onClick={() => setCurrentPage((page) => Math.min(pageCount, page + 1))}
+          onClick={() => setCurrentPage(page => Math.min(pageCount, page + 1))}
           disabled={currentPage === pageCount}
         >
           Next &gt;

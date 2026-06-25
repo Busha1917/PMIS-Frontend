@@ -14,7 +14,7 @@ export function UserForm({ onSubmit, onCancel }: UserFormProps) {
       <CardContent className="p-6">
         <form
           className="space-y-6"
-          onSubmit={(event) => {
+          onSubmit={event => {
             event.preventDefault()
             onSubmit?.()
           }}

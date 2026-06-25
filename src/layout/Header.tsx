@@ -17,7 +17,7 @@ type HeaderProps = {
   activePage: AdminPage
 }
 
-export function Header({ activePage }: HeaderProps): JSX.Element {
+export function Header({ activePage }: HeaderProps) {
   const pageLabel = PAGE_LABELS[activePage]
   const isHome = activePage === 'dashboard'
 

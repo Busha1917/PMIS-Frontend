@@ -53,7 +53,7 @@ export function RolesPage() {
 
   const confirmDelete = () => {
     if (!selectedRole) return
-    setRoles((current) => current.filter((item) => item.id !== selectedRole.id))
+    setRoles(current => current.filter(item => item.id !== selectedRole.id))
     setShowDeleteModal(false)
     setSelectedRole(null)
   }
@@ -76,16 +76,26 @@ export function RolesPage() {
         <>
           <DataTable
             items={roles}
-            rowKey={(role) => role.id}
+            rowKey={role => role.id}
             columns={[
               {
                 label: 'No.',
-                render: (role: RoleRecord) => <span className="font-semibold text-slate-900">{role.no}</span>,
+                render: (role: RoleRecord) => (
+                  <span className="font-semibold text-slate-900">{role.no}</span>
+                ),
                 headClassName: 'bg-[#0b265a] text-white text-center',
                 cellClassName: 'text-center',
               },
-              { label: 'Role Name', render: (role: RoleRecord) => role.name, headClassName: 'bg-[#0b265a] text-white' },
-              { label: 'Description', render: (role: RoleRecord) => role.description, headClassName: 'bg-[#0b265a] text-white' },
+              {
+                label: 'Role Name',
+                render: (role: RoleRecord) => role.name,
+                headClassName: 'bg-[#0b265a] text-white',
+              },
+              {
+                label: 'Description',
+                render: (role: RoleRecord) => role.description,
+                headClassName: 'bg-[#0b265a] text-white',
+              },
               {
                 label: 'Permissions',
                 render: (role: RoleRecord) => role.permissions,

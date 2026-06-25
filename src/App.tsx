@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
-import { AdminDashboard } from '../pages/AdminDashboard'
-import { AppLayout } from '../layout/AppLayout'
-import { BaseDataPage } from '../pages/BaseDataPage'
-import { EventsVisitsPage } from '../pages/EventsVisitsPage'
-import { OpportunitiesPage } from '../pages/OpportunitiesPage'
-import { EngagementPage } from '../pages/EngagementPage'
-import { AgreementsPage } from '../pages/AgreementsPage'
-import { PartnersPage } from '../pages/PartnersPage'
-import { RolesPage } from '../pages/RolesPage'
-import { UsersPage } from '../pages/UsersPage'
-import { LoginPage } from '../pages/LoginPage'
-import { ConfirmationModal } from '../components/ConfirmationModal'
-import type { AdminPage } from '../types'
+import { AdminDashboard } from '@/pages/AdminDashboard'
+import { AppLayout } from '@/layout/AppLayout'
+import { BaseDataPage } from '@/pages/BaseDataPage'
+import { EventsVisitsPage } from '@/pages/EventsVisitsPage'
+import { OpportunitiesPage } from '@/pages/OpportunitiesPage'
+import { EngagementPage } from '@/pages/EngagementPage'
+import { AgreementsPage } from '@/pages/AgreementsPage'
+import { PartnersPage } from '@/pages/PartnersPage'
+import { RolesPage } from '@/pages/RolesPage'
+import { UsersPage } from '@/pages/UsersPage'
+import { LoginPage } from '@/pages/LoginPage'
+import { ConfirmationModal } from '@/components/ConfirmationModal'
+import type { AdminPage } from '@/types'
 
 const pageRoutes: Record<AdminPage, { path: string; title: string; description: string }> = {
   dashboard: {
@@ -109,7 +109,7 @@ function App() {
   }
 
   const handleToggleSidebar = () => {
-    setSidebarOpen((current) => !current)
+    setSidebarOpen(current => !current)
   }
 
   const renderPage = () => {
