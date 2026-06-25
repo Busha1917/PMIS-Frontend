@@ -1,7 +1,6 @@
 import type { FormEvent } from 'react'
-import { LockKeyhole, Mail } from 'lucide-react'
-import { Button, Card, Input, Label } from '../ui'
-import { Footer } from '../layout/Footer'
+import { EyeOff, Mail } from 'lucide-react'
+import { Button, Input, Label } from '../ui'
 
 type LoginPageProps = {
   onLogin?: () => void
@@ -14,96 +13,97 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-10">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 rounded-3xl bg-white p-8 shadow-lg md:grid-cols-[1.1fr_0.9fr] lg:p-12">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-6xl grid grid-cols-1 gap-6 md:grid-cols-[1fr_1fr] bg-white rounded-[32px] p-4 lg:p-6 shadow-xl relative overflow-hidden min-h-[600px]">
         {/* Left Section */}
-        <div className="flex flex-col justify-center gap-2 px-2 py-4">
-          <div className="max-w-[320px] w-full mx-auto">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Login</p>
-              <h1 className="mt-1 text-xl font-semibold text-[#161A61]">
+        <div className="flex flex-col justify-center items-center py-6 px-4 sm:px-8 relative w-full h-full">
+          <div className="w-full max-w-[360px] flex flex-col items-center justify-center h-full">
+            <div className="text-center mb-10 w-full">
+              <h1 className="text-[16px] lg:text-[18px] font-extrabold text-[#161A61] uppercase tracking-wider leading-snug">
                 Partnership Management
                 <br />
                 Information
               </h1>
             </div>
 
-            <div className="space-y-2">
-              <p className="text-sm font-semibold text-slate-900">Welcome Back 👋</p>
-              <p className="text-sm text-slate-600">
-                Please enter your email and password to continue.
+            <div className="text-center space-y-1 mb-8">
+              <p className="text-lg font-bold text-[#161A61]">Welcome Back 👋</p>
+              <p className="text-xs text-slate-500 font-medium">
+                Please enter your email and password to continue
               </p>
             </div>
 
-            <form className="space-y-2" onSubmit={handleSubmit}>
-              <div className="space-y-3">
-                <Label htmlFor="email" className="font-semibold text-slate-900">
+            <form className="w-full space-y-5" onSubmit={handleSubmit}>
+              <div className="space-y-1.5 text-left">
+                <Label htmlFor="email" className="font-semibold text-slate-700 text-xs ml-1">
                   Email
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <Input
                     id="email"
                     type="email"
                     placeholder="Enter your email"
-                    className="pl-8 py-1.5 text-sm"
+                    className="pl-9 py-2.5 text-xs bg-slate-50 border-slate-200 focus:border-[#F58A27] focus:ring-[#F58A27] rounded-md h-10 w-full"
                   />
                 </div>
               </div>
-              <div className="space-y-3">
-                <Label htmlFor="password" className="font-semibold text-slate-900">
+
+              <div className="space-y-1.5 text-left">
+                <Label htmlFor="password" className="font-semibold text-slate-700 text-xs ml-1">
                   Password
                 </Label>
                 <div className="relative">
-                  <LockKeyhole className="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
                   <Input
                     id="password"
                     type="password"
                     placeholder="Enter your password"
-                    className="pl-8 py-1.5 text-sm"
+                    className="px-3 pr-9 py-2.5 text-xs bg-slate-50 border-slate-200 focus:border-[#F58A27] focus:ring-[#F58A27] rounded-md h-10 w-full"
                   />
+                  <EyeOff className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 cursor-pointer" />
                 </div>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <label className="inline-flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="h-3 w-3 rounded border-2 border-orange-300 accent-[#ff9500]"
-                  />
-                  <span className="font-medium text-slate-700 text-sm">Remember me</span>
+
+              <div className="flex items-center justify-between pt-1">
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" value="" className="sr-only peer" defaultChecked />
+                  <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#F58A27]"></div>
+                  <span className="ml-2 text-xs font-medium text-slate-600">Remember me</span>
                 </label>
                 <button
                   type="button"
-                  className="font-medium text-[#ff9500] hover:text-orange-600 text-sm"
+                  className="font-medium text-[#4C6FFF] hover:text-blue-800 text-xs"
                 >
-                  Forgot Password?
+                  Forget Password?
                 </button>
               </div>
-              <Button
-                type="submit"
-                className="w-full bg-[#ff9500] hover:bg-orange-600 text-white font-semibold py-1.5 text-sm"
-              >
-                Login
-              </Button>
-            </form>
 
-            <p className="text-xs text-slate-400">© 2026 EAII. All rights reserved.</p>
+              <div className="pt-2">
+                <Button
+                  type="submit"
+                  className="w-full bg-[#F58A27] hover:bg-[#e07b22] text-white font-bold py-2.5 rounded-lg text-sm h-10 transition-colors uppercase tracking-wide"
+                >
+                  LOGIN
+                </Button>
+              </div>
+            </form>
+          </div>
+
+          <div className="absolute bottom-4 w-full text-center">
+            <p className="text-[11px] font-medium text-slate-400">
+              © 2026 EAII. All rights reserved.
+            </p>
           </div>
         </div>
 
         {/* Right Section */}
-        <div className="relative hidden md:block">
-          <div className="overflow-hidden rounded-[14px] h-full min-h-[480px]">
-            <img
-              src="/images/login.png"
-              alt="Login illustration"
-              className="w-full h-full object-cover"
-            />
-          </div>
+        <div className="hidden md:flex w-full h-full relative items-center justify-center bg-[#161A61] rounded-[24px]">
+          <img
+            src="/images/login.png"
+            alt="Login illustration"
+            className="w-full h-full object-contain p-2"
+          />
         </div>
-      </div>
-      <div className="mx-auto max-w-6xl">
-        <Footer />
       </div>
     </div>
   )
