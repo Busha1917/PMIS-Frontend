@@ -79,6 +79,6 @@ export type UserFormValues = z.infer<typeof userFormSchema>
 export const roleFormSchema = z.object({
   name: z.string().min(2, 'Role name must be at least 2 characters'),
   description: z.string().min(5, 'Description must be at least 5 characters'),
-  permissions: z.coerce.number().min(0, 'Permissions must be 0 or more'),
+  permissions: z.number().min(0, 'Permissions must be 0 or more'),
 })
 export type RoleFormValues = z.infer<typeof roleFormSchema>

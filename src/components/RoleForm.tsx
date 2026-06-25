@@ -64,7 +64,7 @@ export function RoleForm({ role, onSubmit, onCancel }: RoleFormProps) {
               <Input
                 type="number"
                 min={0}
-                {...register('permissions')}
+                {...register('permissions', { valueAsNumber: true })}
                 placeholder="Enter permission count"
                 className={errors.permissions ? 'border-red-500 focus:ring-red-200' : ''}
               />
