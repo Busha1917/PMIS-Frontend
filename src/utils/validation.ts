@@ -36,3 +36,49 @@ export const agreementFormSchema = z
   )
 
 export type AgreementFormValues = z.infer<typeof agreementFormSchema>
+
+// Schema for Event Forms
+export const eventFormSchema = z.object({
+  title: z.string().min(3, 'Event title must be at least 3 characters'),
+  type: z.enum(['Conference / Forum', 'Concert', 'Workshop', 'Webinar']),
+  date: z.string().min(1, 'Event date is required'),
+  venue: z.string().min(2, 'Venue must be at least 2 characters'),
+  status: z.enum(['Draft', 'Approved', 'Accepted', 'Rejected']),
+})
+export type EventFormValues = z.infer<typeof eventFormSchema>
+
+// Schema for Opportunity Forms
+export const opportunityFormSchema = z.object({
+  title: z.string().min(3, 'Opportunity title must be at least 3 characters'),
+  source: z.string().min(2, 'Source must be at least 2 characters'),
+  date: z.string().min(1, 'Date is required'),
+  division: z.string().min(2, 'Division must be at least 2 characters'),
+  status: z.enum(['Draft', 'Approved', 'Accepted', 'Rejected']),
+})
+export type OpportunityFormValues = z.infer<typeof opportunityFormSchema>
+
+// Schema for Engagement Forms
+export const engagementFormSchema = z.object({
+  type: z.string().min(2, 'Engagement type must be at least 2 characters'),
+  date: z.string().min(1, 'Date is required'),
+  status: z.enum(['Draft', 'Approved', 'Accepted', 'Rejected']),
+})
+export type EngagementFormValues = z.infer<typeof engagementFormSchema>
+
+// Schema for User Forms
+export const userFormSchema = z.object({
+  name: z.string().min(2, 'Full name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().min(7, 'Phone number must be at least 7 characters'),
+  position: z.string().min(2, 'Position must be at least 2 characters'),
+  status: z.enum(['Active', 'Pending', 'Inactive']),
+})
+export type UserFormValues = z.infer<typeof userFormSchema>
+
+// Schema for Role Forms
+export const roleFormSchema = z.object({
+  name: z.string().min(2, 'Role name must be at least 2 characters'),
+  description: z.string().min(5, 'Description must be at least 5 characters'),
+  permissions: z.coerce.number().min(0, 'Permissions must be 0 or more'),
+})
+export type RoleFormValues = z.infer<typeof roleFormSchema>

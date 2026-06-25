@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { Button, Input, Label } from '../ui'
-import { Drawer } from '../ui/Drawer'
+import { Button, Input, Label, Modal } from '../ui'
 
 type SelectField = {
   key: string
@@ -51,7 +50,6 @@ export function FilterDrawer({
   const setValue = (key: string, value: string) => setValues(prev => ({ ...prev, [key]: value }))
 
   const handleApply = () => {
-    // Strip empty strings before passing up
     const activeFilters = Object.fromEntries(Object.entries(values).filter(([, v]) => v !== ''))
     onApply(activeFilters)
     onClose()
@@ -64,7 +62,8 @@ export function FilterDrawer({
   }
 
   return (
-    <Drawer open={open} onClose={onClose} title={title}>
+    <Modal open={open} onClose={onClose} title={title} size="md">
+      {/* Filter Fields */}
       <div className="flex flex-col gap-5 px-6 py-6">
         {fields.map(field => {
           if (field.type === 'select') {
@@ -75,7 +74,7 @@ export function FilterDrawer({
                   id={field.key}
                   value={values[field.key] ?? ''}
                   onChange={e => setValue(field.key, e.target.value)}
-                  className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[#161A61] focus:outline-none focus:ring-2 focus:ring-[#161A61]/10"
+                  className="h-10 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[#161A61] focus:outline-none focus:ring-2 focus:ring-[#161A61]/10"
                 >
                   <option value="">All</option>
                   {field.options.map(opt => (
@@ -141,13 +140,13 @@ export function FilterDrawer({
         })}
       </div>
 
-      {/* Footer actions */}
+      {/* Footer Actions */}
       <div className="flex items-center justify-end gap-3 border-t border-slate-200 px-6 py-4">
         <Button variant="outline" onClick={handleReset}>
           Reset
         </Button>
         <Button onClick={handleApply}>Apply Filters</Button>
       </div>
-    </Drawer>
+    </Modal>
   )
 }

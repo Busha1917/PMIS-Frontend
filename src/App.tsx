@@ -1,17 +1,51 @@
-import { useEffect, useMemo, useState } from 'react'
-import { AdminDashboard } from '@/pages/AdminDashboard'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { useAuth } from '@/hooks/useAuth'
 import { AppLayout } from '@/layout/AppLayout'
-import { BaseDataPage } from '@/pages/BaseDataPage'
-import { EventsVisitsPage } from '@/pages/EventsVisitsPage'
-import { OpportunitiesPage } from '@/pages/OpportunitiesPage'
-import { EngagementPage } from '@/pages/EngagementPage'
-import { AgreementsPage } from '@/pages/AgreementsPage'
-import { PartnersPage } from '@/pages/PartnersPage'
-import { RolesPage } from '@/pages/RolesPage'
-import { UsersPage } from '@/pages/UsersPage'
-import { LoginPage } from '@/pages/LoginPage'
 import { ConfirmationModal } from '@/components/ConfirmationModal'
+import { Skeleton } from '@/ui'
 import type { AdminPage } from '@/types'
+
+// Lazy-loaded pages — each page is a separate JS chunk downloaded on first visit
+const AdminDashboard = lazy(() =>
+  import('@/pages/AdminDashboard').then(m => ({ default: m.AdminDashboard }))
+)
+const BaseDataPage = lazy(() =>
+  import('@/pages/BaseDataPage').then(m => ({ default: m.BaseDataPage }))
+)
+const EventsVisitsPage = lazy(() =>
+  import('@/pages/EventsVisitsPage').then(m => ({ default: m.EventsVisitsPage }))
+)
+const OpportunitiesPage = lazy(() =>
+  import('@/pages/OpportunitiesPage').then(m => ({ default: m.OpportunitiesPage }))
+)
+const EngagementPage = lazy(() =>
+  import('@/pages/EngagementPage').then(m => ({ default: m.EngagementPage }))
+)
+const AgreementsPage = lazy(() =>
+  import('@/pages/AgreementsPage').then(m => ({ default: m.AgreementsPage }))
+)
+const PartnersPage = lazy(() =>
+  import('@/pages/PartnersPage').then(m => ({ default: m.PartnersPage }))
+)
+const RolesPage = lazy(() => import('@/pages/RolesPage').then(m => ({ default: m.RolesPage })))
+const UsersPage = lazy(() => import('@/pages/UsersPage').then(m => ({ default: m.UsersPage })))
+const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m.LoginPage })))
+
+// Full-page skeleton shown while a lazy page chunk is loading
+function PageLoadingFallback() {
+  return (
+    <div className="flex flex-1 flex-col gap-4 p-6">
+      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-4 w-72" />
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-28 rounded-2xl" />
+        ))}
+      </div>
+      <Skeleton className="mt-2 h-64 rounded-2xl" />
+    </div>
+  )
+}
 
 const pageRoutes: Record<AdminPage, { path: string; title: string; description: string }> = {
   dashboard: {
@@ -70,7 +104,7 @@ function getPageFromPath(pathname: string): AdminPage {
 }
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const { isAuthenticated, login, logout } = useAuth()
   const [page, setPage] = useState<AdminPage>(() => getPageFromPath(window.location.pathname))
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 1024)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
@@ -138,7 +172,18 @@ function App() {
   }
 
   if (!isAuthenticated) {
-    return <LoginPage onLogin={() => setIsAuthenticated(true)} />
+    return (
+      <Suspense fallback={<PageLoadingFallback />}>
+        <LoginPage
+          onLogin={() =>
+            login({
+              user: { id: 'local', name: 'Admin', email: 'admin@pmis.et', role: 'admin' },
+              token: 'mock-token',
+            })
+          }
+        />
+      </Suspense>
+    )
   }
 
   return (
@@ -162,7 +207,7 @@ function App() {
         onToggleSidebar={handleToggleSidebar}
         onLogout={() => setShowLogoutModal(true)}
       >
-        {renderPage()}
+        <Suspense fallback={<PageLoadingFallback />}>{renderPage()}</Suspense>
       </AppLayout>
 
       <ConfirmationModal
@@ -172,7 +217,7 @@ function App() {
         onCancel={() => setShowLogoutModal(false)}
         onConfirm={() => {
           setShowLogoutModal(false)
-          setIsAuthenticated(false)
+          logout()
         }}
       />
     </>

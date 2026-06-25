@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { cn } from '../utils'
 
@@ -28,9 +29,15 @@ export function Modal({
   size = 'md',
   closeOnBackdrop = true,
 }: ModalProps) {
-  if (!open) return null
+  const [mounted, setMounted] = useState(false)
 
-  return (
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!open || !mounted) return null
+
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
@@ -66,6 +73,7 @@ export function Modal({
 
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
