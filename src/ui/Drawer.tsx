@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { cn } from '../utils'
 
@@ -11,12 +12,22 @@ type DrawerProps = {
 }
 
 export function Drawer({ open, onClose, title, children, width = 'max-w-sm' }: DrawerProps) {
-  if (!open) return null
+  const [mounted, setMounted] = useState(false)
 
-  return (
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!open || !mounted) return null
+
+  return createPortal(
     <div className="fixed inset-0 z-50 flex justify-end">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-slate-950/50" onClick={onClose} aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden="true"
+      />
 
       {/* Panel */}
       <div className={cn('relative flex h-full w-full flex-col bg-white shadow-2xl', width)}>
@@ -36,6 +47,7 @@ export function Drawer({ open, onClose, title, children, width = 'max-w-sm' }: D
 
         <div className="flex-1 overflow-y-auto">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
