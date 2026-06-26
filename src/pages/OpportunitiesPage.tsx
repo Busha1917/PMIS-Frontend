@@ -217,10 +217,10 @@ export function OpportunitiesPage() {
                       {item.no}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600 font-medium line-clamp-1">{item.partner}</p>
+                  <p className="text-xs text-slate-600 font-medium line-clamp-1">{item.source}</p>
                   <div className="flex justify-between items-center text-xs text-slate-500 mt-2">
                     <span className="bg-slate-50 px-2 py-1 rounded border border-slate-100">
-                      {item.type}
+                      {item.division}
                     </span>
                     <span>{new Date(item.date).toLocaleDateString()}</span>
                   </div>
@@ -255,13 +255,8 @@ export function OpportunitiesPage() {
                   headClassName: 'bg-[#0b265a] text-white',
                 },
                 {
-                  label: 'Partner',
-                  render: item => item.partner,
-                  headClassName: 'bg-[#0b265a] text-white',
-                },
-                {
-                  label: 'Type',
-                  render: item => item.type,
+                  label: 'Source',
+                  render: item => item.source,
                   headClassName: 'bg-[#0b265a] text-white',
                 },
                 {

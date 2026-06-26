@@ -31,6 +31,7 @@ const PAGE_LABELS: Record<AdminPage, string> = {
   'permission-resources': 'Permission Resources',
   profile: 'My Profile',
   'audit-logs': 'Audit Logs',
+  notifications: 'Notifications',
 }
 
 type HeaderProps = {

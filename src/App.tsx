@@ -40,6 +40,9 @@ const ProfilePage = lazy(() =>
 const AuditLogsPage = lazy(() =>
   import('@/pages/AuditLogsPage').then(m => ({ default: m.AuditLogsPage }))
 )
+const NotificationsPage = lazy(() =>
+  import('@/pages/NotificationsPage').then(m => ({ default: m.NotificationsPage }))
+)
 const UsersPage = lazy(() => import('@/pages/UsersPage').then(m => ({ default: m.UsersPage })))
 const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m.LoginPage })))
 
@@ -125,6 +128,11 @@ const pageRoutes: Record<AdminPage, { path: string; title: string; description: 
     title: 'Audit Logs',
     description: 'Track system events and user activity.',
   },
+  notifications: {
+    path: '/notifications',
+    title: 'Notifications',
+    description: 'Manage your alerts and stay up to date with system activities.',
+  },
 }
 
 const pathToPage: Record<string, AdminPage> = Object.fromEntries(
@@ -198,6 +206,8 @@ function App() {
         return <UsersPage />
       case 'audit-logs':
         return <AuditLogsPage />
+      case 'notifications':
+        return <NotificationsPage />
       case 'roles':
         return <RolesPage />
       case 'permission-actions':

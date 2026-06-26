@@ -14,6 +14,17 @@ export type AdminPage =
   | 'permission-resources'
   | 'profile'
   | 'audit-logs'
+  | 'notifications'
+
+export type NotificationRecord = {
+  id: string
+  title: string
+  message: string
+  type: 'info' | 'success' | 'warning' | 'error'
+  isRead: boolean
+  timestamp: string
+  link?: string
+}
 
 export type AuditLogRecord = {
   id: string

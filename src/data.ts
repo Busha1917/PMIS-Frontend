@@ -12,6 +12,7 @@ import {
   Users,
   UserCircle2,
   History,
+  Bell,
 } from 'lucide-react'
 
 import type {
@@ -27,6 +28,7 @@ import type {
   UserRecord,
   PermissionRecord,
   AuditLogRecord,
+  NotificationRecord,
 } from './types'
 
 export const navigationItems: NavigationItem[] = [
@@ -55,6 +57,12 @@ export const navigationItems: NavigationItem[] = [
     label: 'Audit Logs',
     page: 'audit-logs',
     icon: History,
+    group: 'SYSTEM SETTINGS',
+  },
+  {
+    label: 'Notifications',
+    page: 'notifications',
+    icon: Bell,
     group: 'SYSTEM SETTINGS',
   },
 ]
@@ -775,5 +783,52 @@ export const auditLogs: AuditLogRecord[] = [
     user: 'Admin User',
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
     details: 'Updated permissions for "System Administrator" role.',
+  },
+]
+
+export const notifications: NotificationRecord[] = [
+  {
+    id: 'notif-1',
+    title: 'New Partnership Agreement',
+    message: 'A new agreement with Ministry of Tech has been drafted and is awaiting review.',
+    type: 'info',
+    isRead: false,
+    timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+    link: '/agreements',
+  },
+  {
+    id: 'notif-2',
+    title: 'Opportunity Approved',
+    message: 'The AI Research Collaboration opportunity has been formally approved.',
+    type: 'success',
+    isRead: false,
+    timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+    link: '/opportunities',
+  },
+  {
+    id: 'notif-3',
+    title: 'Upcoming Event Reminder',
+    message: 'Annual Partnership Summit starts tomorrow at 9:00 AM.',
+    type: 'warning',
+    isRead: true,
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
+    link: '/events',
+  },
+  {
+    id: 'notif-4',
+    title: 'System Maintenance',
+    message: 'Scheduled maintenance will occur this Saturday at 2:00 AM EAT.',
+    type: 'error',
+    isRead: true,
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+  },
+  {
+    id: 'notif-5',
+    title: 'New User Registered',
+    message: 'Alexander M. has joined the platform.',
+    type: 'info',
+    isRead: true,
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
+    link: '/users',
   },
 ]
