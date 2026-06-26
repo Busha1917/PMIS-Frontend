@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
+import { useLayout } from '../contexts/LayoutContext'
 import { userFormSchema, type UserFormValues } from '../utils/validation'
 import type { UserRecord } from '../types'
 
@@ -27,6 +29,15 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps) {
       status: (user?.status as any) ?? 'Active',
     },
   })
+
+  const { setBreadcrumbSuffix } = useLayout()
+
+  useEffect(() => {
+    if (user?.id) {
+      setBreadcrumbSuffix(user.id)
+    }
+    return () => setBreadcrumbSuffix(null)
+  }, [user?.id, setBreadcrumbSuffix])
 
   return (
     <Card className="rounded-[2rem] border border-[#cbd5e1] bg-white shadow-sm">

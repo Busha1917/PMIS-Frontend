@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
+import { useLayout } from '../contexts/LayoutContext'
 import type { EventRecord } from '../types'
 
 type EventFormMode = 'create' | 'edit' | 'preview'
@@ -27,6 +28,8 @@ export function EventForm({ event, mode = 'create', onSubmit, onCancel }: EventF
     }
   )
 
+  const { setBreadcrumbSuffix } = useLayout()
+
   useEffect(() => {
     if (event) {
       setFormState(event)
@@ -35,6 +38,13 @@ export function EventForm({ event, mode = 'create', onSubmit, onCancel }: EventF
 
   const isPreview = mode === 'preview'
   const canSubmit = mode !== 'preview'
+
+  useEffect(() => {
+    if (isPreview && formState.id) {
+      setBreadcrumbSuffix(formState.id)
+    }
+    return () => setBreadcrumbSuffix(null)
+  }, [isPreview, formState.id, setBreadcrumbSuffix])
 
   if (isPreview) {
     const partnerReps = [

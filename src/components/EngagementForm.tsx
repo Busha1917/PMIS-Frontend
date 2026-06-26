@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
+import { useLayout } from '../contexts/LayoutContext'
 import type { EngagementRecord } from '../types'
 
 type EngagementFormMode = 'create' | 'edit' | 'preview'
@@ -33,6 +34,8 @@ export function EngagementForm({
     }
   )
 
+  const { setBreadcrumbSuffix } = useLayout()
+
   useEffect(() => {
     if (engagement) {
       setFormState({
@@ -45,6 +48,13 @@ export function EngagementForm({
 
   const isPreview = mode === 'preview'
   const canSubmit = mode !== 'preview'
+
+  useEffect(() => {
+    if (isPreview && formState.id) {
+      setBreadcrumbSuffix(formState.id)
+    }
+    return () => setBreadcrumbSuffix(null)
+  }, [isPreview, formState.id, setBreadcrumbSuffix])
 
   if (isPreview) {
     return (

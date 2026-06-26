@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
+import { useLayout } from '../contexts/LayoutContext'
 import type { AgreementRecord } from '../types'
 import { agreementFormSchema, type AgreementFormValues } from '../utils/validation'
 
@@ -58,6 +59,15 @@ export function AgreementForm({
       })
     }
   }, [agreement, reset])
+
+  const { setBreadcrumbSuffix } = useLayout()
+
+  useEffect(() => {
+    if (isPreview && agreement?.id) {
+      setBreadcrumbSuffix(agreement.id)
+    }
+    return () => setBreadcrumbSuffix(null)
+  }, [isPreview, agreement?.id, setBreadcrumbSuffix])
 
   const onSubmitForm = (values: AgreementFormValues) => {
     if (onSubmit) {

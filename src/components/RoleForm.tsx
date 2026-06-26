@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
+import { useLayout } from '../contexts/LayoutContext'
 import { roleFormSchema, type RoleFormValues } from '../utils/validation'
 import type { RoleRecord } from '../types'
 
@@ -23,6 +25,15 @@ export function RoleForm({ role, onSubmit, onCancel }: RoleFormProps) {
       permissions: role?.permissions ?? 0,
     },
   })
+
+  const { setBreadcrumbSuffix } = useLayout()
+
+  useEffect(() => {
+    if (role?.id) {
+      setBreadcrumbSuffix(role.id)
+    }
+    return () => setBreadcrumbSuffix(null)
+  }, [role?.id, setBreadcrumbSuffix])
 
   return (
     <Card className="rounded-[2rem] border border-[#cbd5e1] bg-white shadow-sm">
