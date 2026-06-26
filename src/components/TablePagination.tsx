@@ -4,12 +4,19 @@ import { Button } from '../ui'
 
 type TablePaginationProps = {
   totalEntries: number
+  currentPage: number
+  rowsPerPage: number
+  onPageChange: (page: number) => void
+  onRowsPerPageChange: (rows: number) => void
 }
 
-export function TablePagination({ totalEntries }: TablePaginationProps) {
-  const [rowsPerPage, setRowsPerPage] = useState(10)
-  const [currentPage, setCurrentPage] = useState(1)
-
+export function TablePagination({
+  totalEntries,
+  currentPage,
+  rowsPerPage,
+  onPageChange,
+  onRowsPerPageChange,
+}: TablePaginationProps) {
   const pageCount = Math.max(1, Math.ceil(totalEntries / rowsPerPage))
 
   const pageNumbers = useMemo(() => {
@@ -25,8 +32,8 @@ export function TablePagination({ totalEntries }: TablePaginationProps) {
 
   const handleRowsPerPageChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const nextRowsPerPage = Number(event.target.value)
-    setRowsPerPage(nextRowsPerPage)
-    setCurrentPage(1)
+    onRowsPerPageChange(nextRowsPerPage)
+    onPageChange(1)
   }
 
   return (
@@ -39,6 +46,7 @@ export function TablePagination({ totalEntries }: TablePaginationProps) {
             onChange={handleRowsPerPageChange}
             className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-[#161A61] focus:outline-none focus:ring-2 focus:ring-[#161A61]/10"
           >
+            <option value={5}>5</option>
             <option value={10}>10</option>
             <option value={20}>20</option>
             <option value={50}>50</option>
@@ -54,7 +62,7 @@ export function TablePagination({ totalEntries }: TablePaginationProps) {
           type="button"
           variant="outline"
           className="h-10 rounded-md border-slate-200 bg-white px-4 text-slate-700 shadow-sm hover:bg-slate-50"
-          onClick={() => setCurrentPage(page => Math.max(1, page - 1))}
+          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
           disabled={currentPage === 1}
         >
           &lt; Back
@@ -71,7 +79,7 @@ export function TablePagination({ totalEntries }: TablePaginationProps) {
             <button
               key={pageNumber}
               type="button"
-              onClick={() => setCurrentPage(pageNumber)}
+              onClick={() => onPageChange(pageNumber as number)}
               className={
                 pageNumber === currentPage
                   ? 'flex h-10 min-w-10 items-center justify-center rounded-md bg-[#f59e0b] px-3 text-sm font-semibold text-white shadow-sm'
@@ -86,7 +94,7 @@ export function TablePagination({ totalEntries }: TablePaginationProps) {
           type="button"
           variant="outline"
           className="h-10 rounded-md border-slate-200 bg-white px-4 text-slate-700 shadow-sm hover:bg-slate-50"
-          onClick={() => setCurrentPage(page => Math.min(pageCount, page + 1))}
+          onClick={() => onPageChange(Math.min(pageCount, currentPage + 1))}
           disabled={currentPage === pageCount}
         >
           Next &gt;

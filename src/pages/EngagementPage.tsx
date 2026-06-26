@@ -5,7 +5,7 @@ import { PageHeaderCard } from '../components/PageHeaderCard'
 import { PageToolbar } from '../components/PageToolbar'
 import { StatusBadge } from '../components/StatusBadge'
 import { TableActionButtons } from '../components/TableActionButtons'
-import { TablePagination } from '../components/TablePagination'
+
 import { ConfirmationModal } from '../components/ConfirmationModal'
 import { FilterDrawer } from '../components/FilterDrawer'
 import type { FilterValues } from '../components/FilterDrawer'
@@ -179,7 +179,6 @@ export function EngagementPage() {
               },
             ]}
           />
-          <TablePagination totalEntries={filteredEngagements.length} />
         </>
       )}
 

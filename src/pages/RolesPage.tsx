@@ -3,7 +3,7 @@ import { DataTable } from '../components/DataTable'
 import { PageHeaderCard } from '../components/PageHeaderCard'
 import { PageToolbar } from '../components/PageToolbar'
 import { TableActionButtons } from '../components/TableActionButtons'
-import { TablePagination } from '../components/TablePagination'
+
 import { ConfirmationModal } from '../components/ConfirmationModal'
 import { RoleForm } from '../components/RoleForm'
 import type { RoleRecord } from '../types'
@@ -119,8 +119,6 @@ export function RolesPage() {
               },
             ]}
           />
-
-          <TablePagination totalEntries={roles.length} />
         </>
       )}
 

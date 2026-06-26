@@ -5,7 +5,7 @@ import { PageToolbar } from '../components/PageToolbar'
 import { PageHeaderCard } from '../components/PageHeaderCard'
 import { StatusBadge } from '../components/StatusBadge'
 import { TableActionButtons } from '../components/TableActionButtons'
-import { TablePagination } from '../components/TablePagination'
+
 import { ConfirmationModal } from '../components/ConfirmationModal'
 import { FilterDrawer } from '../components/FilterDrawer'
 import type { FilterValues } from '../components/FilterDrawer'
@@ -197,7 +197,6 @@ export function EventsVisitsPage() {
               },
             ]}
           />
-          <TablePagination totalEntries={filteredEvents.length} />
         </>
       )}
 
