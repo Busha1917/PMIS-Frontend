@@ -214,6 +214,8 @@ function App() {
         open={showLogoutModal}
         title="Confirm Logout"
         message="Are you sure you want to log out of the EAII Partnership System?"
+        cancelLabel="Cancel"
+        confirmLabel="Logout"
         onCancel={() => setShowLogoutModal(false)}
         onConfirm={() => {
           setShowLogoutModal(false)

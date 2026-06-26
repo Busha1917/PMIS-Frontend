@@ -14,10 +14,10 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-      <div className="w-full max-w-6xl grid grid-cols-1 gap-6 md:grid-cols-[1fr_1fr] bg-white rounded-[32px] p-4 lg:p-6 shadow-xl relative overflow-hidden min-h-[600px]">
+      <div className="w-full max-w-4xl grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr] bg-white rounded-[28px] p-3 shadow-xl relative overflow-hidden min-h-[500px]">
         {/* Left Section */}
-        <div className="flex flex-col justify-center items-center py-6 px-4 sm:px-8 relative w-full h-full">
-          <div className="w-full max-w-[360px] flex flex-col items-center justify-center h-full">
+        <div className="flex flex-col justify-center items-center py-6 px-4 sm:px-6 relative w-full h-full">
+          <div className="w-full max-w-[320px] flex flex-col items-center justify-center h-full">
             <div className="text-center mb-10 w-full">
               <h1 className="text-[16px] lg:text-[18px] font-extrabold text-[#161A61] uppercase tracking-wider leading-snug">
                 Partnership Management
