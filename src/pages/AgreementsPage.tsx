@@ -117,10 +117,12 @@ export function AgreementsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeaderCard
-        title="Agreement Management"
-        subtitle="Manage partnership agreements and legal documents"
-      />
+      {!showForm && (
+        <PageHeaderCard
+          title="Agreement Management"
+          subtitle="Manage partnership agreements and legal documents"
+        />
+      )}
       <PageToolbar
         searchPlaceholder="Search agreements..."
         addLabel="Add Agreements"
@@ -128,6 +130,7 @@ export function AgreementsPage() {
         onFilter={() => setShowFilter(true)}
         activeFilterCount={Object.keys(activeFilters).length}
         onAdd={showForm ? undefined : handleAddNew}
+        showSearchAndFilters={!showForm}
       />
 
       {showForm ? (

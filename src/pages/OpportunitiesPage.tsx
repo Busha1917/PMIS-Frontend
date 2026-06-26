@@ -118,16 +118,19 @@ export function OpportunitiesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeaderCard
-        title="Partnership Opportunities"
-        subtitle="Register Partnership Opportunities and track outcomes"
-      />
+      {!showForm && (
+        <PageHeaderCard
+          title="Partnership Opportunities"
+          subtitle="Register Partnership Opportunities and track outcomes"
+        />
+      )}
       <PageToolbar
         searchPlaceholder="Search opportunities..."
         addLabel="Add Opportunities"
         onSearch={setSearchQuery}
         onFilter={() => setShowFilter(true)}
         onAdd={showForm ? undefined : handleAddNew}
+        showSearchAndFilters={!showForm}
       />
 
       {showForm ? (

@@ -105,13 +105,16 @@ export function UsersPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeaderCard title="User Management" subtitle="Register and manage users information." />
+      {!showForm && (
+        <PageHeaderCard title="User Management" subtitle="Register and manage users information." />
+      )}
       <PageToolbar
         searchPlaceholder="Search users..."
         addLabel="Add User"
         onSearch={setSearchQuery}
         onFilter={() => setShowFilter(true)}
         onAdd={showForm ? undefined : handleAddNew}
+        showSearchAndFilters={!showForm}
       />
 
       {showForm ? (
