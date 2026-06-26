@@ -135,6 +135,7 @@ export function EngagementPage() {
           mode={formMode}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
+          onEdit={() => setFormMode('edit')}
         />
       ) : (
         <>
