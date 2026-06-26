@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
 import type { OpportunityRecord } from '../types'
+import { useLayout } from '../contexts/LayoutContext'
 
 type OpportunityFormMode = 'create' | 'edit' | 'preview'
 
@@ -19,6 +20,7 @@ export function OpportunityForm({
   onSubmit,
   onCancel,
 }: OpportunityFormProps) {
+  const { setBreadcrumbSuffix } = useLayout()
   const [formState, setFormState] = useState<OpportunityRecord>(
     opportunity ?? {
       id: `opp-${Date.now()}`,
@@ -36,6 +38,13 @@ export function OpportunityForm({
       setFormState(opportunity)
     }
   }, [opportunity])
+
+  useEffect(() => {
+    if (mode === 'preview' && opportunity?.id) {
+      setBreadcrumbSuffix(opportunity.id)
+    }
+    return () => setBreadcrumbSuffix(null)
+  }, [mode, opportunity?.id, setBreadcrumbSuffix])
 
   const isPreview = mode === 'preview'
   const canSubmit = mode !== 'preview'

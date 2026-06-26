@@ -192,16 +192,7 @@ function App() {
         activePage={page}
         title={pageMeta.title}
         description={pageMeta.description}
-        hideHeader={
-          page === 'events' ||
-          page === 'opportunities' ||
-          page === 'engagement' ||
-          page === 'agreements' ||
-          page === 'partners' ||
-          page === 'baseData' ||
-          page === 'users' ||
-          page === 'roles'
-        }
+        hideHeader={false}
         onNavigate={handleNavigate}
         sidebarOpen={sidebarOpen}
         onToggleSidebar={handleToggleSidebar}

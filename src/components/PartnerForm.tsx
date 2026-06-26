@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
 import type { PartnerRecord } from '../types'
 import { partnerFormSchema, type PartnerFormValues } from '../utils/validation'
+import { useLayout } from '../contexts/LayoutContext'
 
 type PartnerFormMode = 'create' | 'edit' | 'preview'
 
@@ -18,6 +19,14 @@ const statusOptions = ['Draft', 'Approved', 'Accepted', 'Rejected']
 
 export function PartnerForm({ partner, mode = 'create', onSubmit, onCancel }: PartnerFormProps) {
   const isPreview = mode === 'preview'
+  const { setBreadcrumbSuffix } = useLayout()
+
+  useEffect(() => {
+    if (isPreview && partner?.id) {
+      setBreadcrumbSuffix(partner.id)
+    }
+    return () => setBreadcrumbSuffix(null)
+  }, [isPreview, partner?.id, setBreadcrumbSuffix])
 
   // Set up React Hook Form with Zod validation
   const {

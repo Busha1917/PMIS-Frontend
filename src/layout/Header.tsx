@@ -11,6 +11,7 @@ import {
 import type { AdminPage } from '../types'
 import { Drawer } from '../ui/Drawer'
 import { Button } from '../ui'
+import { useLayout } from '../contexts/LayoutContext'
 
 const PAGE_LABELS: Record<AdminPage, string> = {
   dashboard: 'Dashboard',
@@ -39,8 +40,8 @@ const MOCK_NOTIFICATIONS = [
   },
   {
     id: 2,
-    title: 'Event Approved',
-    message: 'The AI Innovation Summit 2025 has been approved by the director.',
+    title: 'Visit Scheduled',
+    message: 'Global Corp visit scheduled for next Tuesday at 10:00 AM.',
     time: '2h ago',
     type: 'success',
     unread: true,
@@ -57,6 +58,7 @@ const MOCK_NOTIFICATIONS = [
 
 export function Header({ activePage }: HeaderProps) {
   const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const { breadcrumbSuffix } = useLayout()
   const pageLabel = PAGE_LABELS[activePage]
   const isHome = activePage === 'dashboard'
 
@@ -67,11 +69,21 @@ export function Header({ activePage }: HeaderProps) {
           {/* Breadcrumb */}
           <nav className="flex items-center gap-1.5 text-sm text-slate-500" aria-label="Breadcrumb">
             <LayoutDashboard className="h-4 w-4 text-slate-400" />
-            <span className="font-medium text-slate-400">Home</span>
             {!isHome && (
               <>
                 <ChevronRight className="h-3.5 w-3.5 text-slate-300" />
                 <span className="font-semibold text-[#161A61]">{pageLabel}</span>
+                {breadcrumbSuffix && (
+                  <>
+                    <span className="text-slate-300 mx-1">/</span>
+                    <span
+                      className="text-slate-500 font-medium truncate max-w-[200px]"
+                      title={breadcrumbSuffix}
+                    >
+                      {breadcrumbSuffix}
+                    </span>
+                  </>
+                )}
               </>
             )}
           </nav>

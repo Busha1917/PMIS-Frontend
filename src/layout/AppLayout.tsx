@@ -4,6 +4,7 @@ import type { AdminPage } from '../types'
 import { Footer } from './Footer'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
+import { LayoutProvider } from '../contexts/LayoutContext'
 
 type AppLayoutProps = {
   activePage: AdminPage
@@ -29,24 +30,26 @@ export function AppLayout({
   onLogout,
 }: AppLayoutProps) {
   return (
-    <div className="h-screen bg-slate-50 text-slate-950 overflow-hidden">
-      <div className="flex h-screen">
-        {/* Sidebar — always visible, collapses to icon-only */}
-        <Sidebar
-          activePage={activePage}
-          collapsed={!sidebarOpen}
-          onNavigate={onNavigate}
-          onToggleSidebar={onToggleSidebar}
-          onLogout={onLogout}
-        />
+    <LayoutProvider>
+      <div className="h-screen bg-slate-50 text-slate-950 overflow-hidden">
+        <div className="flex h-screen">
+          {/* Sidebar — always visible, collapses to icon-only */}
+          <Sidebar
+            activePage={activePage}
+            collapsed={!sidebarOpen}
+            onNavigate={onNavigate}
+            onToggleSidebar={onToggleSidebar}
+            onLogout={onLogout}
+          />
 
-        <div className="flex h-screen flex-1 flex-col overflow-hidden">
-          <Header activePage={activePage} />
-          <main className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8">{children}</main>
-          <Footer />
+          <div className="flex h-screen flex-1 flex-col overflow-hidden">
+            {!hideHeader && <Header activePage={activePage} />}
+            <main className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8">{children}</main>
+            <Footer />
+          </div>
+          <Toaster position="top-right" richColors closeButton />
         </div>
-        <Toaster position="top-right" richColors closeButton />
       </div>
-    </div>
+    </LayoutProvider>
   )
 }
