@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { DataTable } from '../components/DataTable'
+import { KanbanBoard } from '../components/KanbanBoard'
 import { AgreementForm } from '../components/AgreementForm'
 import { PageHeaderCard } from '../components/PageHeaderCard'
 import { PageToolbar } from '../components/PageToolbar'
@@ -47,6 +48,7 @@ export function AgreementsPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilters, setActiveFilters] = useState<FilterValues>({})
+  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list')
 
   const filteredAgreements = useMemo(() => {
     return agreements.filter(item => {
@@ -56,6 +58,36 @@ export function AgreementsPage() {
       return true
     })
   }, [agreements, searchQuery, activeFilters])
+
+  const kanbanColumns = useMemo(
+    () => [
+      {
+        id: 'Draft',
+        title: 'Draft',
+        color: 'bg-slate-400',
+        items: filteredAgreements.filter(op => op.status === 'Draft'),
+      },
+      {
+        id: 'Approved',
+        title: 'Approved',
+        color: 'bg-blue-500',
+        items: filteredAgreements.filter(op => op.status === 'Approved'),
+      },
+      {
+        id: 'Accepted',
+        title: 'Accepted',
+        color: 'bg-emerald-500',
+        items: filteredAgreements.filter(op => op.status === 'Accepted'),
+      },
+      {
+        id: 'Rejected',
+        title: 'Rejected',
+        color: 'bg-red-500',
+        items: filteredAgreements.filter(op => op.status === 'Rejected'),
+      },
+    ],
+    [filteredAgreements]
+  )
 
   const isFiltering = searchQuery !== '' || Object.keys(activeFilters).length > 0
 
@@ -128,9 +160,10 @@ export function AgreementsPage() {
         addLabel="Add Agreements"
         onSearch={setSearchQuery}
         onFilter={() => setShowFilter(true)}
-        activeFilterCount={Object.keys(activeFilters).length}
         onAdd={showForm ? undefined : handleAddNew}
         showSearchAndFilters={!showForm}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
 
       {showForm ? (
@@ -143,72 +176,100 @@ export function AgreementsPage() {
         />
       ) : (
         <>
-          <DataTable
-            items={filteredAgreements}
-            rowKey={item => item.id}
-            emptyVariant={isFiltering ? 'search' : 'agreements'}
-            emptyAction={
-              !isFiltering && (
-                <button
-                  onClick={handleAddNew}
-                  className="rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#e68a00]"
+          {viewMode === 'kanban' ? (
+            <KanbanBoard
+              columns={kanbanColumns}
+              onAddCard={handleAddNew}
+              renderCard={item => (
+                <div
+                  onClick={() => handleView(item)}
+                  className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md cursor-pointer transition flex flex-col gap-2"
                 >
-                  Add Agreement
-                </button>
-              )
-            }
-            columns={[
-              {
-                label: 'No.',
-                render: item => <span className="font-semibold text-slate-900">{item.no}</span>,
-                headClassName: 'bg-[#0b265a] text-white text-center',
-                cellClassName: 'text-center',
-              },
-              {
-                label: 'Title',
-                render: item => item.title,
-                headClassName: 'bg-[#0b265a] text-white',
-              },
-              {
-                label: 'Type',
-                render: item => item.type,
-                headClassName: 'bg-[#0b265a] text-white',
-              },
-              {
-                label: 'Date',
-                render: item => item.date,
-                headClassName: 'bg-[#0b265a] text-white',
-              },
-              {
-                label: 'Start Date',
-                render: item => item.startDate,
-                headClassName: 'bg-[#0b265a] text-white',
-              },
-              {
-                label: 'End Date',
-                render: item => item.endDate,
-                headClassName: 'bg-[#0b265a] text-white',
-              },
-              {
-                label: 'Status',
-                render: item => <StatusBadge status={item.status} />,
-                headClassName: 'bg-[#0b265a] text-white text-center',
-                cellClassName: 'text-center',
-              },
-              {
-                label: 'Action',
-                render: item => (
-                  <TableActionButtons
-                    onView={() => handleView(item)}
-                    onEdit={() => handleEdit(item)}
-                    onDelete={() => handleDelete(item)}
-                  />
-                ),
-                headClassName: 'bg-[#0b265a] text-white text-center',
-                cellClassName: 'text-center',
-              },
-            ]}
-          />
+                  <div className="flex justify-between items-start">
+                    <h4 className="font-semibold text-sm text-slate-900 leading-tight">
+                      {item.title}
+                    </h4>
+                    <span className="text-xs font-medium text-slate-500 ml-2 shrink-0 bg-slate-100 px-1.5 py-0.5 rounded">
+                      {item.no}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs text-slate-500 mt-2">
+                    <span className="bg-slate-50 px-2 py-1 rounded border border-slate-100">
+                      {item.type}
+                    </span>
+                    <span>{new Date(item.date).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              )}
+            />
+          ) : (
+            <DataTable
+              items={filteredAgreements}
+              rowKey={item => item.id}
+              emptyVariant={isFiltering ? 'search' : 'agreements'}
+              emptyAction={
+                !isFiltering && (
+                  <button
+                    onClick={handleAddNew}
+                    className="rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#e68a00]"
+                  >
+                    Add Agreement
+                  </button>
+                )
+              }
+              columns={[
+                {
+                  label: 'No.',
+                  render: item => <span className="font-semibold text-slate-900">{item.no}</span>,
+                  headClassName: 'bg-[#0b265a] text-white text-center',
+                  cellClassName: 'text-center',
+                },
+                {
+                  label: 'Title',
+                  render: item => item.title,
+                  headClassName: 'bg-[#0b265a] text-white',
+                },
+                {
+                  label: 'Type',
+                  render: item => item.type,
+                  headClassName: 'bg-[#0b265a] text-white',
+                },
+                {
+                  label: 'Date',
+                  render: item => item.date,
+                  headClassName: 'bg-[#0b265a] text-white',
+                },
+                {
+                  label: 'Start Date',
+                  render: item => item.startDate,
+                  headClassName: 'bg-[#0b265a] text-white',
+                },
+                {
+                  label: 'End Date',
+                  render: item => item.endDate,
+                  headClassName: 'bg-[#0b265a] text-white',
+                },
+                {
+                  label: 'Status',
+                  render: item => <StatusBadge status={item.status} />,
+                  headClassName: 'bg-[#0b265a] text-white text-center',
+                  cellClassName: 'text-center',
+                },
+                {
+                  label: 'Action',
+                  render: item => (
+                    <TableActionButtons
+                      onView={() => handleView(item)}
+                      onEdit={() => handleEdit(item)}
+                      onDelete={() => handleDelete(item)}
+                    />
+                  ),
+                  headClassName: 'bg-[#0b265a] text-white text-center',
+                  cellClassName: 'text-center',
+                },
+              ]}
+            />
+          )}
         </>
       )}
 

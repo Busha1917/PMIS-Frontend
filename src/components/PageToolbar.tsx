@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react'
-import { Filter, Plus, Download } from 'lucide-react'
+import { Filter, Plus, Download, List, KanbanSquare } from 'lucide-react'
 import { Button, Input } from '../ui'
 import { cn } from '../utils'
 
@@ -12,6 +12,8 @@ type PageToolbarProps = {
   onExport?: () => void
   activeFilterCount?: number
   showSearchAndFilters?: boolean
+  viewMode?: 'list' | 'kanban'
+  onViewModeChange?: (mode: 'list' | 'kanban') => void
 }
 
 export function PageToolbar({
@@ -23,6 +25,8 @@ export function PageToolbar({
   onExport,
   activeFilterCount = 0,
   showSearchAndFilters = true,
+  viewMode,
+  onViewModeChange,
 }: PageToolbarProps) {
   return (
     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -36,6 +40,37 @@ export function PageToolbar({
         </div>
       )}
       <div className="flex flex-wrap items-center gap-3">
+        {viewMode && onViewModeChange && showSearchAndFilters && (
+          <div className="flex items-center rounded-lg border border-slate-300 bg-white p-1">
+            <button
+              type="button"
+              onClick={() => onViewModeChange('list')}
+              className={cn(
+                'flex items-center justify-center rounded-md p-1.5 transition-colors',
+                viewMode === 'list'
+                  ? 'bg-slate-100 text-slate-900 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700'
+              )}
+              title="List View"
+            >
+              <List className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onViewModeChange('kanban')}
+              className={cn(
+                'flex items-center justify-center rounded-md p-1.5 transition-colors',
+                viewMode === 'kanban'
+                  ? 'bg-slate-100 text-slate-900 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700'
+              )}
+              title="Kanban View"
+            >
+              <KanbanSquare className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
         {showSearchAndFilters && (
           <button
             type="button"

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { DataTable } from '../components/DataTable'
+import { KanbanBoard } from '../components/KanbanBoard'
 import { OpportunityForm } from '../components/OpportunityForm'
 import { PageHeaderCard } from '../components/PageHeaderCard'
 import { PageToolbar } from '../components/PageToolbar'
@@ -52,6 +53,7 @@ export function OpportunitiesPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilters, setActiveFilters] = useState<FilterValues>({})
+  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list')
 
   const filteredOpportunities = useMemo(() => {
     return opportunities.filter(item => {
@@ -61,6 +63,36 @@ export function OpportunitiesPage() {
       return true
     })
   }, [opportunities, searchQuery, activeFilters])
+
+  const kanbanColumns = useMemo(
+    () => [
+      {
+        id: 'Draft',
+        title: 'Draft',
+        color: 'bg-slate-400',
+        items: filteredOpportunities.filter(op => op.status === 'Draft'),
+      },
+      {
+        id: 'Approved',
+        title: 'Approved',
+        color: 'bg-blue-500',
+        items: filteredOpportunities.filter(op => op.status === 'Approved'),
+      },
+      {
+        id: 'Accepted',
+        title: 'Accepted',
+        color: 'bg-emerald-500',
+        items: filteredOpportunities.filter(op => op.status === 'Accepted'),
+      },
+      {
+        id: 'Rejected',
+        title: 'Rejected',
+        color: 'bg-red-500',
+        items: filteredOpportunities.filter(op => op.status === 'Rejected'),
+      },
+    ],
+    [filteredOpportunities]
+  )
 
   const isFiltering = searchQuery !== '' || Object.keys(activeFilters).length > 0
 
@@ -154,6 +186,8 @@ export function OpportunitiesPage() {
         onAdd={showForm ? undefined : handleAddNew}
         onExport={showForm ? undefined : handleExport}
         showSearchAndFilters={!showForm}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
 
       {showForm ? (
@@ -166,67 +200,101 @@ export function OpportunitiesPage() {
         />
       ) : (
         <>
-          <DataTable
-            items={filteredOpportunities}
-            rowKey={item => item.id}
-            emptyVariant={isFiltering ? 'search' : 'opportunities'}
-            emptyAction={
-              !isFiltering && (
-                <button
-                  onClick={handleAddNew}
-                  className="rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#e68a00]"
+          {viewMode === 'kanban' ? (
+            <KanbanBoard
+              columns={kanbanColumns}
+              onAddCard={handleAddNew}
+              renderCard={item => (
+                <div
+                  onClick={() => handleView(item)}
+                  className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md cursor-pointer transition flex flex-col gap-2"
                 >
-                  Add Opportunity
-                </button>
-              )
-            }
-            columns={[
-              {
-                label: 'No.',
-                render: item => <span className="font-semibold text-slate-900">{item.no}</span>,
-                headClassName: 'bg-[#0b265a] text-white text-center',
-                cellClassName: 'text-center',
-              },
-              {
-                label: 'Title',
-                render: item => item.title,
-                headClassName: 'bg-[#0b265a] text-white',
-              },
-              {
-                label: 'Source',
-                render: item => item.source,
-                headClassName: 'bg-[#0b265a] text-white',
-              },
-              {
-                label: 'Date',
-                render: item => item.date,
-                headClassName: 'bg-[#0b265a] text-white',
-              },
-              {
-                label: 'Division',
-                render: item => item.division,
-                headClassName: 'bg-[#0b265a] text-white',
-              },
-              {
-                label: 'Status',
-                render: item => <StatusBadge status={item.status} />,
-                headClassName: 'bg-[#0b265a] text-white text-center',
-                cellClassName: 'text-center',
-              },
-              {
-                label: 'Action',
-                render: item => (
-                  <TableActionButtons
-                    onView={() => handleView(item)}
-                    onEdit={() => handleEdit(item)}
-                    onDelete={() => handleDelete(item)}
-                  />
-                ),
-                headClassName: 'bg-[#0b265a] text-white text-center',
-                cellClassName: 'text-center',
-              },
-            ]}
-          />
+                  <div className="flex justify-between items-start">
+                    <h4 className="font-semibold text-sm text-slate-900 leading-tight">
+                      {item.title}
+                    </h4>
+                    <span className="text-xs font-medium text-slate-500 ml-2 shrink-0 bg-slate-100 px-1.5 py-0.5 rounded">
+                      {item.no}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 font-medium line-clamp-1">{item.partner}</p>
+                  <div className="flex justify-between items-center text-xs text-slate-500 mt-2">
+                    <span className="bg-slate-50 px-2 py-1 rounded border border-slate-100">
+                      {item.type}
+                    </span>
+                    <span>{new Date(item.date).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              )}
+            />
+          ) : (
+            <DataTable
+              items={filteredOpportunities}
+              rowKey={item => item.id}
+              emptyVariant={isFiltering ? 'search' : 'opportunities'}
+              emptyAction={
+                !isFiltering && (
+                  <button
+                    onClick={handleAddNew}
+                    className="rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#e68a00]"
+                  >
+                    Add Opportunity
+                  </button>
+                )
+              }
+              columns={[
+                {
+                  label: 'No.',
+                  render: item => <span className="font-semibold text-slate-900">{item.no}</span>,
+                  headClassName: 'bg-[#0b265a] text-white text-center',
+                  cellClassName: 'text-center',
+                },
+                {
+                  label: 'Title',
+                  render: item => item.title,
+                  headClassName: 'bg-[#0b265a] text-white',
+                },
+                {
+                  label: 'Partner',
+                  render: item => item.partner,
+                  headClassName: 'bg-[#0b265a] text-white',
+                },
+                {
+                  label: 'Type',
+                  render: item => item.type,
+                  headClassName: 'bg-[#0b265a] text-white',
+                },
+                {
+                  label: 'Division',
+                  render: item => item.division,
+                  headClassName: 'bg-[#0b265a] text-white',
+                },
+                {
+                  label: 'Date',
+                  render: item => new Date(item.date).toLocaleDateString(),
+                  headClassName: 'bg-[#0b265a] text-white',
+                },
+                {
+                  label: 'Status',
+                  render: item => <StatusBadge status={item.status} />,
+                  headClassName: 'bg-[#0b265a] text-white text-center',
+                  cellClassName: 'text-center',
+                },
+                {
+                  label: 'Action',
+                  render: item => (
+                    <TableActionButtons
+                      onView={() => handleView(item)}
+                      onEdit={() => handleEdit(item)}
+                      onDelete={() => handleDelete(item)}
+                    />
+                  ),
+                  headClassName: 'bg-[#0b265a] text-white text-center',
+                  cellClassName: 'text-center',
+                },
+              ]}
+            />
+          )}
         </>
       )}
 
