@@ -9,6 +9,7 @@ import { permissionActions, permissionResources } from '../data'
 
 type RoleFormProps = {
   role?: RoleRecord | null
+  mode?: 'create' | 'edit' | 'preview'
   onSubmit?: (role: RoleFormValues) => void
   onCancel?: () => void
 }
@@ -18,7 +19,8 @@ type SelectedPermission = {
   resource_id: number
 }
 
-export function RoleForm({ role, onSubmit, onCancel }: RoleFormProps) {
+export function RoleForm({ role, mode = 'create', onSubmit, onCancel }: RoleFormProps) {
+  const isReadOnly = mode === 'preview'
   const [selectedPermission, setSelectedPermission] = useState<SelectedPermission[]>([])
 
   const {
@@ -110,10 +112,17 @@ export function RoleForm({ role, onSubmit, onCancel }: RoleFormProps) {
     })
   }
 
+  const formTitle =
+    mode === 'edit'
+      ? `Edit Role — ${role?.name}`
+      : mode === 'preview'
+        ? `Role Details — ${role?.name}`
+        : 'Create New Role'
+
   return (
     <Card className="rounded-[2rem] border border-[#cbd5e1] bg-white shadow-sm">
       <CardHeader className="border-b border-slate-200 px-6 py-4">
-        <CardTitle className="text-base font-semibold text-slate-950">Role Details</CardTitle>
+        <CardTitle className="text-base font-semibold text-slate-950">{formTitle}</CardTitle>
       </CardHeader>
       <CardContent className="p-6">
         <form className="space-y-6" onSubmit={handleSubmit(handleFormSubmit)}>
@@ -123,7 +132,8 @@ export function RoleForm({ role, onSubmit, onCancel }: RoleFormProps) {
               <Input
                 {...register('name')}
                 placeholder="Enter role name"
-                className={errors.name ? 'border-red-500 focus:ring-red-200' : ''}
+                readOnly={isReadOnly}
+                className={`${errors.name ? 'border-red-500 focus:ring-red-200' : ''} ${isReadOnly ? 'bg-slate-50 cursor-default' : ''}`}
               />
               {errors.name && (
                 <p className="mt-1 text-xs font-medium text-red-500">{errors.name.message}</p>
@@ -134,7 +144,8 @@ export function RoleForm({ role, onSubmit, onCancel }: RoleFormProps) {
               <Input
                 {...register('description')}
                 placeholder="Enter role description"
-                className={errors.description ? 'border-red-500 focus:ring-red-200' : ''}
+                readOnly={isReadOnly}
+                className={`${errors.description ? 'border-red-500 focus:ring-red-200' : ''} ${isReadOnly ? 'bg-slate-50 cursor-default' : ''}`}
               />
               {errors.description && (
                 <p className="mt-1 text-xs font-medium text-red-500">
@@ -167,12 +178,17 @@ export function RoleForm({ role, onSubmit, onCancel }: RoleFormProps) {
                   return (
                     <tr key={resource.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-4 py-3 bg-slate-100/50 font-medium text-slate-900 border-r border-slate-200 w-48">
-                        <label className="flex items-center gap-3 cursor-pointer">
+                        <label
+                          className={`flex items-center gap-3 ${isReadOnly ? 'cursor-default' : 'cursor-pointer'}`}
+                        >
                           <input
                             type="checkbox"
                             checked={allSelected}
-                            onChange={e => handleCheckResource(resource.id, e.target.checked)}
-                            className="h-4 w-4 rounded border-slate-300 text-[#ff9500] focus:ring-[#ff9500]"
+                            disabled={isReadOnly}
+                            onChange={e =>
+                              !isReadOnly && handleCheckResource(resource.id, e.target.checked)
+                            }
+                            className="h-4 w-4 rounded border-slate-300 text-[#ff9500] focus:ring-[#ff9500] disabled:opacity-60"
                           />
                           {resource.name}
                         </label>
@@ -186,10 +202,12 @@ export function RoleForm({ role, onSubmit, onCancel }: RoleFormProps) {
                             <input
                               type="checkbox"
                               checked={isSelected}
+                              disabled={isReadOnly}
                               onChange={e =>
+                                !isReadOnly &&
                                 handleCheckAction(action.id, resource.id, e.target.checked)
                               }
-                              className="h-4 w-4 rounded border-slate-300 text-[#ff9500] focus:ring-[#ff9500] cursor-pointer hover:scale-110 transition-transform"
+                              className="h-4 w-4 rounded border-slate-300 text-[#ff9500] focus:ring-[#ff9500] cursor-pointer hover:scale-110 transition-transform disabled:opacity-60 disabled:cursor-default"
                             />
                           </td>
                         )
@@ -201,17 +219,19 @@ export function RoleForm({ role, onSubmit, onCancel }: RoleFormProps) {
             </table>
           </div>
 
-          <div className="flex items-end justify-end gap-3 pt-4">
+          <div className="flex items-end justify-end gap-3 pt-4 border-t border-slate-100">
             <Button variant="outline" type="button" onClick={onCancel} disabled={isSubmitting}>
-              Cancel
+              {isReadOnly ? 'Close' : 'Cancel'}
             </Button>
-            <Button
-              className="!bg-[#ff9500] !text-white hover:!bg-[#e68a00]"
-              type="submit"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Saving...' : 'Submit'}
-            </Button>
+            {!isReadOnly && (
+              <Button
+                className="!bg-[#ff9500] !text-white hover:!bg-[#e68a00]"
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Saving...' : mode === 'edit' ? 'Update Role' : 'Create Role'}
+              </Button>
+            )}
           </div>
         </form>
       </CardContent>

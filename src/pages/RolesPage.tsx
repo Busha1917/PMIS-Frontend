@@ -1,12 +1,13 @@
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { DataTable } from '../components/DataTable'
 import { PageHeaderCard } from '../components/PageHeaderCard'
 import { PageToolbar } from '../components/PageToolbar'
 import { TableActionButtons } from '../components/TableActionButtons'
-
 import { ConfirmationModal } from '../components/ConfirmationModal'
 import { RoleForm } from '../components/RoleForm'
 import type { RoleRecord } from '../types'
+import type { RoleFormValues } from '../utils/validation'
 import { roles as initialRoles } from '../data'
 
 export function RolesPage() {
@@ -39,7 +40,35 @@ export function RolesPage() {
     setShowDeleteModal(true)
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = (data: RoleFormValues) => {
+    if (formMode === 'edit' && selectedRole) {
+      // Update existing role
+      setRoles(current =>
+        current.map(r =>
+          r.id === selectedRole.id
+            ? {
+                ...r,
+                name: data.name,
+                description: data.description,
+                rolePermissionResources: data.rolePermissionResources,
+              }
+            : r
+        )
+      )
+      toast.success(`Role "${data.name}" updated successfully!`)
+    } else {
+      // Create new role
+      const newRole: RoleRecord = {
+        id: `role-${Date.now()}`,
+        no: roles.length + 1,
+        name: data.name,
+        description: data.description,
+        rolePermissionResources: data.rolePermissionResources,
+      }
+      setRoles(current => [...current, newRole])
+      toast.success(`Role "${data.name}" created successfully!`)
+    }
+
     setShowForm(false)
     setSelectedRole(null)
     setFormMode('create')
@@ -53,9 +82,11 @@ export function RolesPage() {
 
   const confirmDelete = () => {
     if (!selectedRole) return
+    const name = selectedRole.name
     setRoles(current => current.filter(item => item.id !== selectedRole.id))
     setShowDeleteModal(false)
     setSelectedRole(null)
+    toast.error(`Role "${name}" deleted.`)
   }
 
   return (
@@ -71,10 +102,17 @@ export function RolesPage() {
         onSearch={() => undefined}
         onFilter={() => undefined}
         showSearchAndFilters={!showForm}
+        addLabel={showForm ? undefined : 'Add Role'}
+        onAdd={showForm ? undefined : handleAddNew}
       />
 
       {showForm ? (
-        <RoleForm onSubmit={handleSubmit} onCancel={handleCancel} />
+        <RoleForm
+          role={selectedRole}
+          mode={formMode}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+        />
       ) : (
         <>
           <DataTable
@@ -91,7 +129,9 @@ export function RolesPage() {
               },
               {
                 label: 'Role Name',
-                render: (role: RoleRecord) => role.name,
+                render: (role: RoleRecord) => (
+                  <span className="font-semibold text-slate-900">{role.name}</span>
+                ),
                 headClassName: 'bg-[#0b265a] text-white',
               },
               {
@@ -107,7 +147,17 @@ export function RolesPage() {
                       (acc, res) => acc + res.rolePermissionResourceActions.length,
                       0
                     ) || 0
-                  return <span className="font-medium text-slate-700">{count} Actions Granted</span>
+                  return (
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                        count > 0
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : 'bg-slate-100 text-slate-500'
+                      }`}
+                    >
+                      {count} Actions Granted
+                    </span>
+                  )
                 },
                 headClassName: 'bg-[#0b265a] text-white text-center',
                 cellClassName: 'text-center',
@@ -132,7 +182,7 @@ export function RolesPage() {
       <ConfirmationModal
         open={showDeleteModal}
         title="Delete role"
-        message="Are you sure you want to delete this role? This action cannot be undone."
+        message={`Are you sure you want to delete the role "${selectedRole?.name}"? This action cannot be undone.`}
         onCancel={() => setShowDeleteModal(false)}
         onConfirm={confirmDelete}
       />
