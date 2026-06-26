@@ -43,7 +43,9 @@ export function AppLayout({
           />
 
           <div className="flex h-screen flex-1 flex-col overflow-hidden">
-            {!hideHeader && <Header activePage={activePage} />}
+            {!hideHeader && (
+              <Header activePage={activePage} onNavigate={onNavigate} onLogout={onLogout} />
+            )}
             <main className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-8">{children}</main>
             <Footer />
           </div>

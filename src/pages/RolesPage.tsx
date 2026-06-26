@@ -101,7 +101,14 @@ export function RolesPage() {
               },
               {
                 label: 'Permissions',
-                render: (role: RoleRecord) => role.permissions,
+                render: (role: RoleRecord) => {
+                  const count =
+                    role.rolePermissionResources?.reduce(
+                      (acc, res) => acc + res.rolePermissionResourceActions.length,
+                      0
+                    ) || 0
+                  return <span className="font-medium text-slate-700">{count} Actions Granted</span>
+                },
                 headClassName: 'bg-[#0b265a] text-white text-center',
                 cellClassName: 'text-center',
               },

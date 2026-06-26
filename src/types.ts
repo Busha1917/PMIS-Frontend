@@ -10,6 +10,9 @@ export type AdminPage =
   | 'baseData'
   | 'users'
   | 'roles'
+  | 'permission-actions'
+  | 'permission-resources'
+  | 'profile'
 
 export type NavigationItem = {
   label: string
@@ -30,12 +33,27 @@ export type UserRecord = {
   status: UserStatus
 }
 
+export type PermissionActionRecord = {
+  id: number
+  action: string
+}
+
+export type PermissionResourceRecord = {
+  id: number
+  name: string
+}
+
+export type RolePermissionResource = {
+  permission_resource_id: number
+  rolePermissionResourceActions: { permission_action_id: number }[]
+}
+
 export type RoleRecord = {
   id: string
   no: number
   name: string
   description: string
-  permissions: number
+  rolePermissionResources: RolePermissionResource[]
 }
 
 export type EventRecord = {

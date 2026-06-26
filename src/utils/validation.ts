@@ -75,10 +75,25 @@ export const userFormSchema = z.object({
 })
 export type UserFormValues = z.infer<typeof userFormSchema>
 
-// Schema for Role Forms
 export const roleFormSchema = z.object({
   name: z.string().min(2, 'Role name must be at least 2 characters'),
   description: z.string().min(5, 'Description must be at least 5 characters'),
-  permissions: z.number().min(0, 'Permissions must be 0 or more'),
+  rolePermissionResources: z.array(
+    z.object({
+      permission_resource_id: z.number(),
+      rolePermissionResourceActions: z.array(
+        z.object({
+          permission_action_id: z.number(),
+        })
+      ),
+    })
+  ),
 })
 export type RoleFormValues = z.infer<typeof roleFormSchema>
+
+// Schema for Base Data Forms
+export const baseDataFormSchema = z.object({
+  title: z.string().min(2, 'Title must be at least 2 characters'),
+  description: z.string().min(2, 'Description must be at least 2 characters'),
+})
+export type BaseDataFormValues = z.infer<typeof baseDataFormSchema>

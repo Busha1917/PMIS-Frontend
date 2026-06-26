@@ -7,11 +7,15 @@ import {
   CheckCircle2,
   AlertCircle,
   Info,
+  LogOut,
+  User,
+  Settings as SettingsIcon,
 } from 'lucide-react'
 import type { AdminPage } from '../types'
 import { Drawer } from '../ui/Drawer'
 import { Button } from '../ui'
 import { useLayout } from '../contexts/LayoutContext'
+import { useAuth } from '../hooks/useAuth'
 
 const PAGE_LABELS: Record<AdminPage, string> = {
   dashboard: 'Dashboard',
@@ -27,6 +31,8 @@ const PAGE_LABELS: Record<AdminPage, string> = {
 
 type HeaderProps = {
   activePage: AdminPage
+  onNavigate?: (page: AdminPage) => void
+  onLogout?: () => void
 }
 
 const MOCK_NOTIFICATIONS = [
@@ -64,11 +70,23 @@ const MOCK_NOTIFICATIONS = [
   },
 ]
 
-export function Header({ activePage }: HeaderProps) {
+export function Header({ activePage, onNavigate, onLogout }: HeaderProps) {
   const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const { breadcrumbSuffix } = useLayout()
-  const pageLabel = PAGE_LABELS[activePage]
+  const { user } = useAuth()
+  const pageLabel = PAGE_LABELS[activePage] || 'Profile'
   const isHome = activePage === 'dashboard'
+
+  // Generate initials
+  const initials = user?.name
+    ? user.name
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : 'U'
 
   return (
     <>
@@ -113,18 +131,72 @@ export function Header({ activePage }: HeaderProps) {
               <span className="absolute right-1.5 top-1.5 inline-flex h-2.5 w-2.5 items-center justify-center rounded-full bg-[#ff8a1a] ring-2 ring-white" />
             </button>
 
-            <div className="flex items-center gap-3">
-              <div className="hidden text-right leading-tight sm:block">
-                <p className="text-[14px] font-semibold text-slate-900">Alexander M.</p>
-                <p className="text-xs text-slate-500">alexmorgan@gmail.com</p>
-              </div>
-              <div className="h-9 w-9 overflow-hidden rounded-full border-2 border-[#ff8a1a] bg-slate-100 flex-shrink-0">
-                <img
-                  src="/images/image1.png"
-                  alt="Alexander M."
-                  className="h-full w-full object-cover object-center"
-                />
-              </div>
+            {/* Profile Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+              >
+                <div className="hidden text-right leading-tight sm:block">
+                  <p className="text-[14px] font-semibold text-slate-900">
+                    {user?.name || 'Alexander M.'}
+                  </p>
+                  <p className="text-xs text-slate-500">{user?.email || 'alexmorgan@gmail.com'}</p>
+                </div>
+                <div className="h-9 w-9 overflow-hidden rounded-full border-2 border-[#ff8a1a] bg-[#161A61] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                  {initials}
+                </div>
+              </button>
+
+              {profileDropdownOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setProfileDropdownOpen(false)}
+                  />
+                  <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-slate-100 bg-white shadow-lg shadow-slate-200/50 ring-1 ring-black/5 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                    <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+                      <p className="text-sm font-semibold text-slate-900 truncate">{user?.name}</p>
+                      <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                    </div>
+                    <div className="py-1">
+                      <button
+                        onClick={() => {
+                          setProfileDropdownOpen(false)
+                          onNavigate?.('profile')
+                        }}
+                        className="flex w-full items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                      >
+                        <User className="h-4 w-4 text-slate-400" />
+                        My Profile
+                      </button>
+                      <button
+                        onClick={() => {
+                          setProfileDropdownOpen(false)
+                          // Mock settings route
+                        }}
+                        className="flex w-full items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                      >
+                        <SettingsIcon className="h-4 w-4 text-slate-400" />
+                        Account Settings
+                      </button>
+                    </div>
+                    <div className="py-1 border-t border-slate-100">
+                      <button
+                        onClick={() => {
+                          setProfileDropdownOpen(false)
+                          onLogout?.()
+                        }}
+                        className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                      >
+                        <LogOut className="h-4 w-4 text-red-500" />
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -37,6 +37,18 @@ export const navigationItems: NavigationItem[] = [
   { label: 'Base Data', page: 'baseData', icon: Layers, group: 'BASE DATA' },
   { label: 'Users', page: 'users', icon: UserCircle2, group: 'USER MANAGEMENT' },
   { label: 'Roles', page: 'roles', icon: ShieldCheck, group: 'USER MANAGEMENT' },
+  {
+    label: 'Permission Actions',
+    page: 'permission-actions',
+    icon: Settings,
+    group: 'USER MANAGEMENT',
+  },
+  {
+    label: 'Permission Resources',
+    page: 'permission-resources',
+    icon: Layers,
+    group: 'USER MANAGEMENT',
+  },
 ]
 
 export const events: EventRecord[] = [
@@ -551,34 +563,146 @@ export const users: UserRecord[] = [
   },
 ]
 
+export const permissionActions = [
+  { id: 1, action: 'Create' },
+  { id: 2, action: 'Read' },
+  { id: 3, action: 'Update' },
+  { id: 4, action: 'Delete' },
+  { id: 5, action: 'Authorize' },
+  { id: 6, action: 'Verify' },
+]
+
+export const permissionResources = [
+  { id: 1, name: 'Opportunities' },
+  { id: 2, name: 'Engagements' },
+  { id: 3, name: 'Agreements' },
+  { id: 4, name: 'Partners' },
+  { id: 5, name: 'Users' },
+  { id: 6, name: 'Roles' },
+]
+
 export const roles: RoleRecord[] = [
   {
     id: 'role-001',
     no: 1,
     name: 'Administrator',
     description: 'Full platform access',
-    permissions: 42,
+    rolePermissionResources: [
+      {
+        permission_resource_id: 1,
+        rolePermissionResourceActions: [
+          { permission_action_id: 1 },
+          { permission_action_id: 2 },
+          { permission_action_id: 3 },
+          { permission_action_id: 4 },
+          { permission_action_id: 5 },
+          { permission_action_id: 6 },
+        ],
+      },
+      {
+        permission_resource_id: 2,
+        rolePermissionResourceActions: [
+          { permission_action_id: 1 },
+          { permission_action_id: 2 },
+          { permission_action_id: 3 },
+          { permission_action_id: 4 },
+          { permission_action_id: 5 },
+          { permission_action_id: 6 },
+        ],
+      },
+      {
+        permission_resource_id: 3,
+        rolePermissionResourceActions: [
+          { permission_action_id: 1 },
+          { permission_action_id: 2 },
+          { permission_action_id: 3 },
+          { permission_action_id: 4 },
+          { permission_action_id: 5 },
+          { permission_action_id: 6 },
+        ],
+      },
+      {
+        permission_resource_id: 4,
+        rolePermissionResourceActions: [
+          { permission_action_id: 1 },
+          { permission_action_id: 2 },
+          { permission_action_id: 3 },
+          { permission_action_id: 4 },
+          { permission_action_id: 5 },
+          { permission_action_id: 6 },
+        ],
+      },
+      {
+        permission_resource_id: 5,
+        rolePermissionResourceActions: [
+          { permission_action_id: 1 },
+          { permission_action_id: 2 },
+          { permission_action_id: 3 },
+          { permission_action_id: 4 },
+          { permission_action_id: 5 },
+          { permission_action_id: 6 },
+        ],
+      },
+      {
+        permission_resource_id: 6,
+        rolePermissionResourceActions: [
+          { permission_action_id: 1 },
+          { permission_action_id: 2 },
+          { permission_action_id: 3 },
+          { permission_action_id: 4 },
+          { permission_action_id: 5 },
+          { permission_action_id: 6 },
+        ],
+      },
+    ],
   },
   {
     id: 'role-002',
     no: 2,
     name: 'Finance Officer',
     description: 'Payment and reporting tools',
-    permissions: 16,
+    rolePermissionResources: [
+      {
+        permission_resource_id: 3, // Agreements
+        rolePermissionResourceActions: [{ permission_action_id: 2 }, { permission_action_id: 5 }],
+      },
+    ],
   },
   {
     id: 'role-003',
     no: 3,
     name: 'Support Agent',
     description: 'User support workflows',
-    permissions: 12,
+    rolePermissionResources: [
+      {
+        permission_resource_id: 5, // Users
+        rolePermissionResourceActions: [{ permission_action_id: 2 }],
+      },
+    ],
   },
   {
     id: 'role-004',
     no: 4,
     name: 'Auditor',
     description: 'Read-only review access',
-    permissions: 8,
+    rolePermissionResources: [
+      {
+        permission_resource_id: 1,
+        rolePermissionResourceActions: [{ permission_action_id: 2 }],
+      },
+      {
+        permission_resource_id: 2,
+        rolePermissionResourceActions: [{ permission_action_id: 2 }],
+      },
+      {
+        permission_resource_id: 3,
+        rolePermissionResourceActions: [{ permission_action_id: 2 }],
+      },
+      {
+        permission_resource_id: 4,
+        rolePermissionResourceActions: [{ permission_action_id: 2 }],
+      },
+    ],
   },
 ]
 

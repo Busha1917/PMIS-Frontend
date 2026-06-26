@@ -28,6 +28,15 @@ const PartnersPage = lazy(() =>
   import('@/pages/PartnersPage').then(m => ({ default: m.PartnersPage }))
 )
 const RolesPage = lazy(() => import('@/pages/RolesPage').then(m => ({ default: m.RolesPage })))
+const PermissionActionsPage = lazy(() =>
+  import('@/pages/PermissionActionsPage').then(m => ({ default: m.PermissionActionsPage }))
+)
+const PermissionResourcesPage = lazy(() =>
+  import('@/pages/PermissionResourcesPage').then(m => ({ default: m.PermissionResourcesPage }))
+)
+const ProfilePage = lazy(() =>
+  import('@/pages/ProfilePage').then(m => ({ default: m.ProfilePage }))
+)
 const UsersPage = lazy(() => import('@/pages/UsersPage').then(m => ({ default: m.UsersPage })))
 const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m.LoginPage })))
 
@@ -92,6 +101,16 @@ const pageRoutes: Record<AdminPage, { path: string; title: string; description: 
     path: '/roles',
     title: 'Roles',
     description: 'Define roles and permission groups.',
+  },
+  'permission-actions': {
+    path: '/permission-actions',
+    title: 'Permission Actions',
+    description: 'Manage the actions that can be performed on resources.',
+  },
+  'permission-resources': {
+    path: '/permission-resources',
+    title: 'Permission Resources',
+    description: 'Manage the resources that can be protected.',
   },
 }
 
@@ -166,6 +185,12 @@ function App() {
         return <UsersPage />
       case 'roles':
         return <RolesPage />
+      case 'permission-actions':
+        return <PermissionActionsPage />
+      case 'permission-resources':
+        return <PermissionResourcesPage />
+      case 'profile':
+        return <ProfilePage />
       default:
         return <AdminDashboard />
     }
