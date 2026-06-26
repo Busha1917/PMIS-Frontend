@@ -39,6 +39,14 @@ const MOCK_NOTIFICATIONS = [
     unread: true,
   },
   {
+    id: 11,
+    title: 'Gemechis Gebeyehu is kidnapped',
+    message: 'A new agreement with Ministry of Tech has been drafted.',
+    time: '5m ago',
+    type: 'error',
+    unread: true,
+  },
+  {
     id: 2,
     title: 'Visit Scheduled',
     message: 'Global Corp visit scheduled for next Tuesday at 10:00 AM.',
