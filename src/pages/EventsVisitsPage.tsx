@@ -1,16 +1,17 @@
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 import { DataTable } from '../components/DataTable'
 import { EventForm } from '../components/EventForm'
 import { PageToolbar } from '../components/PageToolbar'
 import { PageHeaderCard } from '../components/PageHeaderCard'
 import { StatusBadge } from '../components/StatusBadge'
 import { TableActionButtons } from '../components/TableActionButtons'
-
 import { ConfirmationModal } from '../components/ConfirmationModal'
 import { FilterDrawer } from '../components/FilterDrawer'
 import type { FilterValues } from '../components/FilterDrawer'
 import type { EventRecord } from '../types'
 import { events as initialEvents } from '../data'
+import { exportToCsv } from '../utils/exportCsv'
 
 const FILTER_FIELDS = [
   {
@@ -93,11 +94,13 @@ export function EventsVisitsPage() {
   const handleSubmit = (eventData: EventRecord) => {
     if (formMode === 'edit' && selectedEvent) {
       setEvents(current => current.map(item => (item.id === selectedEvent.id ? eventData : item)))
+      toast.success('Event updated', { description: eventData.title })
     } else {
       setEvents(current => [
         ...current,
         { ...eventData, id: `evt-${Date.now()}`, no: current.length + 1 },
       ])
+      toast.success('Event added', { description: eventData.title })
     }
     setShowForm(false)
     setSelectedEvent(null)

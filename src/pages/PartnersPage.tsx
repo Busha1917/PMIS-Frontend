@@ -6,12 +6,12 @@ import { PageHeaderCard } from '../components/PageHeaderCard'
 import { PageToolbar } from '../components/PageToolbar'
 import { StatusBadge } from '../components/StatusBadge'
 import { TableActionButtons } from '../components/TableActionButtons'
-
 import { ConfirmationModal } from '../components/ConfirmationModal'
 import { FilterDrawer } from '../components/FilterDrawer'
 import type { FilterValues } from '../components/FilterDrawer'
 import type { PartnerRecord } from '../types'
 import { partners as initialPartners } from '../data'
+import { exportToCsv } from '../utils/exportCsv'
 
 const FILTER_FIELDS = [
   {
@@ -114,10 +114,29 @@ export function PartnersPage() {
   const confirmDelete = () => {
     if (!selectedPartner) return
     setPartners(current => current.filter(item => item.id !== selectedPartner.id))
+    toast.error('Partner deleted', { description: selectedPartner.name })
     setShowDeleteModal(false)
     setSelectedPartner(null)
     setFormMode('create')
-    toast.success('Partner deleted')
+  }
+
+  const handleExport = () => {
+    exportToCsv(
+      'partners',
+      ['#', 'Partner Name', 'Type', 'Country', 'Organization', 'Contact', 'Status'],
+      [
+        filteredPartners.map((item, i) => [
+          i + 1,
+          item.name,
+          item.type,
+          item.country,
+          item.organization,
+          item.contact,
+          item.status,
+        ]),
+      ]
+    )
+    toast.success('Exported to CSV', { description: `${filteredPartners.length} records` })
   }
 
   return (
@@ -132,6 +151,7 @@ export function PartnersPage() {
         onFilter={() => setShowFilter(true)}
         activeFilterCount={Object.keys(activeFilters).length}
         onAdd={showForm ? undefined : handleAddNew}
+        onExport={showForm ? undefined : handleExport}
         showSearchAndFilters={!showForm}
       />
 

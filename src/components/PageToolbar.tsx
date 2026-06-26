@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react'
-import { Filter, Plus } from 'lucide-react'
+import { Filter, Plus, Download } from 'lucide-react'
 import { Button, Input } from '../ui'
 import { cn } from '../utils'
 
@@ -9,6 +9,7 @@ type PageToolbarProps = {
   onSearch?: (value: string) => void
   onFilter?: () => void
   onAdd?: () => void
+  onExport?: () => void
   activeFilterCount?: number
   showSearchAndFilters?: boolean
 }
@@ -19,6 +20,7 @@ export function PageToolbar({
   onSearch,
   onFilter,
   onAdd,
+  onExport,
   activeFilterCount = 0,
   showSearchAndFilters = true,
 }: PageToolbarProps) {
@@ -52,6 +54,18 @@ export function PageToolbar({
                 {activeFilterCount}
               </span>
             )}
+          </button>
+        )}
+
+        {onExport && showSearchAndFilters && (
+          <button
+            type="button"
+            onClick={onExport}
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+            title="Export to CSV"
+          >
+            <Download className="h-4 w-4" />
+            Export
           </button>
         )}
 

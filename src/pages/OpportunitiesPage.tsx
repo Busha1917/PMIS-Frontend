@@ -1,16 +1,17 @@
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 import { DataTable } from '../components/DataTable'
 import { OpportunityForm } from '../components/OpportunityForm'
 import { PageHeaderCard } from '../components/PageHeaderCard'
 import { PageToolbar } from '../components/PageToolbar'
 import { StatusBadge } from '../components/StatusBadge'
 import { TableActionButtons } from '../components/TableActionButtons'
-
 import { ConfirmationModal } from '../components/ConfirmationModal'
 import { FilterDrawer } from '../components/FilterDrawer'
 import type { FilterValues } from '../components/FilterDrawer'
 import type { OpportunityRecord } from '../types'
 import { opportunities as initialOpportunities } from '../data'
+import { exportToCsv } from '../utils/exportCsv'
 
 const FILTER_FIELDS = [
   {
@@ -91,11 +92,13 @@ export function OpportunitiesPage() {
       setOpportunities(current =>
         current.map(item => (item.id === selectedOpportunity.id ? formData : item))
       )
+      toast.success('Opportunity updated', { description: formData.title })
     } else {
       setOpportunities(current => [
         ...current,
         { ...formData, id: `opp-${Date.now()}`, no: current.length + 1 },
       ])
+      toast.success('Opportunity added', { description: formData.title })
     }
     setShowForm(false)
     setSelectedOpportunity(null)
@@ -111,9 +114,28 @@ export function OpportunitiesPage() {
   const confirmDelete = () => {
     if (!selectedOpportunity) return
     setOpportunities(current => current.filter(item => item.id !== selectedOpportunity.id))
+    toast.error('Opportunity deleted', { description: selectedOpportunity.title })
     setShowDeleteModal(false)
     setSelectedOpportunity(null)
     setFormMode('create')
+  }
+
+  const handleExport = () => {
+    exportToCsv(
+      'opportunities',
+      ['#', 'Title', 'Source', 'Date', 'Division', 'Status'],
+      [
+        filteredOpportunities.map((item, i) => [
+          i + 1,
+          item.title,
+          item.source,
+          item.date,
+          item.division,
+          item.status,
+        ]),
+      ]
+    )
+    toast.success('Exported to CSV', { description: `${filteredOpportunities.length} records` })
   }
 
   return (
@@ -130,6 +152,7 @@ export function OpportunitiesPage() {
         onSearch={setSearchQuery}
         onFilter={() => setShowFilter(true)}
         onAdd={showForm ? undefined : handleAddNew}
+        onExport={showForm ? undefined : handleExport}
         showSearchAndFilters={!showForm}
       />
 
