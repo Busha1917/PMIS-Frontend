@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
+import { ArrowLeft } from 'lucide-react'
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
-import { useLayout } from '../contexts/LayoutContext'
 import type { EngagementRecord } from '../types'
 
 type EngagementFormMode = 'create' | 'edit' | 'preview'
@@ -10,6 +10,7 @@ type EngagementFormProps = {
   mode?: EngagementFormMode
   onSubmit?: (engagement: EngagementRecord) => void
   onCancel?: () => void
+  onEdit?: () => void
 }
 
 const statusOptions = ['Draft', 'Approved', 'Accepted', 'Rejected']
@@ -19,6 +20,7 @@ export function EngagementForm({
   mode = 'create',
   onSubmit,
   onCancel,
+  onEdit,
 }: EngagementFormProps) {
   const [formState, setFormState] = useState<
     EngagementRecord & { followUpDate?: string; summary?: string }
@@ -34,8 +36,6 @@ export function EngagementForm({
     }
   )
 
-  const { setBreadcrumbSuffix } = useLayout()
-
   useEffect(() => {
     if (engagement) {
       setFormState({
@@ -49,17 +49,20 @@ export function EngagementForm({
   const isPreview = mode === 'preview'
   const canSubmit = mode !== 'preview'
 
-  useEffect(() => {
-    if (isPreview && formState.id) {
-      setBreadcrumbSuffix(formState.id)
-    }
-    return () => setBreadcrumbSuffix(null)
-  }, [isPreview, formState.id, setBreadcrumbSuffix])
-
   if (isPreview) {
     return (
       <div className="space-y-6">
         <div className="rounded-[2rem] border border-slate-200/70 bg-slate-50/90 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur-sm">
+          <div className="mb-6 flex items-center gap-3">
+            <Button
+              variant="outline"
+              onClick={onCancel}
+              className="border-0 bg-transparent p-0 text-slate-700 shadow-none hover:bg-transparent hover:text-slate-950"
+              aria-label="Back"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          </div>
           <div className="mb-8 flex flex-col gap-4 rounded-[2rem] border border-slate-200/80 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.35em] text-slate-500">
@@ -71,16 +74,18 @@ export function EngagementForm({
               <p className="mt-2 text-sm text-slate-500">ID: {formState.id}</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <Button
-                variant="outline"
-                onClick={onCancel}
-                className="rounded-full px-5 py-2.5 text-sm font-semibold"
-              >
-                Back
-              </Button>
               <span className="rounded-full bg-orange-100 px-4 py-2 text-sm font-semibold text-orange-800 shadow-sm shadow-orange-100/80">
                 {formState.status}
               </span>
+              {formState.status?.toLowerCase() === 'draft' && (
+                <Button
+                  variant="outline"
+                  onClick={onEdit ?? onCancel}
+                  className="rounded-full border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                >
+                  Edit
+                </Button>
+              )}
             </div>
           </div>
 

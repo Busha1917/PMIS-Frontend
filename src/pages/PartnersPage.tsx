@@ -161,6 +161,7 @@ export function PartnersPage() {
           mode={formMode}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
+          onEdit={() => setFormMode('edit')}
         />
       ) : (
         <>

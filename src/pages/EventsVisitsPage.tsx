@@ -144,6 +144,7 @@ export function EventsVisitsPage() {
           mode={formMode}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
+          onEdit={() => setFormMode('edit')}
         />
       ) : (
         <>

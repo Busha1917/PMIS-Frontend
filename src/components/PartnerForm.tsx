@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
+import { ArrowLeft } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
 import type { PartnerRecord } from '../types'
 import { partnerFormSchema, type PartnerFormValues } from '../utils/validation'
-import { useLayout } from '../contexts/LayoutContext'
 
 type PartnerFormMode = 'create' | 'edit' | 'preview'
 
@@ -13,20 +13,19 @@ type PartnerFormProps = {
   mode?: PartnerFormMode
   onSubmit?: (partner: PartnerRecord) => void
   onCancel?: () => void
+  onEdit?: () => void
 }
 
 const statusOptions = ['Draft', 'Approved', 'Accepted', 'Rejected']
 
-export function PartnerForm({ partner, mode = 'create', onSubmit, onCancel }: PartnerFormProps) {
+export function PartnerForm({
+  partner,
+  mode = 'create',
+  onSubmit,
+  onCancel,
+  onEdit,
+}: PartnerFormProps) {
   const isPreview = mode === 'preview'
-  const { setBreadcrumbSuffix } = useLayout()
-
-  useEffect(() => {
-    if (isPreview && partner?.id) {
-      setBreadcrumbSuffix(partner.id)
-    }
-    return () => setBreadcrumbSuffix(null)
-  }, [isPreview, partner?.id, setBreadcrumbSuffix])
 
   // Set up React Hook Form with Zod validation
   const {
@@ -88,6 +87,16 @@ export function PartnerForm({ partner, mode = 'create', onSubmit, onCancel }: Pa
     return (
       <div className="space-y-6">
         <div className="rounded-[2rem] border border-slate-200/70 bg-slate-50/90 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur-sm">
+          <div className="mb-6 flex items-center gap-3">
+            <Button
+              variant="outline"
+              onClick={onCancel}
+              className="border-0 bg-transparent p-0 text-slate-700 shadow-none hover:bg-transparent hover:text-slate-950"
+              aria-label="Back"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          </div>
           <div className="mb-8 flex flex-col gap-4 rounded-[2rem] border border-slate-200/80 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.35em] text-slate-500">Partner Details</p>
@@ -97,16 +106,18 @@ export function PartnerForm({ partner, mode = 'create', onSubmit, onCancel }: Pa
               <p className="mt-2 text-sm text-slate-500">ID: {previewData.id}</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <Button
-                variant="outline"
-                onClick={onCancel}
-                className="rounded-full px-5 py-2.5 text-sm font-semibold"
-              >
-                Back
-              </Button>
               <span className="rounded-full bg-orange-100 px-4 py-2 text-sm font-semibold text-orange-800 shadow-sm shadow-orange-100/80">
                 {previewData.status}
               </span>
+              {previewData.status?.toLowerCase() === 'draft' && (
+                <Button
+                  variant="outline"
+                  onClick={onEdit ?? onCancel}
+                  className="rounded-full border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                >
+                  Edit
+                </Button>
+              )}
             </div>
           </div>
 
