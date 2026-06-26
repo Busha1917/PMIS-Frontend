@@ -114,16 +114,19 @@ export function EngagementPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeaderCard
-        title="Partnership Engagements"
-        subtitle="Track engagement meetings and outcomes"
-      />
+      {!showForm && (
+        <PageHeaderCard
+          title="Partnership Engagements"
+          subtitle="Track engagement meetings and outcomes"
+        />
+      )}
       <PageToolbar
         searchPlaceholder="Search engagements..."
         addLabel="Add Engagement"
         onSearch={setSearchQuery}
         onFilter={() => setShowFilter(true)}
         onAdd={showForm ? undefined : handleAddNew}
+        showSearchAndFilters={!showForm}
       />
 
       {showForm ? (

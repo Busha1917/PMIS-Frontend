@@ -120,16 +120,19 @@ export function EventsVisitsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeaderCard
-        title="Events & Visits"
-        subtitle="Partnership Management Information System — Overview"
-      />
+      {!showForm && (
+        <PageHeaderCard
+          title="Events & Visits"
+          subtitle="Partnership Management Information System — Overview"
+        />
+      )}
       <PageToolbar
         searchPlaceholder="Search events..."
         addLabel="Add Events & Visit"
         onSearch={setSearchQuery}
         onFilter={() => setShowFilter(true)}
         onAdd={showForm ? undefined : handleAddNew}
+        showSearchAndFilters={!showForm}
       />
 
       {showForm ? (

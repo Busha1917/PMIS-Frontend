@@ -122,7 +122,9 @@ export function PartnersPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeaderCard title="Partner Registration" subtitle="Manage partnership organizations" />
+      {!showForm && (
+        <PageHeaderCard title="Partner Registration" subtitle="Manage partnership organizations" />
+      )}
       <PageToolbar
         searchPlaceholder="Search partners..."
         addLabel="Add Partners"
@@ -130,6 +132,7 @@ export function PartnersPage() {
         onFilter={() => setShowFilter(true)}
         activeFilterCount={Object.keys(activeFilters).length}
         onAdd={showForm ? undefined : handleAddNew}
+        showSearchAndFilters={!showForm}
       />
 
       {showForm ? (

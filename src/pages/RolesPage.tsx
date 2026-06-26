@@ -60,14 +60,17 @@ export function RolesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeaderCard
-        title="Role Management"
-        subtitle="Register and manage roles and permissions."
-      />
+      {!showForm && (
+        <PageHeaderCard
+          title="Role Management"
+          subtitle="Register and manage roles and permissions."
+        />
+      )}
       <PageToolbar
         searchPlaceholder="Search roles..."
         onSearch={() => undefined}
         onFilter={() => undefined}
+        showSearchAndFilters={!showForm}
       />
 
       {showForm ? (
