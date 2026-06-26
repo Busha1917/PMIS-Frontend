@@ -142,7 +142,17 @@ export function EngagementPage() {
           <DataTable
             items={filteredEngagements}
             rowKey={item => item.id}
-            emptyVariant={isFiltering ? 'search' : 'empty'}
+            emptyVariant={isFiltering ? 'search' : 'engagement'}
+            emptyAction={
+              !isFiltering && (
+                <button
+                  onClick={handleAddNew}
+                  className="rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#e68a00]"
+                >
+                  Add Engagement
+                </button>
+              )
+            }
             columns={[
               {
                 label: 'No.',

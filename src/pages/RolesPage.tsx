@@ -118,6 +118,15 @@ export function RolesPage() {
           <DataTable
             items={roles}
             rowKey={role => role.id}
+            emptyVariant="roles"
+            emptyAction={
+              <button
+                onClick={handleAddNew}
+                className="rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#e68a00]"
+              >
+                Add Role
+              </button>
+            }
             columns={[
               {
                 label: 'No.',

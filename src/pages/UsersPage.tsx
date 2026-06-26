@@ -124,7 +124,17 @@ export function UsersPage() {
           <DataTable
             items={filteredUsers}
             rowKey={user => user.id}
-            emptyVariant={isFiltering ? 'search' : 'empty'}
+            emptyVariant={isFiltering ? 'search' : 'users'}
+            emptyAction={
+              !isFiltering && (
+                <button
+                  onClick={handleAddNew}
+                  className="rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#e68a00]"
+                >
+                  Add User
+                </button>
+              )
+            }
             columns={[
               {
                 label: 'No.',

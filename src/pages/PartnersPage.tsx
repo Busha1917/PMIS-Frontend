@@ -168,7 +168,17 @@ export function PartnersPage() {
           <DataTable
             items={filteredPartners}
             rowKey={item => item.id}
-            emptyVariant={isFiltering ? 'search' : 'empty'}
+            emptyVariant={isFiltering ? 'search' : 'partners'}
+            emptyAction={
+              !isFiltering && (
+                <button
+                  onClick={handleAddNew}
+                  className="rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#e68a00]"
+                >
+                  Add Partner
+                </button>
+              )
+            }
             columns={[
               {
                 label: 'No.',

@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle } from '../ui'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table'
 import { EmptyState } from './EmptyState'
 import { TablePagination } from './TablePagination'
+import type { EmptyStateVariant } from './EmptyState'
 
 type DataColumn<T> = {
   label: string
@@ -19,8 +20,9 @@ type DataTableProps<T> = {
   rowKey: (item: T) => string | number
   columns: DataColumn<T>[]
   className?: string
-  emptyVariant?: 'search' | 'empty'
+  emptyVariant?: EmptyStateVariant
   emptyMessage?: string
+  emptyAction?: ReactNode
   showPagination?: boolean
 }
 
@@ -32,6 +34,7 @@ export function DataTable<T>({
   className,
   emptyVariant = 'empty',
   emptyMessage,
+  emptyAction,
   showPagination = true,
 }: DataTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1)
@@ -78,7 +81,11 @@ export function DataTable<T>({
               {paginatedItems.length === 0 ? (
                 <tr>
                   <td colSpan={columns.length} className="bg-white">
-                    <EmptyState variant={emptyVariant} message={emptyMessage} />
+                    <EmptyState
+                      variant={emptyVariant}
+                      message={emptyMessage}
+                      action={emptyAction}
+                    />
                   </td>
                 </tr>
               ) : (

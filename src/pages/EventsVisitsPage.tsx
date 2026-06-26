@@ -151,7 +151,17 @@ export function EventsVisitsPage() {
           <DataTable
             items={filteredEvents}
             rowKey={event => event.id}
-            emptyVariant={isFiltering ? 'search' : 'empty'}
+            emptyVariant={isFiltering ? 'search' : 'events'}
+            emptyAction={
+              !isFiltering && (
+                <button
+                  onClick={handleAddNew}
+                  className="rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#e68a00]"
+                >
+                  Add Event
+                </button>
+              )
+            }
             columns={[
               {
                 label: 'No.',

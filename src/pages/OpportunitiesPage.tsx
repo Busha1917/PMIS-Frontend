@@ -169,7 +169,17 @@ export function OpportunitiesPage() {
           <DataTable
             items={filteredOpportunities}
             rowKey={item => item.id}
-            emptyVariant={isFiltering ? 'search' : 'empty'}
+            emptyVariant={isFiltering ? 'search' : 'opportunities'}
+            emptyAction={
+              !isFiltering && (
+                <button
+                  onClick={handleAddNew}
+                  className="rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#e68a00]"
+                >
+                  Add Opportunity
+                </button>
+              )
+            }
             columns={[
               {
                 label: 'No.',
