@@ -27,6 +27,10 @@ const PAGE_LABELS: Record<AdminPage, string> = {
   baseData: 'Base Data',
   users: 'Users',
   roles: 'Roles',
+  'permission-actions': 'Permission Actions',
+  'permission-resources': 'Permission Resources',
+  profile: 'My Profile',
+  'audit-logs': 'Audit Logs',
 }
 
 type HeaderProps = {

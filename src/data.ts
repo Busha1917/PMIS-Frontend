@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Users,
   UserCircle2,
+  History,
 } from 'lucide-react'
 
 import type {
@@ -25,6 +26,7 @@ import type {
   RoleRecord,
   UserRecord,
   PermissionRecord,
+  AuditLogRecord,
 } from './types'
 
 export const navigationItems: NavigationItem[] = [
@@ -48,6 +50,12 @@ export const navigationItems: NavigationItem[] = [
     page: 'permission-resources',
     icon: Layers,
     group: 'USER MANAGEMENT',
+  },
+  {
+    label: 'Audit Logs',
+    page: 'audit-logs',
+    icon: History,
+    group: 'SYSTEM SETTINGS',
   },
 ]
 
@@ -717,4 +725,55 @@ export const dashboardActivity = [
   'Partnership agreement submitted for review',
   'AI research collaboration request approved',
   'Partner onboarding completed for new institution',
+]
+
+export const auditLogs: AuditLogRecord[] = [
+  {
+    id: 'al-1',
+    action: 'Login',
+    module: 'Auth',
+    user: 'Alexander M.',
+    timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+    details: 'User logged in successfully via SSO.',
+  },
+  {
+    id: 'al-2',
+    action: 'Create',
+    module: 'Partner',
+    user: 'Sarah K.',
+    timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+    details: 'Created partner "Global Health Initiative".',
+  },
+  {
+    id: 'al-3',
+    action: 'Update',
+    module: 'Agreement',
+    user: 'Alexander M.',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    details: 'Changed agreement status from Draft to Approved.',
+  },
+  {
+    id: 'al-4',
+    action: 'Delete',
+    module: 'Opportunity',
+    user: 'Admin User',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+    details: 'Deleted draft opportunity #4021.',
+  },
+  {
+    id: 'al-5',
+    action: 'Export',
+    module: 'Users',
+    user: 'Sarah K.',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
+    details: 'Exported 15 users to CSV.',
+  },
+  {
+    id: 'al-6',
+    action: 'Update',
+    module: 'Role',
+    user: 'Admin User',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
+    details: 'Updated permissions for "System Administrator" role.',
+  },
 ]

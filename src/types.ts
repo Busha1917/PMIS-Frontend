@@ -13,6 +13,16 @@ export type AdminPage =
   | 'permission-actions'
   | 'permission-resources'
   | 'profile'
+  | 'audit-logs'
+
+export type AuditLogRecord = {
+  id: string
+  action: string
+  module: string
+  user: string
+  timestamp: string
+  details: string
+}
 
 export type NavigationItem = {
   label: string

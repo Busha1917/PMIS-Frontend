@@ -12,7 +12,7 @@ type SidebarProps = {
   onLogout?: () => void
 }
 
-const groups = ['DASHBOARD', 'MAIN', 'BASE DATA', 'USER MANAGEMENT'] as const
+const groups = ['DASHBOARD', 'MAIN', 'BASE DATA', 'USER MANAGEMENT', 'SYSTEM SETTINGS'] as const
 
 export function Sidebar({
   activePage,

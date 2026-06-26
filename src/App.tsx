@@ -37,6 +37,9 @@ const PermissionResourcesPage = lazy(() =>
 const ProfilePage = lazy(() =>
   import('@/pages/ProfilePage').then(m => ({ default: m.ProfilePage }))
 )
+const AuditLogsPage = lazy(() =>
+  import('@/pages/AuditLogsPage').then(m => ({ default: m.AuditLogsPage }))
+)
 const UsersPage = lazy(() => import('@/pages/UsersPage').then(m => ({ default: m.UsersPage })))
 const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m.LoginPage })))
 
@@ -112,6 +115,16 @@ const pageRoutes: Record<AdminPage, { path: string; title: string; description: 
     title: 'Permission Resources',
     description: 'Manage the resources that can be protected.',
   },
+  profile: {
+    path: '/profile',
+    title: 'My Profile',
+    description: 'Manage your profile and view your permissions.',
+  },
+  'audit-logs': {
+    path: '/audit-logs',
+    title: 'Audit Logs',
+    description: 'Track system events and user activity.',
+  },
 }
 
 const pathToPage: Record<string, AdminPage> = Object.fromEntries(
@@ -183,6 +196,8 @@ function App() {
         return <BaseDataPage />
       case 'users':
         return <UsersPage />
+      case 'audit-logs':
+        return <AuditLogsPage />
       case 'roles':
         return <RolesPage />
       case 'permission-actions':
