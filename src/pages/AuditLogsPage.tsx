@@ -4,6 +4,7 @@ import { PageHeaderCard } from '../components/PageHeaderCard'
 import { PageToolbar } from '../components/PageToolbar'
 import type { AuditLogRecord } from '../types'
 import { auditLogs as initialLogs } from '../data'
+import { timeAgo } from '../utils/helpers'
 
 export function AuditLogsPage() {
   const [logs] = useState<AuditLogRecord[]>(initialLogs)
@@ -58,9 +59,17 @@ export function AuditLogsPage() {
           {
             label: 'Timestamp',
             render: log => (
-              <span className="text-sm text-slate-500 whitespace-nowrap">
-                {new Date(log.timestamp).toLocaleString()}
-              </span>
+              <div>
+                <span className="text-sm font-medium text-slate-700 whitespace-nowrap">
+                  {new Date(log.timestamp).toLocaleDateString(undefined, {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </span>
+                <span className="ml-2 text-xs text-slate-400">{timeAgo(log.timestamp)}</span>
+              </div>
             ),
             headClassName: 'bg-[#0b265a] text-white w-48',
           },
