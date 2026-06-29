@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { DataTable } from '../components/DataTable'
 import { EventForm } from '../components/EventForm'
+import { KanbanBoard } from '../components/KanbanBoard'
 import { PageToolbar } from '../components/PageToolbar'
 import { PageHeaderCard } from '../components/PageHeaderCard'
 import { StatusBadge } from '../components/StatusBadge'
@@ -56,6 +57,7 @@ export function EventsVisitsPage() {
   const [formMode, setFormMode] = useState<'create' | 'edit' | 'preview'>('create')
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list')
   const [activeFilters, setActiveFilters] = useState<FilterValues>({})
 
   const filteredEvents = useMemo(() => {
@@ -130,6 +132,25 @@ export function EventsVisitsPage() {
     setFormMode('create')
   }
 
+  const handleExport = () => {
+    exportToCsv(
+      'events-visits',
+      ['#', 'Title', 'Category', 'Type', 'Date & Time', 'Venue / Location', 'Status'],
+      [
+        filteredEvents.map((item, i) => [
+          i + 1,
+          item.title,
+          item.category || 'Event',
+          item.type,
+          item.date,
+          item.venue,
+          item.status,
+        ]),
+      ]
+    )
+    toast.success('Exported to CSV', { description: `${filteredEvents.length} records` })
+  }
+
   return (
     <div className="space-y-6">
       {!showForm && (
@@ -144,6 +165,9 @@ export function EventsVisitsPage() {
         onSearch={setSearchQuery}
         onFilter={() => setShowFilter(true)}
         onAdd={showForm ? undefined : handleAddNew}
+        onExport={showForm ? undefined : handleExport}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
         showSearchAndFilters={!showForm}
       />
 
@@ -157,75 +181,128 @@ export function EventsVisitsPage() {
         />
       ) : (
         <>
-          <DataTable
-            items={filteredEvents}
-            rowKey={event => event.id}
-            emptyVariant={isFiltering ? 'search' : 'events'}
-            emptyAction={
-              !isFiltering && (
-                <button
-                  onClick={handleAddNew}
-                  className="rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#e68a00]"
+          {viewMode === 'kanban' ? (
+            <KanbanBoard
+              columns={[
+                {
+                  id: 'Draft',
+                  title: 'Draft',
+                  color: 'bg-slate-400',
+                  items: filteredEvents.filter(event => event.status === 'Draft'),
+                },
+                {
+                  id: 'Approved',
+                  title: 'Approved',
+                  color: 'bg-blue-500',
+                  items: filteredEvents.filter(event => event.status === 'Approved'),
+                },
+                {
+                  id: 'Accepted',
+                  title: 'Accepted',
+                  color: 'bg-emerald-500',
+                  items: filteredEvents.filter(event => event.status === 'Accepted'),
+                },
+                {
+                  id: 'Rejected',
+                  title: 'Rejected',
+                  color: 'bg-red-500',
+                  items: filteredEvents.filter(event => event.status === 'Rejected'),
+                },
+              ]}
+              onAddCard={() => handleAddNew()}
+              renderCard={event => (
+                <div
+                  onClick={() => handleView(event)}
+                  className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md cursor-pointer transition flex flex-col gap-3"
                 >
-                  Add Record
-                </button>
-              )
-            }
-            columns={[
-              {
-                label: 'No.',
-                render: (event: EventRecord) => (
-                  <span className="font-semibold text-slate-900">{event.no}</span>
-                ),
-                headClassName: 'bg-[#0b265a] text-white text-center',
-                cellClassName: 'text-center',
-              },
-              {
-                label: 'Name / Title',
-                render: (event: EventRecord) => event.title,
-                headClassName: 'bg-[#0b265a] text-white',
-              },
-              {
-                label: 'Category',
-                render: (event: EventRecord) => event.category || 'Event',
-                headClassName: 'bg-[#0b265a] text-white text-center',
-                cellClassName: 'text-center',
-              },
-              {
-                label: 'Type',
-                render: (event: EventRecord) => event.type,
-                headClassName: 'bg-[#0b265a] text-white',
-              },
-              {
-                label: 'Date & Time',
-                render: (event: EventRecord) => event.date,
-                headClassName: 'bg-[#0b265a] text-white',
-              },
-              {
-                label: 'Venue / Location',
-                render: (event: EventRecord) => event.venue,
-                headClassName: 'bg-[#0b265a] text-white',
-              },
-              {
-                label: 'Status',
-                render: (event: EventRecord) => <StatusBadge status={event.status} />,
-                headClassName: 'bg-[#0b265a] text-white text-center',
-                cellClassName: 'text-center',
-              },
-              {
-                label: 'Action',
-                render: (event: EventRecord) => (
-                  <TableActionButtons
-                    onView={() => handleView(event)}
-                    onEdit={() => handleEdit(event)}
-                    onDelete={() => handleDelete(event)}
-                  />
-                ),
-                headClassName: 'bg-[#0b265a] text-white text-center',
-                cellClassName: 'text-center',
-              },
-            ]}
-          />
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h4 className="font-semibold text-sm text-slate-900 leading-tight">
+                        {event.title}
+                      </h4>
+                      <p className="text-xs text-slate-500 mt-1">{event.type}</p>
+                    </div>
+                    <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded">
+                      {event.no}
+                    </span>
+                  </div>
+                  <div className="text-sm text-slate-600">
+                    <p>{event.venue}</p>
+                    <p className="mt-1 text-xs text-slate-500">{event.date}</p>
+                  </div>
+                </div>
+              )}
+            />
+          ) : (
+            <DataTable
+              items={filteredEvents}
+              rowKey={event => event.id}
+              emptyVariant={isFiltering ? 'search' : 'events'}
+              emptyAction={
+                !isFiltering && (
+                  <button
+                    onClick={handleAddNew}
+                    className="rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#e68a00]"
+                  >
+                    Add Record
+                  </button>
+                )
+              }
+              columns={[
+                {
+                  label: 'No.',
+                  render: (_event, index) => (
+                    <span className="font-semibold text-slate-900">{index}</span>
+                  ),
+                  headClassName: 'bg-[#0b265a] text-white text-center',
+                },
+                {
+                  label: 'Name / Title',
+                  render: (event: EventRecord) => event.title,
+                  headClassName: 'bg-[#0b265a] text-white',
+                },
+                {
+                  label: 'Category',
+                  render: (event: EventRecord) => event.category || 'Event',
+                  headClassName: 'bg-[#0b265a] text-white text-center',
+                  cellClassName: 'text-center',
+                },
+                {
+                  label: 'Type',
+                  render: (event: EventRecord) => event.type,
+                  headClassName: 'bg-[#0b265a] text-white',
+                },
+                {
+                  label: 'Date & Time',
+                  render: (event: EventRecord) => event.date,
+                  headClassName: 'bg-[#0b265a] text-white',
+                },
+                {
+                  label: 'Venue / Location',
+                  render: (event: EventRecord) => event.venue,
+                  headClassName: 'bg-[#0b265a] text-white',
+                },
+                {
+                  label: 'Status',
+                  render: (event: EventRecord) => <StatusBadge status={event.status} />,
+                  headClassName: 'bg-[#0b265a] text-white text-center',
+                  cellClassName: 'text-center',
+                },
+                {
+                  label: 'Action',
+                  render: (event: EventRecord) => (
+                    <TableActionButtons
+                      onView={() => handleView(event)}
+                      onEdit={() => handleEdit(event)}
+                      onDelete={() => handleDelete(event)}
+                    />
+                  ),
+                  headClassName: 'bg-[#0b265a] text-white text-center',
+                  cellClassName: 'text-center',
+                },
+              ]}
+            />
+          )}
         </>
       )}
 

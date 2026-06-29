@@ -156,9 +156,10 @@ export function EngagementPage() {
             columns={[
               {
                 label: 'No.',
-                render: item => <span className="font-semibold text-slate-900">{item.no}</span>,
+                render: (_item, index) => (
+                  <span className="font-semibold text-slate-900">{index}</span>
+                ),
                 headClassName: 'bg-[#0b265a] text-white text-center',
-                cellClassName: 'text-center',
               },
               {
                 label: 'Engagement Type',

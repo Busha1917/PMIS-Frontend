@@ -9,7 +9,7 @@ import type { EmptyStateVariant } from './EmptyState'
 
 type DataColumn<T> = {
   label: string
-  render: (item: T) => ReactNode
+  render: (item: T, index?: number) => ReactNode
   headClassName?: string
   cellClassName?: string
 }
@@ -41,9 +41,10 @@ export function DataTable<T>({
   const [rowsPerPage, setRowsPerPage] = useState(10)
 
   const paginatedItems = useMemo(() => {
-    if (!showPagination) return items
+    const reversed = [...items].reverse()
+    if (!showPagination) return reversed
     const start = (currentPage - 1) * rowsPerPage
-    return items.slice(start, start + rowsPerPage)
+    return reversed.slice(start, start + rowsPerPage)
   }, [items, currentPage, rowsPerPage, showPagination])
 
   return (
@@ -89,11 +90,14 @@ export function DataTable<T>({
                   </td>
                 </tr>
               ) : (
-                paginatedItems.map(item => (
+                paginatedItems.map((item, rowIndex) => (
                   <TableRow key={rowKey(item)} className="bg-white hover:bg-slate-50">
                     {columns.map(column => (
-                      <TableCell key={column.label} className={column.cellClassName}>
-                        {column.render(item)}
+                      <TableCell
+                        key={column.label}
+                        className={cn('text-left', column.cellClassName)}
+                      >
+                        {column.render(item, rowIndex + 1)}
                       </TableCell>
                     ))}
                   </TableRow>

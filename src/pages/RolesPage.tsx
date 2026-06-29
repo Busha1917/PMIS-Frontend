@@ -130,11 +130,10 @@ export function RolesPage() {
             columns={[
               {
                 label: 'No.',
-                render: (role: RoleRecord) => (
-                  <span className="font-semibold text-slate-900">{role.no}</span>
+                render: (_role, index) => (
+                  <span className="font-semibold text-slate-900">{index}</span>
                 ),
                 headClassName: 'bg-[#0b265a] text-white text-center',
-                cellClassName: 'text-center',
               },
               {
                 label: 'Role Name',

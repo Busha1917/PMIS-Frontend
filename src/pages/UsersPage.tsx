@@ -138,11 +138,10 @@ export function UsersPage() {
             columns={[
               {
                 label: 'No.',
-                render: (user: UserRecord) => (
-                  <span className="font-semibold text-slate-900">{user.no}</span>
+                render: (_user, index) => (
+                  <span className="font-semibold text-slate-900">{index}</span>
                 ),
                 headClassName: 'bg-[#0b265a] text-white text-center',
-                cellClassName: 'text-center',
               },
               {
                 label: 'Full Name',
