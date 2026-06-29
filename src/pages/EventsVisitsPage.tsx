@@ -15,6 +15,15 @@ import { exportToCsv } from '../utils/exportCsv'
 
 const FILTER_FIELDS = [
   {
+    key: 'category',
+    label: 'Category',
+    type: 'select' as const,
+    options: [
+      { label: 'Event', value: 'Event' },
+      { label: 'Visit', value: 'Visit' },
+    ],
+  },
+  {
     key: 'status',
     label: 'Status',
     type: 'select' as const,
@@ -27,19 +36,16 @@ const FILTER_FIELDS = [
   },
   {
     key: 'type',
-    label: 'Event Type',
-    type: 'select' as const,
-    options: [
-      { label: 'Conference / Forum', value: 'Conference / Forum' },
-      { label: 'Concert', value: 'Concert' },
-      { label: 'Art/Culture', value: 'Art/Culture' },
-      { label: 'Sport', value: 'Sport' },
-      { label: 'AGM', value: 'AGM' },
-      { label: 'Workshop', value: 'Workshop' },
-      { label: 'Webinar', value: 'Webinar' },
-    ],
+    label: 'Type',
+    type: 'text' as const,
+    placeholder: 'e.g. Workshop, delegation visit...',
   },
-  { key: 'venue', label: 'Venue', type: 'text' as const, placeholder: 'Search by venue...' },
+  {
+    key: 'venue',
+    label: 'Venue / Location',
+    type: 'text' as const,
+    placeholder: 'Search by venue...',
+  },
 ]
 
 export function EventsVisitsPage() {
@@ -55,8 +61,11 @@ export function EventsVisitsPage() {
   const filteredEvents = useMemo(() => {
     return events.filter(item => {
       if (searchQuery && !item.title.toLowerCase().includes(searchQuery.toLowerCase())) return false
+      if (activeFilters.category && (item.category ?? 'Event') !== activeFilters.category)
+        return false
       if (activeFilters.status && item.status !== activeFilters.status) return false
-      if (activeFilters.type && item.type !== activeFilters.type) return false
+      if (activeFilters.type && !item.type.toLowerCase().includes(activeFilters.type.toLowerCase()))
+        return false
       if (
         activeFilters.venue &&
         !item.venue.toLowerCase().includes(activeFilters.venue.toLowerCase())
@@ -94,13 +103,13 @@ export function EventsVisitsPage() {
   const handleSubmit = (eventData: EventRecord) => {
     if (formMode === 'edit' && selectedEvent) {
       setEvents(current => current.map(item => (item.id === selectedEvent.id ? eventData : item)))
-      toast.success('Event updated', { description: eventData.title })
+      toast.success('Record updated', { description: eventData.title })
     } else {
       setEvents(current => [
         ...current,
         { ...eventData, id: `evt-${Date.now()}`, no: current.length + 1 },
       ])
-      toast.success('Event added', { description: eventData.title })
+      toast.success('Record added', { description: eventData.title })
     }
     setShowForm(false)
     setSelectedEvent(null)
@@ -130,8 +139,8 @@ export function EventsVisitsPage() {
         />
       )}
       <PageToolbar
-        searchPlaceholder="Search events..."
-        addLabel="Add Events & Visit"
+        searchPlaceholder="Search events & visits..."
+        addLabel="Add Record"
         onSearch={setSearchQuery}
         onFilter={() => setShowFilter(true)}
         onAdd={showForm ? undefined : handleAddNew}
@@ -158,7 +167,7 @@ export function EventsVisitsPage() {
                   onClick={handleAddNew}
                   className="rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#e68a00]"
                 >
-                  Add Event
+                  Add Record
                 </button>
               )
             }
@@ -172,12 +181,18 @@ export function EventsVisitsPage() {
                 cellClassName: 'text-center',
               },
               {
-                label: 'Event Name',
+                label: 'Name / Title',
                 render: (event: EventRecord) => event.title,
                 headClassName: 'bg-[#0b265a] text-white',
               },
               {
-                label: 'Event Type',
+                label: 'Category',
+                render: (event: EventRecord) => event.category || 'Event',
+                headClassName: 'bg-[#0b265a] text-white text-center',
+                cellClassName: 'text-center',
+              },
+              {
+                label: 'Type',
                 render: (event: EventRecord) => event.type,
                 headClassName: 'bg-[#0b265a] text-white',
               },
@@ -187,7 +202,7 @@ export function EventsVisitsPage() {
                 headClassName: 'bg-[#0b265a] text-white',
               },
               {
-                label: 'Venue',
+                label: 'Venue / Location',
                 render: (event: EventRecord) => event.venue,
                 headClassName: 'bg-[#0b265a] text-white',
               },

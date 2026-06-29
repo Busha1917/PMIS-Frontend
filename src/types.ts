@@ -77,14 +77,110 @@ export type RoleRecord = {
   rolePermissionResources: RolePermissionResource[]
 }
 
+export type PartnerParticipant = {
+  id: string
+  fullName: string
+  organizationName: string
+  position: string
+  email: string
+  phone: string
+  type: 'Speaker' | 'Guest' | 'VIP Guest' | 'Partner Representative'
+}
+
+export type EaiiParticipant = {
+  name: string
+  division: string
+  email: string
+}
+
+export type DelegationMember = {
+  fullName: string
+  position: string
+  organizationName: string
+  country: string
+  email: string
+  phone: string
+  status: 'VIP' | 'Normal'
+}
+
+export type AttachmentValue = string | File | null | undefined
+
 export type EventRecord = {
   id: string
   no: number
-  title: string
-  type: string
-  date: string
-  venue: string
+  title: string // Maps to Event Name
+  type: string // Maps to Event Type / Visit Type
+  date: string // Maps to Event Date / Visit Date
+  venue: string // Maps to Venue / Host Org / Location
   status: string
+
+  // New Fields
+  category?: 'Event' | 'Visit'
+
+  // If Event details
+  eventCategory?: 'Internal' | 'Joint'
+  startTime?: string
+  endTime?: string
+  organizer?: string
+  coOrganizer?: string
+  eventMode?: 'Physically' | 'Virtual' | 'Hybrid'
+  partnerParticipants?: PartnerParticipant[]
+  eaiiParticipants?: EaiiParticipant[]
+  estimatedBudget?: number
+  actualBudget?: number
+  fundingScore?: number
+  keyDiscussions?: string
+  agreementsReached?: string
+  actionPoints?: string
+  objectivesAchieved?: string
+  recommendations?: string
+  // Event Attachments (filenames, references, or uploaded files)
+  attachmentsAgenda?: AttachmentValue
+  attachmentsAttendanceSheet?: AttachmentValue
+  attachmentsPresentations?: AttachmentValue
+  attachmentsPhotos?: AttachmentValue
+  attachmentsVideos?: AttachmentValue
+  attachmentsEventReport?: AttachmentValue
+
+  // If Visit details
+  visitType?:
+    | 'Incoming visit'
+    | 'outgoing visit'
+    | 'technical visit'
+    | 'courtesy visit'
+    | 'site visit'
+    | 'delegation visit'
+    | 'benchmarking visit'
+    | 'international visit'
+  visitCategory?: 'Internal' | 'external' | 'international'
+  visitDate?: string
+  hostOrganization?: string
+  visitingOrganization?: string
+  visitLocations?: string
+  purposeOfVisit?: string
+
+  // Focal Person
+  focalPersonName?: string
+  focalPersonDivision?: string
+  focalPersonEmail?: string
+
+  // Delegation
+  delegations?: DelegationMember[]
+
+  // Discussion Summary (Visit)
+  keyTopicsDiscussed?: string
+  opportunitiesIdentified?: string
+  visitAgreementsReached?: string
+  followUpActions?: string
+
+  // Visit Attachments
+  visitAttachmentsSchedule?: AttachmentValue
+  visitAttachmentsAttendanceList?: AttachmentValue
+  visitAttachmentsMinutes?: AttachmentValue
+  visitAttachmentsPhotos?: AttachmentValue
+  visitAttachmentsVideos?: AttachmentValue
+  visitAttachmentsPresentations?: AttachmentValue
+  visitAttachmentsReport?: AttachmentValue
 }
 
 export type OpportunityRecord = {

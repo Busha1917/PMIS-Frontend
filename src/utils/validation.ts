@@ -37,13 +37,14 @@ export const agreementFormSchema = z
 
 export type AgreementFormValues = z.infer<typeof agreementFormSchema>
 
-// Schema for Event Forms
+// Schema for Event & Visit Forms
 export const eventFormSchema = z.object({
-  title: z.string().min(3, 'Event title must be at least 3 characters'),
-  type: z.enum(['Conference / Forum', 'Concert', 'Workshop', 'Webinar']),
-  date: z.string().min(1, 'Event date is required'),
-  venue: z.string().min(2, 'Venue must be at least 2 characters'),
+  title: z.string().min(2, 'Name/Title is required'),
+  type: z.string().min(1, 'Type is required'),
+  date: z.string().min(1, 'Date is required'),
+  venue: z.string().min(1, 'Venue/Location is required'),
   status: z.enum(['Draft', 'Approved', 'Accepted', 'Rejected']),
+  category: z.enum(['Event', 'Visit']).optional(),
 })
 export type EventFormValues = z.infer<typeof eventFormSchema>
 
