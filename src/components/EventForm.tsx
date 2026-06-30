@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { ArrowLeft, Trash2, Plus, Paperclip } from 'lucide-react'
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
+import { Modal } from '../ui/Modal'
 import type { EventRecord, PartnerParticipant, EaiiParticipant, DelegationMember } from '../types'
+import { StatusBadge } from './StatusBadge'
 
 type EventFormMode = 'create' | 'edit' | 'preview'
 
@@ -87,6 +89,19 @@ export function EventForm({ event, mode = 'create', onSubmit, onCancel, onEdit }
     email: '',
     phone: '',
     status: 'Normal',
+  })
+
+  const [confirmModal, setConfirmModal] = useState<{
+    open: boolean
+    type: 'Approve' | 'Accept' | null
+  }>({
+    open: false,
+    type: null,
+  })
+
+  const [rejectModal, setRejectModal] = useState<{ open: boolean; reason: string }>({
+    open: false,
+    reason: '',
   })
 
   useEffect(() => {
@@ -176,6 +191,10 @@ export function EventForm({ event, mode = 'create', onSubmit, onCancel, onEdit }
     if (canSubmit) {
       // Automatically map Name/Title & Venue fields for consistency with legacy table
       const finalState = { ...formState }
+      if (finalState.status === 'Rejected') {
+        finalState.status = 'Draft'
+        finalState.rejectionReason = ''
+      }
       if (formState.category === 'Visit') {
         finalState.title = `${formState.visitingOrganization || 'Visit'} to ${formState.hostOrganization || 'EAII'}`
         finalState.venue = formState.visitLocations || 'EAII Headquarters'
@@ -184,6 +203,37 @@ export function EventForm({ event, mode = 'create', onSubmit, onCancel, onEdit }
       }
       onSubmit?.(finalState)
     }
+  }
+
+  const handleApproveClick = () => {
+    setConfirmModal({ open: true, type: 'Approve' })
+  }
+
+  const handleAcceptClick = () => {
+    setConfirmModal({ open: true, type: 'Accept' })
+  }
+
+  const handleConfirmAction = () => {
+    const nextStatus = confirmModal.type === 'Approve' ? 'Approved' : 'Accepted'
+    const updated = { ...formState, status: nextStatus as any }
+    setFormState(updated)
+    onSubmit?.(updated)
+    setConfirmModal({ open: false, type: null })
+  }
+
+  const handleRejectClick = () => {
+    setRejectModal({ open: true, reason: formState.rejectionReason || '' })
+  }
+
+  const handleConfirmReject = () => {
+    const updated = {
+      ...formState,
+      status: 'Rejected' as const,
+      rejectionReason: rejectModal.reason,
+    }
+    setFormState(updated)
+    onSubmit?.(updated)
+    setRejectModal({ open: false, reason: '' })
   }
 
   if (isPreview) {
@@ -213,18 +263,60 @@ export function EventForm({ event, mode = 'create', onSubmit, onCancel, onEdit }
               <p className="mt-2 text-sm text-slate-500">ID: {formState.id}</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <span className="rounded-full bg-orange-100 px-4 py-2 text-sm font-semibold text-orange-800 shadow-sm shadow-orange-100/80">
-                {formState.status}
-              </span>
-              <Button
-                variant="outline"
-                onClick={onEdit ?? onCancel}
-                className="rounded-full border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-              >
-                Edit
-              </Button>
+              <StatusBadge status={formState.status} />
+              {formState.status !== 'Accepted' && (
+                <Button
+                  variant="outline"
+                  onClick={onEdit ?? onCancel}
+                  className="rounded-full border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                >
+                  Edit
+                </Button>
+              )}
+              {formState.status === 'Draft' && (
+                <>
+                  <Button
+                    variant="default"
+                    onClick={handleApproveClick}
+                    className="ml-2 bg-green-600 hover:bg-green-700 text-white rounded-full"
+                  >
+                    Approve
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={handleRejectClick}
+                    className="ml-2 rounded-full"
+                  >
+                    Reject
+                  </Button>
+                </>
+              )}
+              {formState.status === 'Approved' && (
+                <>
+                  <Button
+                    variant="default"
+                    onClick={handleAcceptClick}
+                    className="ml-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full"
+                  >
+                    Accept
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={handleRejectClick}
+                    className="ml-2 rounded-full"
+                  >
+                    Reject
+                  </Button>
+                </>
+              )}
             </div>
           </div>
+
+          {formState.status === 'Rejected' && formState.rejectionReason && (
+            <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 shadow-sm">
+              <span className="font-bold">Rejection Reason:</span> {formState.rejectionReason}
+            </div>
+          )}
 
           {formState.category === 'Event' ? (
             /* =================== EVENT PREVIEW =================== */
@@ -682,6 +774,79 @@ export function EventForm({ event, mode = 'create', onSubmit, onCancel, onEdit }
               </div>
             </div>
           )}
+
+          {/* Confirmation Modals */}
+          <Modal
+            open={confirmModal.open}
+            onClose={() => setConfirmModal({ open: false, type: null })}
+            title={`${confirmModal.type} Confirmation`}
+            size="sm"
+          >
+            <div className="px-6 py-6">
+              <p className="text-sm leading-7 text-slate-600">
+                Are you sure you want to {confirmModal.type === 'Approve' ? 'approve' : 'accept'}{' '}
+                this record?
+              </p>
+              <div className="mt-6 flex flex-wrap items-center justify-end gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setConfirmModal({ open: false, type: null })}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="default"
+                  onClick={handleConfirmAction}
+                  className={
+                    confirmModal.type === 'Approve'
+                      ? 'bg-green-600 hover:bg-green-700 text-white rounded-full'
+                      : 'bg-blue-600 hover:bg-blue-700 text-white rounded-full'
+                  }
+                >
+                  Confirm
+                </Button>
+              </div>
+            </div>
+          </Modal>
+
+          <Modal
+            open={rejectModal.open}
+            onClose={() => setRejectModal({ open: false, reason: '' })}
+            title="Rejection Reason"
+            size="md"
+          >
+            <div className="px-6 py-6 space-y-4">
+              <div>
+                <label className="mb-2 block text-xs font-medium text-slate-700">
+                  Please provide a reason for rejecting this record:
+                </label>
+                <textarea
+                  value={rejectModal.reason}
+                  onChange={e => setRejectModal(prev => ({ ...prev, reason: e.target.value }))}
+                  placeholder="Enter rejection reason here..."
+                  rows={4}
+                  className="w-full rounded-md border border-slate-300 bg-white p-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
+                  required
+                />
+              </div>
+              <div className="flex flex-wrap items-center justify-end gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setRejectModal({ open: false, reason: '' })}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={handleConfirmReject}
+                  disabled={!rejectModal.reason.trim()}
+                  className="rounded-full"
+                >
+                  Confirm Reject
+                </Button>
+              </div>
+            </div>
+          </Modal>
         </div>
       </div>
     )

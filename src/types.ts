@@ -181,6 +181,7 @@ export type EventRecord = {
   visitAttachmentsVideos?: AttachmentValue
   visitAttachmentsPresentations?: AttachmentValue
   visitAttachmentsReport?: AttachmentValue
+  rejectionReason?: string
 }
 
 export type OpportunityRecord = {

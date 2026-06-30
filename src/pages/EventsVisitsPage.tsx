@@ -103,8 +103,9 @@ export function EventsVisitsPage() {
   }
 
   const handleSubmit = (eventData: EventRecord) => {
-    if (formMode === 'edit' && selectedEvent) {
+    if ((formMode === 'edit' || formMode === 'preview') && selectedEvent) {
       setEvents(current => current.map(item => (item.id === selectedEvent.id ? eventData : item)))
+      setSelectedEvent(eventData)
       toast.success('Record updated', { description: eventData.title })
     } else {
       setEvents(current => [
@@ -293,7 +294,6 @@ export function EventsVisitsPage() {
                   render: (event: EventRecord) => (
                     <TableActionButtons
                       onView={() => handleView(event)}
-                      onEdit={() => handleEdit(event)}
                       onDelete={() => handleDelete(event)}
                     />
                   ),
