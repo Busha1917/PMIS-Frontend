@@ -192,6 +192,36 @@ export type OpportunityRecord = {
   date: string
   division: string
   status: string
+
+  // New Fields
+  partnerName?: string
+  acronym?: string
+  organizationType?: string
+  organizationTypeSpecify?: string
+  country?: string
+  regionState?: string
+  city?: string
+  website?: string
+  contactPersonName?: string
+  positionTitle?: string
+  email?: string
+  existingRelationship?: 'New Partner' | 'Exist Partner' | 'Former'
+  partnerInterestArea?: string
+  strategicImportance?: 'High' | 'Medium' | 'Low'
+  opportunityCategory?: string
+  opportunityCategorySpecify?: string
+  sourceSpecify?: string
+
+  // Description Fields
+  opportunityBackground?: string
+  opportunityDescription?: string
+  proposedCollaborationArea?: string
+  strategicAlignment?: string
+  expectedBenefits?: string
+  expectedOutcome?: string
+
+  // Rejection Reason
+  rejectionReason?: string
 }
 
 export type EngagementRecord = {
