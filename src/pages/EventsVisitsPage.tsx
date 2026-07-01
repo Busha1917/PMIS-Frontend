@@ -13,6 +13,7 @@ import type { FilterValues } from '../components/FilterDrawer'
 import type { EventRecord } from '../types'
 import { events as initialEvents } from '../data'
 import { exportToCsv } from '../utils/exportCsv'
+import { useAuth } from '../hooks/useAuth'
 
 const FILTER_FIELDS = [
   {
@@ -30,9 +31,11 @@ const FILTER_FIELDS = [
     type: 'select' as const,
     options: [
       { label: 'Draft', value: 'Draft' },
+      { label: 'Pending Review', value: 'Pending Review' },
       { label: 'Approved', value: 'Approved' },
-      { label: 'Accepted', value: 'Accepted' },
+      { label: 'Pending Final Review', value: 'Pending Final Review' },
       { label: 'Rejected', value: 'Rejected' },
+      { label: 'Completed', value: 'Completed' },
     ],
   },
   {
@@ -51,6 +54,8 @@ const FILTER_FIELDS = [
 
 export function EventsVisitsPage() {
   const [events, setEvents] = useState<EventRecord[]>(initialEvents)
+  const { role } = useAuth()
+  const userRole = role as 'Officer' | 'Director General'
   const [showForm, setShowForm] = useState(false)
   const [showFilter, setShowFilter] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<EventRecord | null>(null)
@@ -178,6 +183,7 @@ export function EventsVisitsPage() {
           onSubmit={handleSubmit}
           onCancel={handleCancel}
           onEdit={() => setFormMode('edit')}
+          userRole={userRole}
         />
       ) : (
         <>
@@ -191,22 +197,34 @@ export function EventsVisitsPage() {
                   items: filteredEvents.filter(event => event.status === 'Draft'),
                 },
                 {
+                  id: 'Pending Review',
+                  title: 'Pending Review',
+                  color: 'bg-yellow-500',
+                  items: filteredEvents.filter(event => event.status === 'Pending Review'),
+                },
+                {
                   id: 'Approved',
                   title: 'Approved',
                   color: 'bg-blue-500',
                   items: filteredEvents.filter(event => event.status === 'Approved'),
                 },
                 {
-                  id: 'Accepted',
-                  title: 'Accepted',
-                  color: 'bg-emerald-500',
-                  items: filteredEvents.filter(event => event.status === 'Accepted'),
+                  id: 'Pending Final Review',
+                  title: 'Pending Final Review',
+                  color: 'bg-purple-500',
+                  items: filteredEvents.filter(event => event.status === 'Pending Final Review'),
                 },
                 {
                   id: 'Rejected',
                   title: 'Rejected',
                   color: 'bg-red-500',
                   items: filteredEvents.filter(event => event.status === 'Rejected'),
+                },
+                {
+                  id: 'Completed',
+                  title: 'Completed',
+                  color: 'bg-green-500',
+                  items: filteredEvents.filter(event => event.status === 'Completed'),
                 },
               ]}
               onAddCard={() => handleAddNew()}

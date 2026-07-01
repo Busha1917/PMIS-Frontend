@@ -79,7 +79,7 @@ export function Header({ activePage, onNavigate, onLogout }: HeaderProps) {
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const { breadcrumbSuffix } = useLayout()
-  const { user } = useAuth()
+  const { user, changeRole } = useAuth()
   const pageLabel = PAGE_LABELS[activePage] || 'Profile'
   const isHome = activePage === 'dashboard'
 
@@ -164,6 +164,23 @@ export function Header({ activePage, onNavigate, onLogout }: HeaderProps) {
                     <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
                       <p className="text-sm font-semibold text-slate-900 truncate">{user?.name}</p>
                       <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                    </div>
+                    <div className="px-4 py-2 border-b border-slate-100">
+                      <label className="text-xs font-semibold text-slate-500 mb-1.5 block">
+                        Role Simulator
+                      </label>
+                      <select
+                        value={user?.role || ''}
+                        onChange={e => changeRole(e.target.value as any)}
+                        className="w-full text-sm border border-slate-200 rounded-md py-1 px-2 outline-none focus:border-[#161A61] focus:ring-1 focus:ring-[#161A61]/10 bg-slate-50 text-slate-700 cursor-pointer"
+                      >
+                        <option value="admin">System Admin</option>
+                        <option value="manager">Manager</option>
+                        <option value="viewer">Viewer</option>
+                        <option value="Officer">Officer</option>
+                        <option value="Director General">Director General</option>
+                        <option value="Assigned Person">Assigned Person</option>
+                      </select>
                     </div>
                     <div className="py-1">
                       <button

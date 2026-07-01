@@ -42,6 +42,14 @@ export type NavigationItem = {
   group: string
 }
 
+export type UserRole =
+  | 'admin'
+  | 'manager'
+  | 'viewer'
+  | 'Officer'
+  | 'Director General'
+  | 'Assigned Person'
+
 export type UserStatus = 'Active' | 'Pending' | 'Inactive'
 
 export type UserRecord = {
@@ -112,7 +120,17 @@ export type EventRecord = {
   type: string // Maps to Event Type / Visit Type
   date: string // Maps to Event Date / Visit Date
   venue: string // Maps to Venue / Host Org / Location
-  status: string
+  status:
+    | 'Draft'
+    | 'Pending Review'
+    | 'Approved'
+    | 'Pending Final Review'
+    | 'Rejected'
+    | 'Completed'
+
+  // DG Review Fields
+  assignedPerson?: string
+  reviewComment?: string
 
   // New Fields
   category?: 'Event' | 'Visit'
