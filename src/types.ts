@@ -113,6 +113,43 @@ export type DelegationMember = {
 
 export type AttachmentValue = string | File | null | undefined
 
+export type AuditTrailEntry = {
+  actorName: string
+  actorRole: string
+  actionLabel:
+    | 'Submitted'
+    | 'Approved'
+    | 'Rejected'
+    | 'Assigned'
+    | 'Outcome Submitted'
+    | 'Completed'
+    | 'Sent Back for Revision'
+  previousStatus:
+    | 'Draft'
+    | 'Pending Review'
+    | 'Approved'
+    | 'Pending Final Review'
+    | 'Rejected'
+    | 'Completed'
+  newStatus:
+    | 'Draft'
+    | 'Pending Review'
+    | 'Approved'
+    | 'Pending Final Review'
+    | 'Rejected'
+    | 'Completed'
+  timestamp: string // ISO 8601
+  comment?: string
+}
+
+export type FeedbackEntry = {
+  type: 'Rejection' | 'Revision Request'
+  authorName: string
+  statusAtTime: string
+  timestamp: string // ISO 8601
+  comment: string
+}
+
 export type EventRecord = {
   id: string
   no: number
@@ -130,7 +167,12 @@ export type EventRecord = {
 
   // DG Review Fields
   assignedPerson?: string
+  assignedPersonId?: string
   reviewComment?: string
+  outcomeDueDate?: string // ISO 8601 date-only YYYY-MM-DD
+  hasOutcomeDraft?: boolean
+  auditTrail?: AuditTrailEntry[]
+  feedbackEntries?: FeedbackEntry[]
 
   // New Fields
   category?: 'Event' | 'Visit'

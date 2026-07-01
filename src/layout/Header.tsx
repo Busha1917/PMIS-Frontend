@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import {
   Bell,
   ChevronRight,
@@ -7,6 +8,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Info,
+  XCircle,
   LogOut,
   User,
   Settings as SettingsIcon,
@@ -16,6 +18,11 @@ import { Drawer } from '../ui/Drawer'
 import { Button } from '../ui'
 import { useLayout } from '../contexts/LayoutContext'
 import { useAuth } from '../hooks/useAuth'
+import {
+  selectNotifications,
+  selectUnreadCount,
+  markAllRead,
+} from '../store/slices/notificationsSlice'
 
 const PAGE_LABELS: Record<AdminPage, string> = {
   dashboard: 'Dashboard',
@@ -40,46 +47,27 @@ type HeaderProps = {
   onLogout?: () => void
 }
 
-const MOCK_NOTIFICATIONS = [
-  {
-    id: 1,
-    title: 'New Partnership Agreement',
-    message: 'A new agreement with Ministry of Tech has been drafted.',
-    time: '5m ago',
-    type: 'info',
-    unread: true,
-  },
-  {
-    id: 11,
-    title: 'Gemechis Gebeyehu is kidnapped',
-    message: 'A new agreement with Ministry of Tech has been drafted.',
-    time: '5m ago',
-    type: 'error',
-    unread: true,
-  },
-  {
-    id: 2,
-    title: 'Visit Scheduled',
-    message: 'Global Corp visit scheduled for next Tuesday at 10:00 AM.',
-    time: '2h ago',
-    type: 'success',
-    unread: true,
-  },
-  {
-    id: 3,
-    title: 'Follow-up Required',
-    message: 'Engagement follow-up with DataCorp is due today.',
-    time: '1d ago',
-    type: 'warning',
-    unread: false,
-  },
-]
+/** Format an ISO timestamp as relative time, e.g. "5m ago", "2h ago", "3d ago" */
+function formatRelativeTime(isoTimestamp: string): string {
+  const diff = Date.now() - new Date(isoTimestamp).getTime()
+  const minutes = Math.floor(diff / 60_000)
+  if (minutes < 60) return `${Math.max(minutes, 1)}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  return `${days}d ago`
+}
 
 export function Header({ activePage, onNavigate, onLogout }: HeaderProps) {
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const { breadcrumbSuffix } = useLayout()
   const { user, changeRole } = useAuth()
+  const dispatch = useDispatch()
+
+  const notifications = useSelector(selectNotifications)
+  const unreadCount = useSelector(selectUnreadCount)
+
   const pageLabel = PAGE_LABELS[activePage] || 'Profile'
   const isHome = activePage === 'dashboard'
 
@@ -133,7 +121,11 @@ export function Header({ activePage, onNavigate, onLogout }: HeaderProps) {
               aria-label="Notifications"
             >
               <Bell className="h-5 w-5" />
-              <span className="absolute right-1.5 top-1.5 inline-flex h-2.5 w-2.5 items-center justify-center rounded-full bg-[#ff8a1a] ring-2 ring-white" />
+              {unreadCount > 0 && (
+                <span className="absolute right-1 top-1 inline-flex min-w-[18px] h-[18px] items-center justify-center rounded-full bg-[#ff8a1a] ring-2 ring-white px-1 text-[10px] font-bold text-white leading-none">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </button>
 
             {/* Profile Dropdown */}
@@ -232,35 +224,49 @@ export function Header({ activePage, onNavigate, onLogout }: HeaderProps) {
       >
         <div className="flex h-full flex-col">
           <div className="flex-1 overflow-y-auto p-4">
-            <div className="space-y-4">
-              {MOCK_NOTIFICATIONS.map(notif => (
-                <div
-                  key={notif.id}
-                  className={`relative flex gap-4 rounded-xl border p-4 ${
-                    notif.unread ? 'border-slate-200 bg-slate-50' : 'border-transparent bg-white'
-                  }`}
-                >
-                  <div className="mt-0.5 shrink-0">
-                    {notif.type === 'success' && (
-                      <CheckCircle2 className="h-5 w-5 text-green-500" />
+            {notifications.length === 0 ? (
+              <p className="text-center text-sm text-slate-400 py-8">No notifications</p>
+            ) : (
+              <div className="space-y-4">
+                {notifications.map(notif => (
+                  <div
+                    key={notif.id}
+                    className={`relative flex gap-4 rounded-xl border p-4 ${
+                      !notif.isRead ? 'border-slate-200 bg-slate-50' : 'border-transparent bg-white'
+                    }`}
+                  >
+                    <div className="mt-0.5 shrink-0">
+                      {notif.type === 'success' && (
+                        <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      )}
+                      {notif.type === 'warning' && (
+                        <AlertCircle className="h-5 w-5 text-amber-500" />
+                      )}
+                      {notif.type === 'info' && <Info className="h-5 w-5 text-blue-500" />}
+                      {notif.type === 'error' && <XCircle className="h-5 w-5 text-red-500" />}
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <p className="text-sm font-medium text-slate-900">{notif.title}</p>
+                      <p className="text-sm text-slate-500">{notif.message}</p>
+                      <p className="text-xs font-medium text-slate-400">
+                        {formatRelativeTime(notif.timestamp)}
+                      </p>
+                    </div>
+                    {!notif.isRead && (
+                      <span className="absolute right-4 top-4 h-2 w-2 rounded-full bg-[#ff8a1a]" />
                     )}
-                    {notif.type === 'warning' && <AlertCircle className="h-5 w-5 text-amber-500" />}
-                    {notif.type === 'info' && <Info className="h-5 w-5 text-blue-500" />}
                   </div>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium text-slate-900">{notif.title}</p>
-                    <p className="text-sm text-slate-500">{notif.message}</p>
-                    <p className="text-xs font-medium text-slate-400">{notif.time}</p>
-                  </div>
-                  {notif.unread && (
-                    <span className="absolute right-4 top-4 h-2 w-2 rounded-full bg-[#ff8a1a]" />
-                  )}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
           <div className="border-t border-slate-200 p-4">
-            <Button variant="outline" className="w-full">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => dispatch(markAllRead())}
+              disabled={unreadCount === 0}
+            >
               Mark all as read
             </Button>
           </div>

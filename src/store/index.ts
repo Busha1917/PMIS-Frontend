@@ -2,10 +2,12 @@ import { configureStore } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query'
 import { apiSlice } from './apiSlice'
 import authReducer from './slices/authSlice'
+import notificationsReducer from './slices/notificationsSlice'
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    notifications: notificationsReducer,
     // Add the generated RTK Query API slice reducer
     [apiSlice.reducerPath]: apiSlice.reducer,
   },
