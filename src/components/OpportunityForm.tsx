@@ -220,187 +220,153 @@ export function OpportunityForm({
   if (isPreview) {
     return (
       <div className="space-y-6">
-        <div className="rounded-[2rem] border border-slate-200/70 bg-slate-50/90 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur-sm">
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-start gap-4">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="mt-1 text-[#161A61] hover:text-slate-700"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
             <div>
-              <button
-                type="button"
-                onClick={onCancel}
-                className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-950"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </button>
-              <div className="mt-4 sm:mt-0">
-                <h1 className="text-2xl font-semibold text-slate-950">Register Events & Visits</h1>
-                <p className="mt-2 text-sm text-slate-500">
-                  Register events, visits, and track outcomes
-                </p>
-                <div className="mt-4">
-                  <StatusBadge status={formState.status} />
-                </div>
-              </div>
+              <h1 className="text-[22px] font-semibold text-[#161A61]">Opportunity Details</h1>
+              <p className="mt-1 text-sm text-slate-500">
+                View and manage opportunity information and outcomes
+              </p>
             </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <StatusBadge status={formState.status} />
             {formState.status !== 'Approved' && (
-              <div className="flex flex-wrap items-center gap-3">
+              <>
                 <Button
-                  className="!bg-emerald-500 !text-white hover:!bg-emerald-600"
+                  className="h-10 border-none bg-[#22c55e] px-8 font-medium text-white shadow-none hover:bg-[#16a34a]"
                   type="button"
                   onClick={handleVerifyClick}
                 >
                   {formState.status === 'Pending Approval' ? 'Approve' : 'Send for approval'}
                 </Button>
                 <Button
-                  className="!bg-red-500 !text-white hover:!bg-red-600"
+                  className="h-10 border-none bg-[#ef4444] px-8 font-medium text-white shadow-none hover:bg-[#dc2626]"
                   type="button"
                   onClick={handleRejectClick}
                 >
                   Reject
                 </Button>
-              </div>
+              </>
             )}
           </div>
+        </div>
 
+        <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6 sm:p-8 shadow-inner">
           <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
-            <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="mb-6 flex items-center gap-3 border-b border-slate-100 pb-4">
-                <span className="h-9 w-1 rounded-full bg-orange-500" />
-                <h2 className="text-lg font-semibold text-slate-900">Opportunity information</h2>
-              </div>
-              <dl className="grid gap-4 text-sm text-slate-700">
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
-                  <dt className="font-medium text-slate-600">Opportunity ID</dt>
-                  <dd className="font-semibold text-slate-950">{formState.id}</dd>
-                </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
-                  <dt className="font-medium text-slate-600">Opportunity Title</dt>
-                  <dd className="font-semibold text-slate-950">{formState.title || 'N/A'}</dd>
-                </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
-                  <dt className="font-medium text-slate-600">Partner name</dt>
-                  <dd className="font-semibold text-slate-950">{formState.partnerName || 'N/A'}</dd>
-                </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
-                  <dt className="font-medium text-slate-600">Division</dt>
-                  <dd className="font-semibold text-slate-950">{formState.division || 'N/A'}</dd>
-                </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
-                  <dt className="font-medium text-slate-600">Acronym</dt>
-                  <dd className="font-semibold text-slate-950">{formState.acronym || 'N/A'}</dd>
-                </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
-                  <dt className="font-medium text-slate-600">organization type</dt>
-                  <dd className="font-semibold text-slate-950">
-                    {formState.organizationType || 'N/A'}
-                  </dd>
-                </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
-                  <dt className="font-medium text-slate-600">Country</dt>
-                  <dd className="font-semibold text-slate-950">{formState.country || 'N/A'}</dd>
-                </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
-                  <dt className="font-medium text-slate-600">Region/State</dt>
-                  <dd className="font-semibold text-slate-950">{formState.regionState || 'N/A'}</dd>
-                </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
-                  <dt className="font-medium text-slate-600">City</dt>
-                  <dd className="font-semibold text-slate-950">{formState.city || 'N/A'}</dd>
-                </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
-                  <dt className="font-medium text-slate-600">Website</dt>
-                  <dd className="font-semibold text-slate-950">{formState.website || 'N/A'}</dd>
-                </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
-                  <dt className="font-medium text-slate-600">Contact Person Name</dt>
-                  <dd className="font-semibold text-slate-950">
-                    {formState.contactPersonName || 'N/A'}
-                  </dd>
-                </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
-                  <dt className="font-medium text-slate-600">Email</dt>
-                  <dd className="font-semibold text-slate-950">{formState.email || 'N/A'}</dd>
-                </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
-                  <dt className="font-medium text-slate-600">Partner interest Area</dt>
-                  <dd className="font-semibold text-slate-950">
-                    {formState.partnerInterestArea || 'N/A'}
-                  </dd>
-                </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
-                  <dt className="font-medium text-slate-600">Opportunity Category</dt>
-                  <dd className="font-semibold text-slate-950">
-                    {formState.opportunityCategory || 'N/A'}
-                  </dd>
-                </div>
-                <div className="flex items-center justify-between gap-4">
-                  <dt className="font-medium text-slate-600">Source of Opportunity</dt>
-                  <dd className="font-semibold text-slate-950">{formState.source || 'N/A'}</dd>
-                </div>
+            <div className="rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm">
+              <h2 className="mb-6 text-sm font-semibold text-[#161A61]">Opportunity information</h2>
+              <dl className="flex flex-col text-[13px] text-slate-800">
+                {[
+                  { label: 'Opportunity ID', value: formState.id },
+                  { label: 'Opportunity Title', value: formState.title || 'N/A' },
+                  { label: 'Partner name', value: formState.partnerName || 'N/A' },
+                  { label: 'organization type', value: formState.organizationType || 'N/A' },
+                  { label: 'Country', value: formState.country || 'N/A' },
+                  { label: 'Website', value: formState.website || 'N/A' },
+                  { label: 'Contact Person Name', value: formState.contactPersonName || 'N/A' },
+                  { label: 'Email', value: formState.email || 'N/A' },
+                  { label: 'Partner interest Area', value: formState.partnerInterestArea || 'N/A' },
+                  { label: 'Opportunity Category', value: formState.opportunityCategory || 'N/A' },
+                  { label: 'Source of Opportunity', value: formState.source || 'N/A' },
+                ].map((item, index) => (
+                  <div
+                    key={item.label}
+                    className={`flex items-center justify-between gap-4 py-4 ${
+                      index !== 10 ? 'border-b border-slate-100' : ''
+                    }`}
+                  >
+                    <dt className="text-slate-500">{item.label}</dt>
+                    <dd className="font-semibold text-slate-900">{item.value}</dd>
+                  </div>
+                ))}
               </dl>
             </div>
 
             <div className="space-y-6">
-              <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
-                  <span className="h-9 w-1 rounded-full bg-orange-500" />
-                  <h2 className="text-lg font-semibold text-slate-900">Outcomes</h2>
-                </div>
-                <div className="space-y-4 text-sm text-slate-700">
-                  <div>
-                    <p className="font-semibold text-slate-900">Key Discussions:</p>
-                    <p className="mt-2 text-slate-600">
-                      {formState.opportunityBackground || 'No discussions provided.'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-slate-900">Agreements Reached:</p>
-                    <p className="mt-2 text-slate-600">
-                      {formState.opportunityDescription || 'No agreements provided.'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-slate-900">Action Points:</p>
-                    <p className="mt-2 text-slate-600">
-                      {formState.expectedOutcome || 'No action points provided.'}
-                    </p>
-                  </div>
+              <div className="rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm">
+                <h2 className="mb-6 text-sm font-semibold text-[#161A61]">Outcomes</h2>
+                <div className="space-y-6 text-[12px] text-slate-600">
+                  <p className="leading-relaxed">
+                    <span className="font-semibold text-slate-900">Key Discussions:</span>{' '}
+                    {formState.opportunityBackground || 'No discussions provided.'}
+                  </p>
+                  <p className="leading-relaxed">
+                    <span className="font-semibold text-slate-900">Agreements Reached:</span>{' '}
+                    {formState.opportunityDescription || 'No agreements provided.'}
+                  </p>
+                  <p className="leading-relaxed">
+                    <span className="font-semibold text-slate-900">Action Points:</span>{' '}
+                    {formState.expectedOutcome || 'No action points provided.'}
+                  </p>
                 </div>
               </div>
-              <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
-                  <span className="h-9 w-1 rounded-full bg-orange-500" />
-                  <h2 className="text-lg font-semibold text-slate-900">Attachments</h2>
-                </div>
+
+              <div className="rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm">
+                <h2 className="mb-6 text-sm font-semibold text-[#161A61]">Attachments</h2>
                 <div className="space-y-4">
                   {attachedFiles.length > 0 ? (
-                    attachedFiles.map(file => (
-                      <div
-                        key={file.name}
-                        className="rounded-3xl border border-slate-200 bg-slate-50 p-4 shadow-sm"
-                      >
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
-                              <span className="text-lg font-semibold">DOC</span>
+                    attachedFiles.map((file, i) => (
+                      <div key={file.name} className="space-y-3">
+                        <div className="flex items-center justify-between text-[12px]">
+                          <span className="text-slate-800">Document 0{i + 1}</span>
+                          <span className="text-slate-300">1 documents</span>
+                        </div>
+                        <div className="flex items-center justify-between rounded-lg bg-[#f8f9fa] p-4">
+                          <div className="flex items-center gap-4">
+                            <div className="text-[#161A61]">
+                              <svg
+                                width="20"
+                                height="24"
+                                viewBox="0 0 20 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M12 2H4C2.89543 2 2 2.89543 2 4V20C2 21.1046 2.89543 22 4 22H16C17.1046 22 18 21.1046 18 20V8L12 2Z"
+                                  fill="#161A61"
+                                />
+                                <path fill="white" d="M12 2V8H18" opacity="0.3" />
+                                <rect fill="white" x="6" y="12" width="8" height="1.5" />
+                                <rect fill="white" x="6" y="16" width="5" height="1.5" />
+                              </svg>
                             </div>
                             <div>
-                              <p className="font-semibold text-slate-950">{file.name}</p>
-                              <p className="text-xs text-slate-500">
-                                {(file.size / 1024 / 1024).toFixed(1)} Mb
+                              <p className="text-[13px] font-semibold text-[#161A61]">
+                                {file.name}
+                              </p>
+                              <p className="text-[11px] text-slate-400">
+                                {(file.size / 1024 / 1024).toFixed(1)}Mb
                               </p>
                             </div>
                           </div>
-                          <button
-                            type="button"
-                            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-500 shadow-sm hover:bg-slate-100"
-                          >
-                            <span className="text-xl">👁</span>
+                          <button type="button" className="text-slate-400 hover:text-slate-600">
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                              <circle cx="12" cy="12" r="3" fill="currentColor" />
+                            </svg>
                           </button>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
+                    <div className="rounded-lg bg-[#f8f9fa] p-6 text-center text-[12px] text-slate-500">
                       No attached documents yet.
                     </div>
                   )}
@@ -560,30 +526,21 @@ export function OpportunityForm({
                 <label className="mb-2 block text-sm font-medium text-slate-700">
                   Region/State
                 </label>
-                <select
+                <Input
                   value={formState.regionState}
                   onChange={e =>
                     setFormState(current => ({ ...current, regionState: e.target.value }))
                   }
-                  className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
-                >
-                  <option value="">Region/State</option>
-                  <option value="Addis Ababa">Addis Ababa</option>
-                  <option value="Amhara">Amhara</option>
-                  <option value="Oromia">Oromia</option>
-                </select>
+                  placeholder="Region/State"
+                />
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">City</label>
-                <select
+                <Input
                   value={formState.city}
                   onChange={e => setFormState(current => ({ ...current, city: e.target.value }))}
-                  className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
-                >
-                  <option value="">City</option>
-                  <option value="Addis Ababa">Addis Ababa</option>
-                  <option value="Bahir Dar">Bahir Dar</option>
-                </select>
+                  placeholder="City"
+                />
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">Website</label>
