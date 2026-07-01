@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { ArrowLeft, Trash2, Plus, User, CheckCircle2, ClipboardList, Edit3 } from 'lucide-react'
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
+import { Modal } from '../ui/Modal'
 import type { EventRecord, PartnerParticipant, EaiiParticipant, DelegationMember } from '../types'
+import { StatusBadge } from './StatusBadge'
 
 type EventFormMode = 'create' | 'edit' | 'preview'
 

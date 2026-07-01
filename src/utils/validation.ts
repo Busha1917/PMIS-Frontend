@@ -48,13 +48,36 @@ export const eventFormSchema = z.object({
 })
 export type EventFormValues = z.infer<typeof eventFormSchema>
 
-// Schema for Opportunity Forms
 export const opportunityFormSchema = z.object({
   title: z.string().min(3, 'Opportunity title must be at least 3 characters'),
   source: z.string().min(2, 'Source must be at least 2 characters'),
   date: z.string().min(1, 'Date is required'),
   division: z.string().min(2, 'Division must be at least 2 characters'),
   status: z.enum(['Draft', 'Approved', 'Accepted', 'Rejected']),
+  partnerName: z.string().optional(),
+  acronym: z.string().optional(),
+  organizationType: z.string().optional(),
+  organizationTypeSpecify: z.string().optional(),
+  country: z.string().optional(),
+  regionState: z.string().optional(),
+  city: z.string().optional(),
+  website: z.string().optional(),
+  contactPersonName: z.string().optional(),
+  positionTitle: z.string().optional(),
+  email: z.string().optional(),
+  existingRelationship: z.enum(['New Partner', 'Exist Partner', 'Former']).optional(),
+  partnerInterestArea: z.string().optional(),
+  strategicImportance: z.enum(['High', 'Medium', 'Low']).optional(),
+  opportunityCategory: z.string().optional(),
+  opportunityCategorySpecify: z.string().optional(),
+  sourceSpecify: z.string().optional(),
+  opportunityBackground: z.string().optional(),
+  opportunityDescription: z.string().optional(),
+  proposedCollaborationArea: z.string().optional(),
+  strategicAlignment: z.string().optional(),
+  expectedBenefits: z.string().optional(),
+  expectedOutcome: z.string().optional(),
+  rejectionReason: z.string().optional(),
 })
 export type OpportunityFormValues = z.infer<typeof opportunityFormSchema>
 

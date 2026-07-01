@@ -120,10 +120,11 @@ export function OpportunitiesPage() {
   }
 
   const handleSubmit = (formData: OpportunityRecord) => {
-    if (formMode === 'edit' && selectedOpportunity) {
+    if ((formMode === 'edit' || formMode === 'preview') && selectedOpportunity) {
       setOpportunities(current =>
         current.map(item => (item.id === selectedOpportunity.id ? formData : item))
       )
+      setSelectedOpportunity(formData)
       toast.success('Opportunity updated', { description: formData.title })
     } else {
       setOpportunities(current => [
@@ -281,7 +282,6 @@ export function OpportunitiesPage() {
                   render: item => (
                     <TableActionButtons
                       onView={() => handleView(item)}
-                      onEdit={() => handleEdit(item)}
                       onDelete={() => handleDelete(item)}
                     />
                   ),
