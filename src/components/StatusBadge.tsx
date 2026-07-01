@@ -11,7 +11,8 @@ type StatusStyle = { backgroundColor: string; color: string }
 // lose specificity battles. Inline styles are always applied, guaranteed.
 const STATUS_STYLES: Record<string, StatusStyle> = {
   draft: { backgroundColor: '#B0C4D8', color: '#4A5568' },
-  approved: { backgroundColor: 'rgba(52, 199, 89, 0.5)', color: '#05651D' }, // #34C759 at 50% — invalid in Tailwind but works perfectly here
+  'pending approval': { backgroundColor: '#FDE68A', color: '#92400E' },
+  approved: { backgroundColor: 'rgba(52, 199, 89, 0.5)', color: '#05651D' },
   accepted: { backgroundColor: '#CEE7D4', color: '#34A853' },
   rejected: { backgroundColor: '#F89E9E', color: '#BE1616' },
   active: { backgroundColor: '#4BCB6B', color: '#ffffff' },

@@ -14,7 +14,7 @@ type OpportunityFormProps = {
   onEdit?: () => void
 }
 
-const statusOptions = ['Draft', 'Approved', 'Accepted', 'Rejected']
+const statusOptions = ['Draft', 'Pending Approval', 'Approved', 'Accepted', 'Rejected']
 
 const organizationTypes = [
   'International organization',
@@ -31,6 +31,18 @@ const organizationTypes = [
 ]
 
 const existingRelationships = ['New Partner', 'Exist Partner', 'Former']
+
+const divisionOptions = [
+  'Finance',
+  'Marketing',
+  'Product',
+  'Engineering',
+  'Business',
+  'Design',
+  'Market Management',
+  'Core Platform',
+  'Production System',
+]
 
 const strategicImportanceLevels = ['High', 'Medium', 'Low']
 
@@ -138,6 +150,19 @@ export function OpportunityForm({
 
   const isPreview = mode === 'preview'
   const canSubmit = mode !== 'preview'
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([])
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false)
+  const [confirmModalType, setConfirmModalType] = useState<'sendForApproval' | 'approve' | null>(
+    null
+  )
+  const [rejectModalOpen, setRejectModalOpen] = useState(false)
+  const [rejectReason, setRejectReason] = useState(formState.rejectionReason || '')
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (!files) return
+    setAttachedFiles(Array.from(files))
+  }
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -151,249 +176,302 @@ export function OpportunityForm({
     }
   }
 
+  const handleVerifyClick = () => {
+    const type = formState.status === 'Pending Approval' ? 'approve' : 'sendForApproval'
+    setConfirmModalType(type)
+    setConfirmModalOpen(true)
+  }
+
+  const handleRejectClick = () => {
+    setRejectReason(formState.rejectionReason || '')
+    setRejectModalOpen(true)
+  }
+
+  const handleConfirmAction = () => {
+    const updated = { ...formState }
+
+    if (confirmModalType === 'sendForApproval') {
+      updated.status = 'Pending Approval'
+      updated.rejectionReason = ''
+    }
+
+    if (confirmModalType === 'approve') {
+      updated.status = 'Approved'
+      updated.rejectionReason = ''
+    }
+
+    setFormState(updated)
+    onSubmit?.(updated)
+    setConfirmModalOpen(false)
+    setConfirmModalType(null)
+  }
+
+  const handleConfirmReject = () => {
+    const updated = {
+      ...formState,
+      status: 'Rejected',
+      rejectionReason: rejectReason,
+    }
+    setFormState(updated)
+    onSubmit?.(updated)
+    setRejectModalOpen(false)
+  }
+
   if (isPreview) {
     return (
       <div className="space-y-6">
         <div className="rounded-[2rem] border border-slate-200/70 bg-slate-50/90 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur-sm">
-          <div className="mb-6 flex items-center gap-3">
-            <Button
-              variant="outline"
-              onClick={onCancel}
-              className="border-0 bg-transparent p-0 text-slate-700 shadow-none hover:bg-transparent hover:text-slate-950"
-              aria-label="Back"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </div>
-
-          <div className="mb-8 flex flex-col gap-4 rounded-[2rem] border border-slate-200/80 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-slate-500">
-                Opportunity Details
-              </p>
-              <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
-                {formState.title || 'Opportunity Preview'}
-              </h1>
-              <p className="mt-2 text-sm text-slate-500">ID: {formState.id}</p>
+              <button
+                type="button"
+                onClick={onCancel}
+                className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-950"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </button>
+              <div className="mt-4 sm:mt-0">
+                <h1 className="text-2xl font-semibold text-slate-950">Register Events & Visits</h1>
+                <p className="mt-2 text-sm text-slate-500">
+                  Register events, visits, and track outcomes
+                </p>
+                <div className="mt-4">
+                  <StatusBadge status={formState.status} />
+                </div>
+              </div>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <StatusBadge status={formState.status} />
-              {formState.status !== 'Accepted' && (
+            {formState.status !== 'Approved' && (
+              <div className="flex flex-wrap items-center gap-3">
                 <Button
-                  variant="outline"
-                  onClick={onEdit ?? onCancel}
-                  className="rounded-full border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  className="!bg-emerald-500 !text-white hover:!bg-emerald-600"
+                  type="button"
+                  onClick={handleVerifyClick}
                 >
-                  Edit
+                  {formState.status === 'Pending Approval' ? 'Approve' : 'Send for approval'}
                 </Button>
-              )}
-            </div>
+                <Button
+                  className="!bg-red-500 !text-white hover:!bg-red-600"
+                  type="button"
+                  onClick={handleRejectClick}
+                >
+                  Reject
+                </Button>
+              </div>
+            )}
           </div>
 
-          {formState.status === 'Rejected' && formState.rejectionReason && (
-            <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 shadow-sm">
-              <span className="font-bold">Rejection Reason:</span> {formState.rejectionReason}
-            </div>
-          )}
-
-          <div className="grid gap-6 xl:grid-cols-2">
-            {/* Left Column */}
-            <div className="space-y-6">
-              {/* Card 1: Key Info */}
-              <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="mb-5 flex items-center justify-between">
-                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-900">
-                    Opportunity Info
-                  </p>
-                  <span className="block h-1.5 w-16 rounded-full bg-orange-400" />
-                </div>
-                <dl className="divide-y divide-slate-100 text-sm text-slate-700">
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">Opportunity Title</dt>
-                    <dd className="font-semibold text-slate-950">{formState.title || 'N/A'}</dd>
-                  </div>
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">Date Identified</dt>
-                    <dd className="font-semibold text-slate-950">{formState.date || 'N/A'}</dd>
-                  </div>
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">Existing Relationship</dt>
-                    <dd className="font-semibold text-slate-950">
-                      {formState.existingRelationship || 'N/A'}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">Strategic Importance</dt>
-                    <dd className="font-semibold text-slate-950">
-                      {formState.strategicImportance || 'N/A'}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">Opportunity Category</dt>
-                    <dd className="font-semibold text-slate-950">
-                      {formState.opportunityCategory === 'other(specify)'
-                        ? `Other: ${formState.opportunityCategorySpecify || ''}`
-                        : formState.opportunityCategory || 'N/A'}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">Source of Opportunity</dt>
-                    <dd className="font-semibold text-slate-950">
-                      {formState.source === 'other(specify)'
-                        ? `Other: ${formState.sourceSpecify || ''}`
-                        : formState.source || 'N/A'}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">Division</dt>
-                    <dd className="font-semibold text-slate-950">{formState.division || 'N/A'}</dd>
-                  </div>
-                </dl>
+          <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
+            <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="mb-6 flex items-center gap-3 border-b border-slate-100 pb-4">
+                <span className="h-9 w-1 rounded-full bg-orange-500" />
+                <h2 className="text-lg font-semibold text-slate-900">Opportunity information</h2>
               </div>
-
-              {/* Card 2: Partner & Contact Details */}
-              <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="mb-5 flex items-center justify-between">
-                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-900">
-                    Partner & Contact Details
-                  </p>
-                  <span className="block h-1.5 w-16 rounded-full bg-orange-400" />
+              <dl className="grid gap-4 text-sm text-slate-700">
+                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                  <dt className="font-medium text-slate-600">Opportunity ID</dt>
+                  <dd className="font-semibold text-slate-950">{formState.id}</dd>
                 </div>
-                <dl className="divide-y divide-slate-100 text-sm text-slate-700">
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">Partner Name</dt>
-                    <dd className="font-semibold text-slate-950">
-                      {formState.partnerName || 'N/A'}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">Acronym</dt>
-                    <dd className="font-semibold text-slate-950">{formState.acronym || 'N/A'}</dd>
-                  </div>
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">Organization Type</dt>
-                    <dd className="font-semibold text-slate-950">
-                      {formState.organizationType === 'other(specify)'
-                        ? `Other: ${formState.organizationTypeSpecify || ''}`
-                        : formState.organizationType || 'N/A'}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">Country</dt>
-                    <dd className="font-semibold text-slate-950">{formState.country || 'N/A'}</dd>
-                  </div>
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">Region/State</dt>
-                    <dd className="font-semibold text-slate-950">
-                      {formState.regionState || 'N/A'}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">City</dt>
-                    <dd className="font-semibold text-slate-950">{formState.city || 'N/A'}</dd>
-                  </div>
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">Website</dt>
-                    <dd className="font-semibold text-slate-950">
-                      {formState.website ? (
-                        <a
-                          href={formState.website}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
-                        >
-                          {formState.website}
-                        </a>
-                      ) : (
-                        'N/A'
-                      )}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">Contact Person Name</dt>
-                    <dd className="font-semibold text-slate-950">
-                      {formState.contactPersonName || 'N/A'}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">Position / Title</dt>
-                    <dd className="font-semibold text-slate-950">
-                      {formState.positionTitle || 'N/A'}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">Email</dt>
-                    <dd className="font-semibold text-slate-950">{formState.email || 'N/A'}</dd>
-                  </div>
-                  <div className="flex justify-between py-3">
-                    <dt className="text-slate-500">Partner Interest Area</dt>
-                    <dd className="font-semibold text-slate-950">
-                      {formState.partnerInterestArea || 'N/A'}
-                    </dd>
-                  </div>
-                </dl>
-              </div>
+                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                  <dt className="font-medium text-slate-600">Opportunity Title</dt>
+                  <dd className="font-semibold text-slate-950">{formState.title || 'N/A'}</dd>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                  <dt className="font-medium text-slate-600">Partner name</dt>
+                  <dd className="font-semibold text-slate-950">{formState.partnerName || 'N/A'}</dd>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                  <dt className="font-medium text-slate-600">Division</dt>
+                  <dd className="font-semibold text-slate-950">{formState.division || 'N/A'}</dd>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                  <dt className="font-medium text-slate-600">Acronym</dt>
+                  <dd className="font-semibold text-slate-950">{formState.acronym || 'N/A'}</dd>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                  <dt className="font-medium text-slate-600">organization type</dt>
+                  <dd className="font-semibold text-slate-950">
+                    {formState.organizationType || 'N/A'}
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                  <dt className="font-medium text-slate-600">Country</dt>
+                  <dd className="font-semibold text-slate-950">{formState.country || 'N/A'}</dd>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                  <dt className="font-medium text-slate-600">Region/State</dt>
+                  <dd className="font-semibold text-slate-950">{formState.regionState || 'N/A'}</dd>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                  <dt className="font-medium text-slate-600">City</dt>
+                  <dd className="font-semibold text-slate-950">{formState.city || 'N/A'}</dd>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                  <dt className="font-medium text-slate-600">Website</dt>
+                  <dd className="font-semibold text-slate-950">{formState.website || 'N/A'}</dd>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                  <dt className="font-medium text-slate-600">Contact Person Name</dt>
+                  <dd className="font-semibold text-slate-950">
+                    {formState.contactPersonName || 'N/A'}
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                  <dt className="font-medium text-slate-600">Email</dt>
+                  <dd className="font-semibold text-slate-950">{formState.email || 'N/A'}</dd>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                  <dt className="font-medium text-slate-600">Partner interest Area</dt>
+                  <dd className="font-semibold text-slate-950">
+                    {formState.partnerInterestArea || 'N/A'}
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+                  <dt className="font-medium text-slate-600">Opportunity Category</dt>
+                  <dd className="font-semibold text-slate-950">
+                    {formState.opportunityCategory || 'N/A'}
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <dt className="font-medium text-slate-600">Source of Opportunity</dt>
+                  <dd className="font-semibold text-slate-950">{formState.source || 'N/A'}</dd>
+                </div>
+              </dl>
             </div>
 
-            {/* Right Column */}
             <div className="space-y-6">
-              {/* Card 3: Descriptions */}
               <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="mb-5 flex items-center justify-between">
-                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-900">
-                    Opportunity Description & Scope
-                  </p>
-                  <span className="block h-1.5 w-16 rounded-full bg-orange-400" />
+                <div className="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
+                  <span className="h-9 w-1 rounded-full bg-orange-500" />
+                  <h2 className="text-lg font-semibold text-slate-900">Outcomes</h2>
                 </div>
-                <div className="space-y-6 text-sm text-slate-700">
+                <div className="space-y-4 text-sm text-slate-700">
                   <div>
-                    <h4 className="font-semibold text-slate-950">Opportunity Background</h4>
-                    <p className="mt-1 leading-relaxed text-slate-600">
-                      {formState.opportunityBackground || 'No background information provided.'}
+                    <p className="font-semibold text-slate-900">Key Discussions:</p>
+                    <p className="mt-2 text-slate-600">
+                      {formState.opportunityBackground || 'No discussions provided.'}
                     </p>
                   </div>
-                  <hr className="border-slate-100" />
                   <div>
-                    <h4 className="font-semibold text-slate-950">Opportunity Description</h4>
-                    <p className="mt-1 leading-relaxed text-slate-600">
-                      {formState.opportunityDescription || 'No description provided.'}
+                    <p className="font-semibold text-slate-900">Agreements Reached:</p>
+                    <p className="mt-2 text-slate-600">
+                      {formState.opportunityDescription || 'No agreements provided.'}
                     </p>
                   </div>
-                  <hr className="border-slate-100" />
                   <div>
-                    <h4 className="font-semibold text-slate-950">Proposed Collaboration Area</h4>
-                    <p className="mt-1 leading-relaxed text-slate-600">
-                      {formState.proposedCollaborationArea ||
-                        'No proposed collaboration area provided.'}
+                    <p className="font-semibold text-slate-900">Action Points:</p>
+                    <p className="mt-2 text-slate-600">
+                      {formState.expectedOutcome || 'No action points provided.'}
                     </p>
                   </div>
-                  <hr className="border-slate-100" />
-                  <div>
-                    <h4 className="font-semibold text-slate-950">Strategic Alignment</h4>
-                    <p className="mt-1 leading-relaxed text-slate-600">
-                      {formState.strategicAlignment ||
-                        'No strategic alignment information provided.'}
-                    </p>
-                  </div>
-                  <hr className="border-slate-100" />
-                  <div>
-                    <h4 className="font-semibold text-slate-950">Expected Benefits</h4>
-                    <p className="mt-1 leading-relaxed text-slate-600">
-                      {formState.expectedBenefits || 'No expected benefits provided.'}
-                    </p>
-                  </div>
-                  <hr className="border-slate-100" />
-                  <div>
-                    <h4 className="font-semibold text-slate-950">Expected Outcome</h4>
-                    <p className="mt-1 leading-relaxed text-slate-600">
-                      {formState.expectedOutcome || 'No expected outcome provided.'}
-                    </p>
-                  </div>
+                </div>
+              </div>
+              <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="mb-5 flex items-center gap-3 border-b border-slate-100 pb-4">
+                  <span className="h-9 w-1 rounded-full bg-orange-500" />
+                  <h2 className="text-lg font-semibold text-slate-900">Attachments</h2>
+                </div>
+                <div className="space-y-4">
+                  {attachedFiles.length > 0 ? (
+                    attachedFiles.map(file => (
+                      <div
+                        key={file.name}
+                        className="rounded-3xl border border-slate-200 bg-slate-50 p-4 shadow-sm"
+                      >
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+                              <span className="text-lg font-semibold">DOC</span>
+                            </div>
+                            <div>
+                              <p className="font-semibold text-slate-950">{file.name}</p>
+                              <p className="text-xs text-slate-500">
+                                {(file.size / 1024 / 1024).toFixed(1)} Mb
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-500 shadow-sm hover:bg-slate-100"
+                          >
+                            <span className="text-xl">👁</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
+                      No attached documents yet.
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        <Modal
+          open={confirmModalOpen}
+          onClose={() => setConfirmModalOpen(false)}
+          title={confirmModalType === 'approve' ? 'Approval Confirmation' : 'Send for Approval'}
+          size="sm"
+        >
+          <div className="px-6 py-6">
+            <p className="text-sm leading-7 text-slate-600">
+              {confirmModalType === 'approve'
+                ? 'Are you sure you want to approve this opportunity?'
+                : 'Send this opportunity for approval?'}
+            </p>
+            <div className="mt-6 flex flex-wrap items-center justify-end gap-3">
+              <Button variant="outline" onClick={() => setConfirmModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={handleConfirmAction}
+                className="rounded-full bg-emerald-600 text-white hover:bg-emerald-700"
+              >
+                Confirm
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
+        <Modal
+          open={rejectModalOpen}
+          onClose={() => setRejectModalOpen(false)}
+          title="Rejection Reason"
+          size="md"
+        >
+          <div className="px-6 py-6 space-y-4">
+            <div>
+              <label className="mb-2 block text-xs font-medium text-slate-700">
+                Please provide a reason for rejecting this opportunity:
+              </label>
+              <textarea
+                value={rejectReason}
+                onChange={e => setRejectReason(e.target.value)}
+                placeholder="Enter rejection reason here..."
+                rows={4}
+                className="w-full rounded-md border border-slate-300 bg-white p-3 text-sm text-slate-950 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
+                required
+              />
+            </div>
+            <div className="flex flex-wrap items-center justify-end gap-3">
+              <Button variant="outline" onClick={() => setRejectModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                onClick={handleConfirmReject}
+                disabled={!rejectReason.trim()}
+                className="rounded-full"
+              >
+                Confirm Reject
+              </Button>
+            </div>
+          </div>
+        </Modal>
       </div>
     )
   }
@@ -408,11 +486,18 @@ export function OpportunityForm({
       <CardContent className="p-6">
         <form className="space-y-8" onSubmit={handleFormSubmit}>
           {/* Section 1: Opportunity Information */}
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-900 mb-6 border-b border-slate-100 pb-2">
-              1. Opportunity Information
-            </h3>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 border-b border-slate-200 pb-4">
+              <div className="h-9 w-1 rounded-full bg-orange-500" />
+              <h3 className="text-lg font-semibold text-slate-900">Opportunity Information</h3>
+            </div>
+            <div className="grid gap-8 xl:grid-cols-4 lg:grid-cols-2">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Opportunity ID
+                </label>
+                <Input value={formState.id} disabled placeholder="Enter Opportunity ID" />
+              </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">
                   Opportunity Title
@@ -420,18 +505,7 @@ export function OpportunityForm({
                 <Input
                   value={formState.title}
                   onChange={e => setFormState(current => ({ ...current, title: e.target.value }))}
-                  placeholder="Enter opportunity title"
-                  required
-                />
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Date Identified
-                </label>
-                <Input
-                  type="date"
-                  value={formState.date}
-                  onChange={e => setFormState(current => ({ ...current, date: e.target.value }))}
+                  placeholder="Enter Opportunity Title"
                   required
                 />
               </div>
@@ -444,8 +518,7 @@ export function OpportunityForm({
                   onChange={e =>
                     setFormState(current => ({ ...current, partnerName: e.target.value }))
                   }
-                  placeholder="Enter partner name"
-                  required
+                  placeholder="Enter Partner name"
                 />
               </div>
               <div>
@@ -453,7 +526,7 @@ export function OpportunityForm({
                 <Input
                   value={formState.acronym}
                   onChange={e => setFormState(current => ({ ...current, acronym: e.target.value }))}
-                  placeholder="Enter acronym"
+                  placeholder="Enter Acronym"
                 />
               </div>
               <div>
@@ -466,7 +539,6 @@ export function OpportunityForm({
                     setFormState(current => ({ ...current, organizationType: e.target.value }))
                   }
                   className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
-                  required
                 >
                   <option value="">Select organization type</option>
                   {organizationTypes.map(opt => (
@@ -476,52 +548,42 @@ export function OpportunityForm({
                   ))}
                 </select>
               </div>
-              {formState.organizationType === 'other(specify)' && (
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Specify Org Type
-                  </label>
-                  <Input
-                    value={formState.organizationTypeSpecify}
-                    onChange={e =>
-                      setFormState(current => ({
-                        ...current,
-                        organizationTypeSpecify: e.target.value,
-                      }))
-                    }
-                    placeholder="Specify organization type"
-                    required
-                  />
-                </div>
-              )}
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">Country</label>
                 <Input
                   value={formState.country}
                   onChange={e => setFormState(current => ({ ...current, country: e.target.value }))}
-                  placeholder="Enter country"
-                  required
+                  placeholder="Select Country"
                 />
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">
                   Region/State
                 </label>
-                <Input
+                <select
                   value={formState.regionState}
                   onChange={e =>
                     setFormState(current => ({ ...current, regionState: e.target.value }))
                   }
-                  placeholder="Enter region/state"
-                />
+                  className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
+                >
+                  <option value="">Region/State</option>
+                  <option value="Addis Ababa">Addis Ababa</option>
+                  <option value="Amhara">Amhara</option>
+                  <option value="Oromia">Oromia</option>
+                </select>
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">City</label>
-                <Input
+                <select
                   value={formState.city}
                   onChange={e => setFormState(current => ({ ...current, city: e.target.value }))}
-                  placeholder="Enter city"
-                />
+                  className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
+                >
+                  <option value="">City</option>
+                  <option value="Addis Ababa">Addis Ababa</option>
+                  <option value="Bahir Dar">Bahir Dar</option>
+                </select>
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">Website</label>
@@ -529,7 +591,7 @@ export function OpportunityForm({
                   type="url"
                   value={formState.website}
                   onChange={e => setFormState(current => ({ ...current, website: e.target.value }))}
-                  placeholder="https://example.com"
+                  placeholder="Website"
                 />
               </div>
               <div>
@@ -541,8 +603,7 @@ export function OpportunityForm({
                   onChange={e =>
                     setFormState(current => ({ ...current, contactPersonName: e.target.value }))
                   }
-                  placeholder="Enter contact name"
-                  required
+                  placeholder="Contact Person Name"
                 />
               </div>
               <div>
@@ -554,8 +615,7 @@ export function OpportunityForm({
                   onChange={e =>
                     setFormState(current => ({ ...current, positionTitle: e.target.value }))
                   }
-                  placeholder="Enter position"
-                  required
+                  placeholder="Position / Title"
                 />
               </div>
               <div>
@@ -564,13 +624,12 @@ export function OpportunityForm({
                   type="email"
                   value={formState.email}
                   onChange={e => setFormState(current => ({ ...current, email: e.target.value }))}
-                  placeholder="email@example.com"
-                  required
+                  placeholder="Email"
                 />
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Existing Relationship
+                  Existing relationship with EAII
                 </label>
                 <select
                   value={formState.existingRelationship || ''}
@@ -582,7 +641,7 @@ export function OpportunityForm({
                   }
                   className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
                 >
-                  <option value="">Select relationship</option>
+                  <option value="">Select organization type</option>
                   {existingRelationships.map(opt => (
                     <option key={opt} value={opt}>
                       {opt}
@@ -592,19 +651,19 @@ export function OpportunityForm({
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Partner Interest Area
+                  Partner interest Area
                 </label>
                 <Input
                   value={formState.partnerInterestArea}
                   onChange={e =>
                     setFormState(current => ({ ...current, partnerInterestArea: e.target.value }))
                   }
-                  placeholder="e.g. AI Research, Agriculture"
+                  placeholder="Partner interest Area"
                 />
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Strategic Importance
+                  Strategic importance level
                 </label>
                 <select
                   value={formState.strategicImportance || ''}
@@ -616,7 +675,7 @@ export function OpportunityForm({
                   }
                   className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
                 >
-                  <option value="">Select importance</option>
+                  <option value="">Strategic importance level</option>
                   {strategicImportanceLevels.map(opt => (
                     <option key={opt} value={opt}>
                       {opt}
@@ -634,9 +693,8 @@ export function OpportunityForm({
                     setFormState(current => ({ ...current, opportunityCategory: e.target.value }))
                   }
                   className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
-                  required
                 >
-                  <option value="">Select category</option>
+                  <option value="">Opportunity Category</option>
                   {opportunityCategories.map(opt => (
                     <option key={opt} value={opt}>
                       {opt}
@@ -644,24 +702,6 @@ export function OpportunityForm({
                   ))}
                 </select>
               </div>
-              {formState.opportunityCategory === 'other(specify)' && (
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Specify Category
-                  </label>
-                  <Input
-                    value={formState.opportunityCategorySpecify}
-                    onChange={e =>
-                      setFormState(current => ({
-                        ...current,
-                        opportunityCategorySpecify: e.target.value,
-                      }))
-                    }
-                    placeholder="Specify category"
-                    required
-                  />
-                </div>
-              )}
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">
                   Source of Opportunity
@@ -670,7 +710,6 @@ export function OpportunityForm({
                   value={formState.source}
                   onChange={e => setFormState(current => ({ ...current, source: e.target.value }))}
                   className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
-                  required
                 >
                   <option value="">Select source</option>
                   {opportunitySources.map(opt => (
@@ -680,55 +719,33 @@ export function OpportunityForm({
                   ))}
                 </select>
               </div>
-              {formState.source === 'other(specify)' && (
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Specify Source
-                  </label>
-                  <Input
-                    value={formState.sourceSpecify}
-                    onChange={e =>
-                      setFormState(current => ({ ...current, sourceSpecify: e.target.value }))
-                    }
-                    placeholder="Specify source"
-                    required
-                  />
-                </div>
-              )}
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">Division</label>
-                <Input
+                <select
                   value={formState.division}
                   onChange={e =>
                     setFormState(current => ({ ...current, division: e.target.value }))
                   }
-                  placeholder="e.g. Finance, Business"
-                  required
-                />
+                  className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
+                >
+                  <option value="">Select Division</option>
+                  {divisionOptions.map(opt => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
 
-          {/* Section 2: Description */}
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-900 mb-6 border-b border-slate-100 pb-2">
-              2. Description & Collaboration Details
-            </h3>
-            <div className="grid gap-6 md:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Opportunity Background
-                </label>
-                <textarea
-                  value={formState.opportunityBackground}
-                  onChange={e =>
-                    setFormState(current => ({ ...current, opportunityBackground: e.target.value }))
-                  }
-                  placeholder="Describe context / background"
-                  rows={4}
-                  className="w-full rounded-md border border-slate-300 bg-white p-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
-                />
-              </div>
+          {/* Section 2: Outcomes */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 border-b border-slate-200 pb-4">
+              <div className="h-9 w-1 rounded-full bg-orange-500" />
+              <h3 className="text-lg font-semibold text-slate-900">Outcomes</h3>
+            </div>
+            <div className="grid gap-6 lg:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">
                   Opportunity Description
@@ -741,53 +758,8 @@ export function OpportunityForm({
                       opportunityDescription: e.target.value,
                     }))
                   }
-                  placeholder="Detail the opportunity"
-                  rows={4}
-                  className="w-full rounded-md border border-slate-300 bg-white p-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
-                />
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Proposed Collaboration Area
-                </label>
-                <textarea
-                  value={formState.proposedCollaborationArea}
-                  onChange={e =>
-                    setFormState(current => ({
-                      ...current,
-                      proposedCollaborationArea: e.target.value,
-                    }))
-                  }
-                  placeholder="Where can we collaborate?"
-                  rows={4}
-                  className="w-full rounded-md border border-slate-300 bg-white p-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
-                />
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Strategic Alignment
-                </label>
-                <textarea
-                  value={formState.strategicAlignment}
-                  onChange={e =>
-                    setFormState(current => ({ ...current, strategicAlignment: e.target.value }))
-                  }
-                  placeholder="Explain how this aligns with EAII strategic goals"
-                  rows={4}
-                  className="w-full rounded-md border border-slate-300 bg-white p-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
-                />
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Expected Benefits
-                </label>
-                <textarea
-                  value={formState.expectedBenefits}
-                  onChange={e =>
-                    setFormState(current => ({ ...current, expectedBenefits: e.target.value }))
-                  }
-                  placeholder="What benefits will this provide to EAII?"
-                  rows={4}
+                  placeholder="Opportunity Description"
+                  rows={5}
                   className="w-full rounded-md border border-slate-300 bg-white p-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
                 />
               </div>
@@ -800,40 +772,76 @@ export function OpportunityForm({
                   onChange={e =>
                     setFormState(current => ({ ...current, expectedOutcome: e.target.value }))
                   }
-                  placeholder="What outcomes are expected?"
-                  rows={4}
+                  placeholder="Expected Outcome"
+                  rows={5}
                   className="w-full rounded-md border border-slate-300 bg-white p-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
                 />
               </div>
             </div>
           </div>
 
-          {/* Status & Submit buttons */}
-          <div className="grid gap-4 sm:grid-cols-2 pt-6 border-t border-slate-200">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">Status</label>
-              <select
-                value={formState.status}
-                onChange={e => setFormState(prev => ({ ...prev, status: e.target.value }))}
-                className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
-              >
-                {statusOptions.map(opt => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
+          {/* Section 3: Attachments */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 border-b border-slate-200 pb-4">
+              <div className="h-9 w-1 rounded-full bg-orange-500" />
+              <h3 className="text-lg font-semibold text-slate-900">Attachments</h3>
             </div>
-            <div className="flex items-end justify-end gap-3">
-              <Button variant="outline" type="button" onClick={onCancel}>
-                Close
-              </Button>
-              {canSubmit && (
-                <Button className="!bg-[#ff9500] !text-white hover:!bg-[#e68a00]" type="submit">
-                  Save
-                </Button>
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-slate-700 shadow-sm">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 5V17"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M9 8L12 5L15 8"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M7 13.5V17C7 18.1046 7.89543 19 9 19H15C16.1046 19 17 18.1046 17 17V13.5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <p className="mt-4 text-sm font-semibold text-slate-900">Upload Files</p>
+              <p className="mt-2 text-sm text-slate-500">select your file or drag and drop</p>
+              <p className="text-sm text-slate-500">png, pdf, jpg, docx accepted</p>
+              <label className="mt-4 inline-flex cursor-pointer items-center rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#161A61] shadow-sm ring-1 ring-slate-200 hover:bg-slate-50">
+                browse
+                <input type="file" multiple onChange={handleFileChange} className="sr-only" />
+              </label>
+              {attachedFiles.length > 0 && (
+                <div className="mt-4 text-left text-sm text-slate-700">
+                  <p className="font-semibold">Selected files:</p>
+                  <ul className="mt-2 space-y-1 pl-4 list-disc">
+                    {attachedFiles.map(file => (
+                      <li key={file.name}>{file.name}</li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
+          </div>
+
+          <div className="flex justify-end">
+            <Button className="!bg-[#ff9500] !text-white hover:!bg-[#e68a00]" type="submit">
+              Submit
+            </Button>
           </div>
         </form>
       </CardContent>
