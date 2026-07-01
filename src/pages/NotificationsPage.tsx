@@ -93,9 +93,8 @@ export function NotificationsPage() {
           {unreadCount > 0 && (
             <Button
               variant="outline"
-              size="sm"
               onClick={handleMarkAllRead}
-              className="text-slate-600 border-slate-200 hover:bg-slate-50"
+              className="text-slate-600 border-slate-200 hover:bg-slate-50 px-3 py-1.5 text-sm"
             >
               <Check className="h-4 w-4 mr-2" />
               Mark all as read

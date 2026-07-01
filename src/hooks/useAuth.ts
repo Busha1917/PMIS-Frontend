@@ -27,7 +27,12 @@ export function useAuth() {
   /** Call after a successful login API response */
   const login = useCallback(
     (payload: {
-      user: { id: string; name: string; email: string; role: 'admin' | 'manager' | 'viewer' }
+      user: {
+        id: string
+        name: string
+        email: string
+        role: 'admin' | 'manager' | 'viewer' | 'Officer' | 'Director General' | 'Assigned Person'
+      }
       token: string
     }) => {
       dispatch(loginSuccess(payload))
@@ -42,10 +47,26 @@ export function useAuth() {
   /** Simple role-based permission check */
   const hasRole = useCallback(
     (required: 'admin' | 'manager' | 'viewer') => {
-      const levels = { admin: 3, manager: 2, viewer: 1 }
-      return role !== null && levels[role] >= levels[required]
+      const levels: Record<string, number> = {
+        admin: 3,
+        manager: 2,
+        viewer: 1,
+        'Director General': 4,
+        Officer: 2,
+        'Assigned Person': 2,
+      }
+      return role !== null && (levels[role] || 0) >= levels[required]
     },
     [role]
+  )
+
+  const changeRole = useCallback(
+    (
+      newRole: 'admin' | 'manager' | 'viewer' | 'Officer' | 'Director General' | 'Assigned Person'
+    ) => {
+      dispatch({ type: 'auth/updateUser', payload: { role: newRole } })
+    },
+    [dispatch]
   )
 
   return {
@@ -56,5 +77,6 @@ export function useAuth() {
     login,
     logout: handleLogout,
     hasRole,
+    changeRole,
   }
 }

@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import type { RootState } from '../index'
 
-type UserRole = 'admin' | 'manager' | 'viewer'
+type UserRole = 'admin' | 'manager' | 'viewer' | 'Officer' | 'Director General' | 'Assigned Person'
 
 type AuthUser = {
   id: string
