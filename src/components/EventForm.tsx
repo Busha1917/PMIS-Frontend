@@ -135,6 +135,25 @@ export function EventForm({
   const [reviewComment, setReviewComment] = useState(event?.reviewComment || '')
   const [editingOutcome, setEditingOutcome] = useState(false)
   const [isAssigning, setIsAssigning] = useState(false)
+  const [showAssignModal, setShowAssignModal] = useState(false)
+  const [assignDepartment, setAssignDepartment] = useState('')
+  const [assignOfficer, setAssignOfficer] = useState('')
+  const [assignNotes, setAssignNotes] = useState('')
+  const [partnerParticipantDraft, setPartnerParticipantDraft] = useState<PartnerParticipant>({
+    id: '',
+    fullName: '',
+    organizationName: '',
+    position: '',
+    email: '',
+    phone: '',
+    type: 'Partner Representative',
+  })
+  const [eaiiParticipantDraft, setEaiiParticipantDraft] = useState<EaiiParticipant>({
+    name: '',
+    division: '',
+    email: '',
+  })
+  const [attachmentFiles, setAttachmentFiles] = useState<File[]>([])
 
   const [outcomeForm, setOutcomeForm] = useState({
     keyDiscussions: event?.keyDiscussions || '',
@@ -169,7 +188,23 @@ export function EventForm({
   const canEditRegistration =
     isOfficer && (formState.status === 'Draft' || formState.status === 'Rejected')
   const canDgReview = isDG && formState.status === 'Pending Review'
-  const canFillOutcome = isAssignedPerson && formState.status === 'Approved'
+  // Determine whether the event has ended (so the assigned person can fill outcomes)
+  let eventEnded = false
+  try {
+    if (formState.date) {
+      // formState.date might be in ISO or date-only format; normalize to date part
+      const datePart = formState.date.split('T')[0]
+      const timePart = formState.endTime || '23:59:59'
+      const endDate = new Date(`${datePart}T${timePart}`)
+      if (!isNaN(endDate.getTime())) {
+        eventEnded = Date.now() > endDate.getTime()
+      }
+    }
+  } catch (e) {
+    eventEnded = false
+  }
+
+  const canFillOutcome = isAssignedPerson && formState.status === 'Approved' && eventEnded
   const canFinalReview = isDG && formState.status === 'Pending Final Review'
 
   const submitWithStatus = (newStatus: EventRecord['status']) => {
@@ -199,6 +234,65 @@ export function EventForm({
 
   const handleFinalReviewComplete = () => {
     onSubmit?.({ ...formState, status: 'Completed' })
+  }
+
+  const handleAddPartnerParticipant = () => {
+    if (!partnerParticipantDraft.fullName.trim()) return
+
+    const nextParticipant = {
+      ...partnerParticipantDraft,
+      id: partnerParticipantDraft.id || `pp-${Date.now()}`,
+    }
+
+    setFormState(prev => ({
+      ...prev,
+      partnerParticipants: [...(prev.partnerParticipants ?? []), nextParticipant],
+    }))
+
+    setPartnerParticipantDraft({
+      id: '',
+      fullName: '',
+      organizationName: '',
+      position: '',
+      email: '',
+      phone: '',
+      type: 'Partner Representative',
+    })
+  }
+
+  const handleAddEaiiParticipant = () => {
+    if (!eaiiParticipantDraft.name.trim()) return
+
+    setFormState(prev => ({
+      ...prev,
+      eaiiParticipants: [...(prev.eaiiParticipants ?? []), eaiiParticipantDraft],
+    }))
+
+    setEaiiParticipantDraft({ name: '', division: '', email: '' })
+  }
+
+  const handleAttachmentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (!files) return
+    setAttachmentFiles(Array.from(files))
+  }
+
+  const handleRemoveAttachment = (index: number) => {
+    setAttachmentFiles(current => current.filter((_, idx) => idx !== index))
+  }
+
+  const handleRemovePartnerParticipant = (id: string) => {
+    setFormState(prev => ({
+      ...prev,
+      partnerParticipants: prev.partnerParticipants?.filter(item => item.id !== id) ?? [],
+    }))
+  }
+
+  const handleRemoveEaiiParticipant = (email: string) => {
+    setFormState(prev => ({
+      ...prev,
+      eaiiParticipants: prev.eaiiParticipants?.filter(item => item.email !== email) ?? [],
+    }))
   }
 
   const renderTimeline = () => {
@@ -363,49 +457,20 @@ export function EventForm({
 
           {canDgReview && (
             <>
-              {!isAssigning ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setIsAssigning(true)}
-                    className="flex items-center gap-1.5 rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white hover:bg-[#e68a00] transition-colors"
-                  >
-                    Assign
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowRejectModal(true)}
-                    className="flex items-center gap-1.5 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 transition-colors"
-                  >
-                    Reject
-                  </button>
-                </>
-              ) : (
-                <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-lg border border-slate-200">
-                  <Input
-                    value={assignedPerson}
-                    onChange={e => setAssignedPerson(e.target.value)}
-                    placeholder="Type person name..."
-                    className="h-8 text-sm min-w-[200px]"
-                    autoFocus
-                  />
-                  <button
-                    type="button"
-                    disabled={!assignedPerson}
-                    onClick={handleDgApprove}
-                    className="rounded text-xs bg-green-500 text-white px-3 py-1.5 font-bold hover:bg-green-600 disabled:opacity-50"
-                  >
-                    Verify & Assign
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsAssigning(false)}
-                    className="rounded text-xs bg-slate-200 text-slate-700 px-3 py-1.5 font-bold hover:bg-slate-300"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              )}
+              <button
+                type="button"
+                onClick={() => setShowAssignModal(true)}
+                className="flex items-center gap-1.5 rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white hover:bg-[#e68a00] transition-colors"
+              >
+                Assign
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowRejectModal(true)}
+                className="flex items-center gap-1.5 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 transition-colors"
+              >
+                Reject
+              </button>
             </>
           )}
 
@@ -451,6 +516,83 @@ export function EventForm({
               className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-40 transition-colors"
             >
               Confirm Reject
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderAssignModal = () => {
+    if (!showAssignModal) return null
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+        <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl mx-4">
+          <h2 className="text-lg font-bold text-slate-900 mb-2">Assign Officer</h2>
+          <p className="text-sm text-slate-500 mb-4">
+            Select a department and assign an officer to handle outcomes.
+          </p>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Select Department
+              </label>
+              <select
+                value={assignDepartment}
+                onChange={e => setAssignDepartment(e.target.value)}
+                className={inputCls}
+              >
+                <option value="">Select Department</option>
+                <option value="Research & Development">Research & Development</option>
+                <option value="Partnerships">Partnerships</option>
+                <option value="Programs">Programs</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Select Officer
+              </label>
+              <Input
+                value={assignOfficer}
+                onChange={e => setAssignOfficer(e.target.value)}
+                placeholder="Officer name"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Assignment Notes
+              </label>
+              <textarea
+                value={assignNotes}
+                onChange={e => setAssignNotes(e.target.value)}
+                className={`${textareaCls} min-h-[80px]`}
+                placeholder="Any instructions for the assigned officer"
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 flex justify-end gap-3">
+            <Button variant="outline" type="button" onClick={() => setShowAssignModal(false)}>
+              Cancel
+            </Button>
+            <button
+              type="button"
+              disabled={!assignOfficer.trim()}
+              onClick={() => {
+                // Apply assignment and mark as approved
+                const updated: EventRecord = {
+                  ...formState,
+                  status: 'Approved',
+                  assignedPerson: assignOfficer,
+                  reviewComment: assignNotes || reviewComment,
+                }
+                onSubmit?.(updated)
+                setShowAssignModal(false)
+              }}
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+            >
+              Assign & Approve
             </button>
           </div>
         </div>
@@ -574,6 +716,24 @@ export function EventForm({
 
   const renderDetailView = () => (
     <div className="space-y-6">
+      {canDgReview && (
+        <div className="flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={() => setShowAssignModal(true)}
+            className="flex items-center gap-1.5 rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white hover:bg-[#e68a00] transition-colors"
+          >
+            Assign & Approve
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowRejectModal(true)}
+            className="flex items-center gap-1.5 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 transition-colors"
+          >
+            Reject
+          </button>
+        </div>
+      )}
       {editingOutcome && renderOutcomeEditPanel()}
 
       <div className="grid gap-6 xl:grid-cols-2">
@@ -638,6 +798,85 @@ export function EventForm({
         </div>
       </div>
 
+      <div className="grid gap-6 xl:grid-cols-2">
+        <SectionCard title="Participant Summary">
+          <div className="space-y-5">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">
+                EAII Participants
+              </p>
+              <div className="space-y-3">
+                {formState.eaiiParticipants?.length ? (
+                  formState.eaiiParticipants.map(participant => (
+                    <div
+                      key={participant.email}
+                      className="rounded-3xl border border-slate-200 bg-slate-50 p-4"
+                    >
+                      <p className="font-semibold text-slate-900">{participant.name}</p>
+                      <p className="text-sm text-slate-500">{participant.division}</p>
+                      <p className="text-xs text-slate-400">{participant.email}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-slate-500">No EAII participants added yet.</p>
+                )}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">
+                Partner Participants
+              </p>
+              <div className="space-y-3">
+                {formState.partnerParticipants?.length ? (
+                  formState.partnerParticipants.map(participant => (
+                    <div
+                      key={participant.id}
+                      className="rounded-3xl border border-slate-200 bg-slate-50 p-4"
+                    >
+                      <p className="font-semibold text-slate-900">{participant.fullName}</p>
+                      <p className="text-sm text-slate-500">{participant.organizationName}</p>
+                      <p className="text-xs text-slate-400">{participant.email}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-slate-500">No partner participants added yet.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </SectionCard>
+
+        <SectionCard title="Attachments">
+          {attachmentFiles.length > 0 ? (
+            <div className="space-y-3">
+              {attachmentFiles.map((file, index) => (
+                <div
+                  key={`${file.name}-${index}`}
+                  className="flex items-center justify-between rounded-3xl border border-slate-200 bg-white p-4"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+                      <span className="text-lg font-semibold">DOC</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-900">{file.name}</p>
+                      <p className="text-xs text-slate-500">
+                        {(file.size / 1024 / 1024).toFixed(1)} Mb
+                      </p>
+                    </div>
+                  </div>
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">
+                    Uploaded
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-slate-500">No attachments uploaded yet.</p>
+          )}
+        </SectionCard>
+      </div>
+
       {['Pending Final Review', 'Completed'].includes(formState.status) && (
         <SectionCard
           title={formState.category === 'Event' ? 'Event Outcomes' : 'Discussion & Outcomes'}
@@ -693,11 +932,7 @@ export function EventForm({
 
       {formState.category === 'Event' ? (
         <>
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="w-1 h-4 bg-[#ff9500] rounded-full" />
-              <p className="text-sm font-bold text-[#161A61]">Event Details</p>
-            </div>
+          <SectionCard title="Event Details">
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               <FormField label="Event Name">
                 <Input
@@ -780,15 +1015,11 @@ export function EventForm({
                 />
               </FormField>
             </div>
-          </div>
+          </SectionCard>
         </>
       ) : (
         <>
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="w-1 h-4 bg-[#ff9500] rounded-full" />
-              <p className="text-sm font-bold text-[#161A61]">Visit Details</p>
-            </div>
+          <SectionCard title="Visit Details">
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               <FormField label="Visit Type">
                 <select
@@ -860,15 +1091,276 @@ export function EventForm({
                 />
               </FormField>
             </div>
-          </div>
+          </SectionCard>
         </>
       )}
+
+      <SectionCard title="Partner Participants">
+        <div className="grid gap-4 lg:grid-cols-3">
+          <FormField label="Participant ID">
+            <Input
+              value={partnerParticipantDraft.id}
+              onChange={e => setPartnerParticipantDraft(prev => ({ ...prev, id: e.target.value }))}
+              placeholder="Enter Participant ID"
+            />
+          </FormField>
+          <FormField label="Full Name">
+            <Input
+              value={partnerParticipantDraft.fullName}
+              onChange={e =>
+                setPartnerParticipantDraft(prev => ({ ...prev, fullName: e.target.value }))
+              }
+              placeholder="Enter Full name"
+            />
+          </FormField>
+          <FormField label="Organization Name">
+            <Input
+              value={partnerParticipantDraft.organizationName}
+              onChange={e =>
+                setPartnerParticipantDraft(prev => ({
+                  ...prev,
+                  organizationName: e.target.value,
+                }))
+              }
+              placeholder="Enter Organization name"
+            />
+          </FormField>
+          <FormField label="Position">
+            <Input
+              value={partnerParticipantDraft.position}
+              onChange={e =>
+                setPartnerParticipantDraft(prev => ({ ...prev, position: e.target.value }))
+              }
+              placeholder="Enter position"
+            />
+          </FormField>
+          <FormField label="Email">
+            <Input
+              type="email"
+              value={partnerParticipantDraft.email}
+              onChange={e =>
+                setPartnerParticipantDraft(prev => ({ ...prev, email: e.target.value }))
+              }
+              placeholder="Enter email"
+            />
+          </FormField>
+          <FormField label="Phone number">
+            <Input
+              value={partnerParticipantDraft.phone}
+              onChange={e =>
+                setPartnerParticipantDraft(prev => ({ ...prev, phone: e.target.value }))
+              }
+              placeholder="Enter phone number"
+            />
+          </FormField>
+          <FormField label="Participant Type">
+            <select
+              value={partnerParticipantDraft.type}
+              onChange={e =>
+                setPartnerParticipantDraft(prev => ({ ...prev, type: e.target.value as any }))
+              }
+              className={inputCls}
+            >
+              <option value="Partner Representative">Partner Representative</option>
+              <option value="Speaker">Speaker</option>
+              <option value="VIP Guest">VIP Guest</option>
+              <option value="Guest">Guest</option>
+            </select>
+          </FormField>
+        </div>
+
+        <div className="mt-4 flex justify-end">
+          <Button type="button" onClick={handleAddPartnerParticipant}>
+            Add Participant
+          </Button>
+        </div>
+
+        {formState.partnerParticipants?.length ? (
+          <div className="mt-6 space-y-3">
+            {formState.partnerParticipants.map(participant => (
+              <div
+                key={participant.id}
+                className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="font-semibold text-slate-900">{participant.fullName}</p>
+                  <p className="text-sm text-slate-500">{participant.organizationName}</p>
+                  <p className="text-xs text-slate-400">{participant.type}</p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm text-slate-600">{participant.email}</span>
+                  <span className="text-sm text-slate-600">{participant.phone}</span>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={() => handleRemovePartnerParticipant(participant.id)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </SectionCard>
+
+      <SectionCard title="EAII Participants">
+        <div className="grid gap-4 lg:grid-cols-3">
+          <FormField label="Name">
+            <Input
+              value={eaiiParticipantDraft.name}
+              onChange={e => setEaiiParticipantDraft(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="Enter name"
+            />
+          </FormField>
+          <FormField label="Division">
+            <Input
+              value={eaiiParticipantDraft.division}
+              onChange={e =>
+                setEaiiParticipantDraft(prev => ({ ...prev, division: e.target.value }))
+              }
+              placeholder="Enter division"
+            />
+          </FormField>
+          <FormField label="Email">
+            <Input
+              type="email"
+              value={eaiiParticipantDraft.email}
+              onChange={e => setEaiiParticipantDraft(prev => ({ ...prev, email: e.target.value }))}
+              placeholder="Enter email"
+            />
+          </FormField>
+        </div>
+
+        <div className="mt-4 flex justify-end">
+          <Button type="button" onClick={handleAddEaiiParticipant}>
+            Add Participant
+          </Button>
+        </div>
+
+        {formState.eaiiParticipants?.length ? (
+          <div className="mt-6 space-y-3">
+            {formState.eaiiParticipants.map(participant => (
+              <div
+                key={participant.email}
+                className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="font-semibold text-slate-900">{participant.name}</p>
+                  <p className="text-sm text-slate-500">{participant.division}</p>
+                  <p className="text-xs text-slate-400">EAII Participant</p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm text-slate-600">{participant.email}</span>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={() => handleRemoveEaiiParticipant(participant.email)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </SectionCard>
+
+      <SectionCard title="Budget">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <FormField label="Estimated Budget (ETB)">
+            <Input
+              type="number"
+              value={formState.estimatedBudget ?? ''}
+              onChange={e =>
+                setFormState(prev => ({
+                  ...prev,
+                  estimatedBudget: Number(e.target.value) || undefined,
+                }))
+              }
+              placeholder="Enter estimated budget"
+            />
+          </FormField>
+          <FormField label="Actual Budget (ETB)">
+            <Input
+              type="number"
+              value={formState.actualBudget ?? ''}
+              onChange={e =>
+                setFormState(prev => ({
+                  ...prev,
+                  actualBudget: Number(e.target.value) || undefined,
+                }))
+              }
+              placeholder="Enter actual budget"
+            />
+          </FormField>
+          <FormField label="Funding Score">
+            <Input
+              type="number"
+              min="0"
+              max="5"
+              step="0.1"
+              value={formState.fundingScore ?? ''}
+              onChange={e =>
+                setFormState(prev => ({
+                  ...prev,
+                  fundingScore: Number(e.target.value) || undefined,
+                }))
+              }
+              placeholder="e.g. 4.2"
+            />
+          </FormField>
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Attachments">
+        <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
+          <p className="text-sm font-semibold text-slate-900">Upload Files</p>
+          <p className="mt-2 text-sm text-slate-500">select your file or drag and drop</p>
+          <p className="text-sm text-slate-500">png, pdf, jpg, docx accepted</p>
+          <label className="mt-4 inline-flex cursor-pointer items-center rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#161A61] shadow-sm ring-1 ring-slate-200 hover:bg-slate-50">
+            browse
+            <input type="file" multiple onChange={handleAttachmentChange} className="sr-only" />
+          </label>
+        </div>
+
+        {attachmentFiles.length > 0 && (
+          <div className="mt-4 space-y-3">
+            {attachmentFiles.map((file, index) => (
+              <div
+                key={`${file.name}-${index}`}
+                className="flex items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-4"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+                    <span className="text-lg font-semibold">DOC</span>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-slate-900">{file.name}</p>
+                    <p className="text-xs text-slate-500">
+                      {(file.size / 1024 / 1024).toFixed(1)} Mb
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => handleRemoveAttachment(index)}
+                >
+                  Remove
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </SectionCard>
     </div>
   )
 
   return (
     <>
       {renderRejectModal()}
+      {renderAssignModal()}
 
       <div className="mb-6">{renderHeader()}</div>
 
