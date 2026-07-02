@@ -248,6 +248,8 @@ export type EngagementRecord = {
   type: string
   date: string
   status: string
+  organization?: string
+  attachments?: any
 }
 
 export type AgreementRecord = {

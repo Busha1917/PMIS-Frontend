@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeft } from 'lucide-react'
-import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
-import type { EngagementRecord } from '../types'
+import { ArrowLeft, PlusCircle, Trash2 } from 'lucide-react'
+import { Button, Input } from '../ui'
+import type { EngagementRecord, ParticipantRecord, EaiiRepresentativeRecord } from '../types'
 
 type EngagementFormMode = 'create' | 'edit' | 'preview'
 
@@ -13,7 +13,7 @@ type EngagementFormProps = {
   onEdit?: () => void
 }
 
-const statusOptions = ['Draft', 'Approved', 'Accepted', 'Rejected']
+const engagementTypes = ['Negotiation', 'Workshop', 'Meeting', 'Follow-Up', 'Site Visit']
 
 export function EngagementForm({
   engagement,
@@ -22,110 +22,277 @@ export function EngagementForm({
   onCancel,
   onEdit,
 }: EngagementFormProps) {
-  const [formState, setFormState] = useState<
-    EngagementRecord & { followUpDate?: string; summary?: string }
-  >(
-    engagement ?? {
-      id: `eng-${Date.now()}`,
-      no: 0,
-      type: '',
-      date: '',
-      status: 'Draft',
-      followUpDate: '',
-      summary: '',
-    }
-  )
+  const [formState, setFormState] = useState<EngagementRecord>({
+    id: `ENG-${Date.now().toString().slice(-6)}`,
+    no: 0,
+    type: '',
+    date: '',
+    status: 'Draft',
+    organization: '',
+    participants: [{ id: 'init-p', organizationName: '', fullName: '', position: '' }],
+    eaiiRepresentatives: [{ id: 'init-e', departmentName: '', fullName: '', position: '' }],
+    discussionSummary: '',
+    attachments: null,
+  })
 
   useEffect(() => {
     if (engagement) {
       setFormState({
         ...engagement,
-        followUpDate: (engagement as any).followUpDate ?? '',
-        summary: (engagement as any).summary ?? '',
+        participants: engagement.participants ?? [],
+        eaiiRepresentatives: engagement.eaiiRepresentatives ?? [],
+        discussionSummary: engagement.discussionSummary ?? '',
+        attachments: engagement.attachments ?? null,
       })
     }
   }, [engagement])
 
-  const isPreview = mode === 'preview'
   const canSubmit = mode !== 'preview'
 
-  if (isPreview) {
+  const addParticipant = () => {
+    setFormState(prev => ({
+      ...prev,
+      participants: [
+        ...(prev.participants || []),
+        { id: Date.now().toString(), organizationName: '', fullName: '', position: '' },
+      ],
+    }))
+  }
+
+  const updateParticipant = (id: string, field: keyof ParticipantRecord, value: string) => {
+    setFormState(prev => ({
+      ...prev,
+      participants: prev.participants?.map(p => (p.id === id ? { ...p, [field]: value } : p)),
+    }))
+  }
+
+  const removeParticipant = (id: string) => {
+    setFormState(prev => ({
+      ...prev,
+      participants: prev.participants?.filter(p => p.id !== id),
+    }))
+  }
+
+  const addRepresentative = () => {
+    setFormState(prev => ({
+      ...prev,
+      eaiiRepresentatives: [
+        ...(prev.eaiiRepresentatives || []),
+        { id: Date.now().toString(), departmentName: '', fullName: '', position: '' },
+      ],
+    }))
+  }
+
+  const updateRepresentative = (
+    id: string,
+    field: keyof EaiiRepresentativeRecord,
+    value: string
+  ) => {
+    setFormState(prev => ({
+      ...prev,
+      eaiiRepresentatives: prev.eaiiRepresentatives?.map(r =>
+        r.id === id ? { ...r, [field]: value } : r
+      ),
+    }))
+  }
+
+  const removeRepresentative = (id: string) => {
+    setFormState(prev => ({
+      ...prev,
+      eaiiRepresentatives: prev.eaiiRepresentatives?.filter(r => r.id !== id),
+    }))
+  }
+
+  if (mode === 'preview') {
     return (
       <div className="space-y-6">
-        <div className="rounded-[2rem] border border-slate-200/70 bg-slate-50/90 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur-sm">
-          <div className="mb-6 flex items-center gap-3">
-            <Button
-              variant="outline"
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between px-2">
+          <div className="flex items-start gap-4">
+            <button
+              type="button"
               onClick={onCancel}
-              className="border-0 bg-transparent p-0 text-slate-700 shadow-none hover:bg-transparent hover:text-slate-950"
-              aria-label="Back"
+              className="mt-1 text-[#161A61] hover:text-slate-700"
             >
               <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </div>
-          <div className="mb-8 flex flex-col gap-4 rounded-[2rem] border border-slate-200/80 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            </button>
             <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-slate-500">
-                Engagement Details
+              <h1 className="text-[22px] font-semibold text-[#161A61]">Engagement Details</h1>
+              <p className="mt-1 text-sm text-slate-500">
+                View Engagement details and track outcomes
               </p>
-              <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
-                {formState.type || 'Engagement Preview'}
-              </h1>
-              <p className="mt-2 text-sm text-slate-500">ID: {formState.id}</p>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="rounded-full bg-orange-100 px-4 py-2 text-sm font-semibold text-orange-800 shadow-sm shadow-orange-100/80">
-                {formState.status}
-              </span>
-              {formState.status?.toLowerCase() === 'draft' && (
+          </div>
+        </div>
+
+        <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6 sm:p-8 shadow-inner">
+          <div className="grid gap-6 lg:grid-cols-3 mb-6">
+            {/* Card 1: Engagement Details */}
+            <div className="rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm flex flex-col">
+              <h2 className="mb-6 text-sm font-semibold text-[#161A61]">Engagement Details</h2>
+              <div className="flex-1 space-y-4 text-[13px] text-slate-800">
+                <div className="flex justify-between border-b border-slate-100 pb-3">
+                  <span className="text-slate-500">Engagement ID</span>
+                  <span className="font-semibold">{formState.id}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100 pb-3">
+                  <span className="text-slate-500">Date</span>
+                  <span className="font-semibold">{formState.date || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100 pb-3">
+                  <span className="text-slate-500">Organization Name</span>
+                  <span className="font-semibold">{formState.organization || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100 pb-3">
+                  <span className="text-slate-500">Engagement Type</span>
+                  <span className="font-semibold">{formState.type || 'N/A'}</span>
+                </div>
+              </div>
+              <div className="mt-6">
                 <Button
-                  variant="outline"
-                  onClick={onEdit ?? onCancel}
-                  className="rounded-full border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  onClick={onEdit}
+                  className="bg-[#161A61] text-white hover:bg-[#161A61]/90 shadow-none"
                 >
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                    />
+                  </svg>
                   Edit
                 </Button>
-              )}
+              </div>
+            </div>
+
+            {/* Card 2: Participants */}
+            <div className="rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm flex flex-col">
+              <h2 className="mb-6 text-sm font-semibold text-[#161A61]">Participants List</h2>
+              <div className="flex-1 space-y-4 text-[12px] text-slate-800">
+                {formState.participants?.map(p => (
+                  <div key={p.id} className="flex justify-between border-b border-slate-100 pb-3">
+                    <span className="w-1/3 truncate pr-2">{p.fullName || '-'}</span>
+                    <span className="w-1/3 truncate px-2 text-slate-500">
+                      {p.organizationName || '-'}
+                    </span>
+                    <span className="w-1/3 text-right font-semibold truncate pl-2">
+                      {p.position || '-'}
+                    </span>
+                  </div>
+                ))}
+                {(!formState.participants || formState.participants.length === 0) && (
+                  <div className="text-slate-400">No participants added.</div>
+                )}
+              </div>
+              <div className="mt-6">
+                <Button
+                  onClick={onEdit}
+                  className="bg-[#161A61] text-white hover:bg-[#161A61]/90 shadow-none"
+                >
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                    />
+                  </svg>
+                  Edit
+                </Button>
+              </div>
+            </div>
+
+            {/* Card 3: EAII Representatives */}
+            <div className="rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm flex flex-col">
+              <h2 className="mb-6 text-sm font-semibold text-[#161A61]">EAII Representatives</h2>
+              <div className="flex-1 space-y-4 text-[12px] text-slate-800">
+                {formState.eaiiRepresentatives?.map(r => (
+                  <div key={r.id} className="flex justify-between border-b border-slate-100 pb-3">
+                    <span className="w-1/3 truncate pr-2">{r.fullName || '-'}</span>
+                    <span className="w-1/3 truncate px-2 text-slate-500">
+                      {r.departmentName || '-'}
+                    </span>
+                    <span className="w-1/3 text-right font-semibold truncate pl-2">
+                      {r.position || '-'}
+                    </span>
+                  </div>
+                ))}
+                {(!formState.eaiiRepresentatives || formState.eaiiRepresentatives.length === 0) && (
+                  <div className="text-slate-400">No representatives added.</div>
+                )}
+              </div>
+              <div className="mt-6">
+                <Button
+                  onClick={onEdit}
+                  className="bg-[#161A61] text-white hover:bg-[#161A61]/90 shadow-none"
+                >
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                    />
+                  </svg>
+                  Edit
+                </Button>
+              </div>
             </div>
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-2">
-            <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="mb-5 flex items-center justify-between">
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-900">
-                  Key Information
-                </p>
-                <span className="block h-1.5 w-16 rounded-full bg-orange-400" />
+          {/* Bottom Card: Discussion Summary */}
+          <div className="rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm mb-6">
+            <h2 className="mb-4 text-sm font-semibold text-[#161A61]">Discussion Summary</h2>
+            <div className="border-t border-[#ff9500]/30 pt-4 text-[13px] text-slate-600">
+              <div className="whitespace-pre-wrap leading-relaxed">
+                {formState.discussionSummary || 'No discussion summary provided.'}
               </div>
-              <dl className="divide-y divide-slate-200 text-sm text-slate-700">
-                <div className="flex justify-between py-3">
-                  <dt className="text-slate-500">Engagement Type</dt>
-                  <dd className="font-semibold text-slate-950">{formState.type || 'N/A'}</dd>
-                </div>
-                <div className="flex justify-between py-3">
-                  <dt className="text-slate-500">Date</dt>
-                  <dd className="font-semibold text-slate-950">{formState.date || 'N/A'}</dd>
-                </div>
-                <div className="flex justify-between py-3">
-                  <dt className="text-slate-500">Follow-up Date</dt>
-                  <dd className="font-semibold text-slate-950">
-                    {formState.followUpDate || 'N/A'}
-                  </dd>
-                </div>
-              </dl>
             </div>
+          </div>
 
-            <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="mb-5 flex items-center justify-between">
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-900">
-                  Summary & Notes
-                </p>
-                <span className="block h-1.5 w-16 rounded-full bg-orange-400" />
-              </div>
-              <p className="text-sm leading-7 text-slate-700">
-                {formState.summary ||
-                  'No summary text registered for this engagement event. Standard processes were followed and notes will be updated during the next review meeting.'}
-              </p>
+          {/* Bottom Card: Attachments */}
+          <div className="rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm">
+            <h2 className="mb-4 text-sm font-semibold text-[#161A61]">Attachments</h2>
+            <div className="border-t border-[#ff9500]/30 pt-4 text-[13px] text-slate-600">
+              {formState.attachments ? (
+                <div className="flex items-center gap-2">
+                  <svg
+                    className="w-5 h-5 text-slate-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                    />
+                  </svg>
+                  <span className="font-medium text-[#161A61] underline cursor-pointer">
+                    {typeof formState.attachments === 'string'
+                      ? formState.attachments
+                      : formState.attachments.name}
+                  </span>
+                </div>
+              ) : (
+                'No attachments provided.'
+              )}
             </div>
           </div>
         </div>
@@ -134,91 +301,294 @@ export function EngagementForm({
   }
 
   return (
-    <Card className="rounded-[2rem] border border-[#cbd5e1] bg-white shadow-sm">
-      <CardHeader className="border-b border-slate-200 px-6 py-4">
-        <CardTitle className="text-base font-semibold text-slate-950">
-          {mode === 'edit' ? 'Edit Engagement' : 'Engagement Details'}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-6">
+    <div className="space-y-6">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between px-2">
+        <div className="flex items-start gap-4">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="mt-1 text-[#161A61] hover:text-slate-700"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <div>
+            <h1 className="text-[22px] font-semibold text-[#161A61]">
+              {mode === 'edit' ? 'Edit Engagement' : 'Create New Engagement'}
+            </h1>
+            <p className="mt-1 text-sm text-slate-500">
+              Register Create New Engagement and track outcomes
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-[2rem] border border-slate-200 bg-white p-6 sm:p-10 shadow-sm">
         <form
-          className="space-y-6"
           onSubmit={event => {
             event.preventDefault()
-            if (canSubmit) onSubmit?.(formState)
+            if (canSubmit) onSubmit?.({ ...formState, status: 'Pending Review' })
           }}
+          className="space-y-12"
         >
-          <div className="grid gap-4 xl:grid-cols-4">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                Engagement Type
-              </label>
-              <Input
-                value={formState.type}
-                onChange={e => setFormState(current => ({ ...current, type: e.target.value }))}
-                placeholder="Enter engagement type"
-                required
-              />
+          {/* Engagement Details */}
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <span className="w-1 h-5 bg-[#ff9500] rounded-full" />
+              <h2 className="text-[#161A61] font-semibold">Engagement Details</h2>
             </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">Date</label>
-              <Input
-                type="datetime-local"
-                value={formState.date}
-                onChange={e => setFormState(current => ({ ...current, date: e.target.value }))}
-                required
-                className="h-12 rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10 disabled:bg-slate-100"
-              />
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">Status</label>
-              <select
-                value={formState.status}
-                onChange={e => setFormState(current => ({ ...current, status: e.target.value }))}
-                className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
-              >
-                {statusOptions.map(statusOption => (
-                  <option key={statusOption} value={statusOption}>
-                    {statusOption}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                Follow-up Date
-              </label>
-              <Input
-                type="datetime-local"
-                value={formState.followUpDate}
-                onChange={e =>
-                  setFormState(current => ({ ...current, followUpDate: e.target.value }))
-                }
-                className="h-12 rounded-2xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10 disabled:bg-slate-100"
-              />
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Engagement ID
+                </label>
+                <Input value={formState.id} readOnly className="bg-slate-50 text-slate-500" />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">Date</label>
+                <Input
+                  type="date"
+                  value={formState.date}
+                  onChange={e => setFormState(current => ({ ...current, date: e.target.value }))}
+                  required
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Organization Name <span className="text-[#ff9500]">*</span>
+                </label>
+                <Input
+                  value={formState.organization || ''}
+                  onChange={e =>
+                    setFormState(current => ({ ...current, organization: e.target.value }))
+                  }
+                  placeholder="Enter Organization Name"
+                  required
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Engagement Type
+                </label>
+                <select
+                  value={formState.type}
+                  onChange={e => setFormState(current => ({ ...current, type: e.target.value }))}
+                  className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
+                  required
+                >
+                  <option value="">select Engagement Type</option>
+                  {engagementTypes.map(opt => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
+          {/* Participants List */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">Summary</label>
+            <div className="flex items-center gap-3 mb-6">
+              <span className="w-1 h-5 bg-[#ff9500] rounded-full" />
+              <h2 className="text-[#161A61] font-semibold">Participants List</h2>
+            </div>
+
+            <div className="space-y-4">
+              {formState.participants?.map(participant => (
+                <div key={participant.id} className="flex items-end gap-4">
+                  <div className="flex-1 grid gap-4 grid-cols-3">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-700">
+                        Organization Name <span className="text-[#ff9500]">*</span>
+                      </label>
+                      <Input
+                        value={participant.organizationName}
+                        onChange={e =>
+                          updateParticipant(participant.id, 'organizationName', e.target.value)
+                        }
+                        placeholder="Enter Organization Name"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-700">
+                        Full Name
+                      </label>
+                      <Input
+                        value={participant.fullName}
+                        onChange={e =>
+                          updateParticipant(participant.id, 'fullName', e.target.value)
+                        }
+                        placeholder="Enter Full Name"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-700">
+                        Position
+                      </label>
+                      <Input
+                        value={participant.position}
+                        onChange={e =>
+                          updateParticipant(participant.id, 'position', e.target.value)
+                        }
+                        placeholder="Enter Position"
+                      />
+                    </div>
+                  </div>
+                  {formState.participants && formState.participants.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeParticipant(participant.id)}
+                      className="mb-2 text-slate-400 hover:text-red-500"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 flex justify-end">
+              <button
+                type="button"
+                onClick={addParticipant}
+                className="flex items-center gap-2 text-[#161A61] font-medium hover:text-[#161A61]/80"
+              >
+                <PlusCircle className="h-5 w-5 fill-[#161A61] text-white" />
+                Add Participant
+              </button>
+            </div>
+          </div>
+
+          {/* EAII Representatives */}
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <span className="w-1 h-5 bg-[#ff9500] rounded-full" />
+              <h2 className="text-[#161A61] font-semibold">EAII Representatives</h2>
+            </div>
+
+            <div className="space-y-4">
+              {formState.eaiiRepresentatives?.map(rep => (
+                <div key={rep.id} className="flex items-end gap-4">
+                  <div className="flex-1 grid gap-4 grid-cols-3">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-700">
+                        Department Name <span className="text-[#ff9500]">*</span>
+                      </label>
+                      <Input
+                        value={rep.departmentName}
+                        onChange={e =>
+                          updateRepresentative(rep.id, 'departmentName', e.target.value)
+                        }
+                        placeholder="Enter Organization Name"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-700">
+                        Full Name
+                      </label>
+                      <Input
+                        value={rep.fullName}
+                        onChange={e => updateRepresentative(rep.id, 'fullName', e.target.value)}
+                        placeholder="Enter Full Name"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-700">
+                        Position
+                      </label>
+                      <Input
+                        value={rep.position}
+                        onChange={e => updateRepresentative(rep.id, 'position', e.target.value)}
+                        placeholder="Enter Position"
+                      />
+                    </div>
+                  </div>
+                  {formState.eaiiRepresentatives && formState.eaiiRepresentatives.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeRepresentative(rep.id)}
+                      className="mb-2 text-slate-400 hover:text-red-500"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 flex justify-end">
+              <button
+                type="button"
+                onClick={addRepresentative}
+                className="flex items-center gap-2 text-[#161A61] font-medium hover:text-[#161A61]/80"
+              >
+                <PlusCircle className="h-5 w-5 fill-[#161A61] text-white" />
+                Add Representatives
+              </button>
+            </div>
+          </div>
+
+          {/* Discussion Summary */}
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <span className="w-1 h-5 bg-[#ff9500] rounded-full" />
+              <h2 className="text-[#161A61] font-semibold">Discussion Summary</h2>
+            </div>
             <textarea
-              value={formState.summary}
-              onChange={e => setFormState(current => ({ ...current, summary: e.target.value }))}
-              className="min-h-[120px] w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
-              placeholder="Enter engagement summary"
+              value={formState.discussionSummary || ''}
+              onChange={e =>
+                setFormState(current => ({ ...current, discussionSummary: e.target.value }))
+              }
+              placeholder="Enter summary of discussions and key outcomes..."
+              className="min-h-[120px] w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-colors focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
             />
           </div>
 
-          <div className="flex items-end justify-end gap-3">
-            <Button variant="outline" type="button" onClick={onCancel}>
+          {/* Attachments */}
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <span className="w-1 h-5 bg-[#ff9500] rounded-full" />
+              <h2 className="text-[#161A61] font-semibold">Attachments</h2>
+            </div>
+            <div className="flex flex-col gap-2">
+              <input
+                type="file"
+                className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#161A61]/10 file:text-[#161A61] hover:file:bg-[#161A61]/20 cursor-pointer"
+                onChange={e => {
+                  const file = e.target.files?.[0]
+                  if (file) {
+                    setFormState(current => ({ ...current, attachments: file.name }))
+                  }
+                }}
+              />
+              {formState.attachments && (
+                <p className="text-sm text-slate-600">
+                  Selected file:{' '}
+                  <span className="font-medium">
+                    {typeof formState.attachments === 'string'
+                      ? formState.attachments
+                      : formState.attachments.name}
+                  </span>
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
+            <Button variant="outline" type="button" onClick={onCancel} className="w-24">
               Cancel
             </Button>
-            <Button className="!bg-[#ff9500] !text-white !hover:bg-[#e68a00]" type="submit">
+            <Button
+              type="submit"
+              className="w-24 bg-[#ff9500] hover:bg-[#e68a00] text-white border-none shadow-none"
+            >
               Save
             </Button>
           </div>
         </form>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

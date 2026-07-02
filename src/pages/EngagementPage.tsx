@@ -10,7 +10,18 @@ import { ConfirmationModal } from '../components/ConfirmationModal'
 import { FilterDrawer } from '../components/FilterDrawer'
 import type { FilterValues } from '../components/FilterDrawer'
 import type { EngagementRecord } from '../types'
-import { engagements as initialEngagements } from '../data'
+import { opportunities } from '../data'
+
+const initialEngagements: EngagementRecord[] = opportunities
+  .filter(opp => opp.status === 'Approved')
+  .map((opp, index) => ({
+    id: `ENG-${opp.id.split('-')[1] || opp.id}`,
+    no: index + 1,
+    organization: opp.partnerName || 'Unknown Organization',
+    type: opp.opportunityCategory || 'Partnership',
+    date: opp.date,
+    status: 'Draft',
+  }))
 
 const FILTER_FIELDS = [
   {
@@ -157,24 +168,34 @@ export function EngagementPage() {
               {
                 label: 'No.',
                 render: (_item, index) => (
-                  <span className="font-semibold text-slate-900">{index}</span>
+                  <span className="font-semibold text-slate-900">{index + 1}</span>
                 ),
-                headClassName: 'bg-[#0b265a] text-white text-center',
+                headClassName: 'bg-[#0b265a] text-white text-center whitespace-nowrap',
               },
               {
-                label: 'Engagement Type',
+                label: 'Engagement ID',
+                render: item => <span className="text-slate-900 font-medium">{item.id}</span>,
+                headClassName: 'bg-[#0b265a] text-white whitespace-nowrap',
+              },
+              {
+                label: 'Organization',
+                render: item => item.organization || 'N/A',
+                headClassName: 'bg-[#0b265a] text-white whitespace-nowrap',
+              },
+              {
+                label: 'Type',
                 render: item => item.type,
-                headClassName: 'bg-[#0b265a] text-white',
+                headClassName: 'bg-[#0b265a] text-white whitespace-nowrap',
               },
               {
                 label: 'Date',
                 render: item => item.date,
-                headClassName: 'bg-[#0b265a] text-white',
+                headClassName: 'bg-[#0b265a] text-white whitespace-nowrap',
               },
               {
                 label: 'Status',
                 render: item => <StatusBadge status={item.status} />,
-                headClassName: 'bg-[#0b265a] text-white text-center',
+                headClassName: 'bg-[#0b265a] text-white text-center whitespace-nowrap',
                 cellClassName: 'text-center',
               },
               {
@@ -186,7 +207,7 @@ export function EngagementPage() {
                     onDelete={() => handleDelete(item)}
                   />
                 ),
-                headClassName: 'bg-[#0b265a] text-white text-center',
+                headClassName: 'bg-[#0b265a] text-white text-center whitespace-nowrap',
                 cellClassName: 'text-center',
               },
             ]}
