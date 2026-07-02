@@ -1,7 +1,8 @@
 import { navigationItems } from '../data'
-import { ChevronRight, LogOut } from 'lucide-react'
+import { ChevronRight, LogOut, Handshake, ChevronDown } from 'lucide-react'
 import type { AdminPage } from '../types'
 import { cn } from '../utils'
+import { useState } from 'react'
 
 type SidebarProps = {
   activePage: AdminPage
@@ -14,6 +15,28 @@ type SidebarProps = {
 
 const groups = ['DASHBOARD', 'MAIN', 'BASE DATA', 'USER MANAGEMENT', 'SYSTEM SETTINGS'] as const
 
+// Sub-items that live under the Opportunities nav item
+const opportunitySubItems: { label: string; page: AdminPage; description: string }[] = [
+  { label: 'Officer', page: 'opportunities-officer', description: 'Register opportunities' },
+  {
+    label: 'KE Director',
+    page: 'opportunities-knowledge-director',
+    description: 'Review & send for approval',
+  },
+  {
+    label: 'Division Director',
+    page: 'opportunities-division-director',
+    description: 'Approve or reject',
+  },
+]
+
+const opportunityPages: AdminPage[] = [
+  'opportunities',
+  'opportunities-officer',
+  'opportunities-knowledge-director',
+  'opportunities-division-director',
+]
+
 export function Sidebar({
   activePage,
   collapsed,
@@ -22,6 +45,8 @@ export function Sidebar({
   className,
   onLogout,
 }: SidebarProps) {
+  const isOpportunityActive = opportunityPages.includes(activePage)
+  const [opportunitiesOpen, setOpportunitiesOpen] = useState(isOpportunityActive)
   return (
     <aside
       className={cn(
@@ -91,6 +116,88 @@ export function Sidebar({
                     const Icon = item.icon
                     const isActive = activePage === item.page
 
+                    // ── Opportunities: expandable with sub-items ──────────────
+                    if (item.page === 'opportunities') {
+                      return (
+                        <div key={item.label}>
+                          {/* Parent row */}
+                          <button
+                            type="button"
+                            title={collapsed ? item.label : undefined}
+                            onClick={() => {
+                              if (collapsed) {
+                                onNavigate('opportunities')
+                              } else {
+                                setOpportunitiesOpen(o => !o)
+                              }
+                            }}
+                            className={cn(
+                              'relative flex w-full items-center rounded-xl text-sm font-semibold transition-all duration-200',
+                              collapsed
+                                ? 'justify-center px-0 py-3'
+                                : 'gap-3 px-3 py-2.5 text-left',
+                              isOpportunityActive
+                                ? 'bg-[#161A61] text-white shadow-md'
+                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                            )}
+                          >
+                            {isOpportunityActive && !collapsed && (
+                              <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-[#ff9500]" />
+                            )}
+                            <Handshake
+                              className={cn('flex-shrink-0', collapsed ? 'h-5 w-5' : 'h-4 w-4')}
+                            />
+                            {!collapsed && (
+                              <>
+                                <span className="flex-1">Opportunities</span>
+                                <ChevronDown
+                                  className={cn(
+                                    'h-3.5 w-3.5 transition-transform duration-200',
+                                    opportunitiesOpen ? 'rotate-180' : ''
+                                  )}
+                                />
+                              </>
+                            )}
+                          </button>
+
+                          {/* Sub-items */}
+                          {!collapsed && opportunitiesOpen && (
+                            <div className="ml-4 mt-0.5 space-y-0.5 border-l-2 border-slate-100 pl-3">
+                              {opportunitySubItems.map(sub => {
+                                const isSubActive = activePage === sub.page
+                                return (
+                                  <button
+                                    key={sub.page}
+                                    type="button"
+                                    onClick={() => onNavigate(sub.page)}
+                                    className={cn(
+                                      'flex w-full flex-col rounded-lg px-3 py-2 text-left transition-all duration-150',
+                                      isSubActive
+                                        ? 'bg-[#161A61]/10 text-[#161A61]'
+                                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                                    )}
+                                  >
+                                    <span
+                                      className={cn(
+                                        'text-xs font-semibold',
+                                        isSubActive && 'text-[#161A61]'
+                                      )}
+                                    >
+                                      {sub.label}
+                                    </span>
+                                    <span className="text-[10px] text-slate-400 leading-tight mt-0.5">
+                                      {sub.description}
+                                    </span>
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    }
+
+                    // ── All other nav items ───────────────────────────────────
                     return (
                       <button
                         key={item.label}

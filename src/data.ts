@@ -347,7 +347,7 @@ export const opportunities: OpportunityRecord[] = [
     source: 'UNESCO outreach',
     date: '26 MAR 2020',
     division: 'Business',
-    status: 'Accepted',
+    status: 'Approved',
   },
   {
     id: 'opp-006',
@@ -356,7 +356,7 @@ export const opportunities: OpportunityRecord[] = [
     source: 'AI Innovation Summit',
     date: '15 MAR 2020',
     division: 'Design',
-    status: 'Accepted',
+    status: 'Approved',
   },
   {
     id: 'opp-007',
@@ -365,7 +365,7 @@ export const opportunities: OpportunityRecord[] = [
     source: 'AI Innovation Summit',
     date: '10 MAR 2020',
     division: 'Market Management',
-    status: 'Accepted',
+    status: 'Pending Approval',
   },
   {
     id: 'opp-008',
@@ -392,7 +392,7 @@ export const opportunities: OpportunityRecord[] = [
     source: 'UNESCO outreach',
     date: '17 MAR 2020',
     division: 'Finance',
-    status: 'Accepted',
+    status: 'Draft',
   },
 ]
 

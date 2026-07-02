@@ -1,2 +1,6 @@
 export { OpportunitiesPage } from './OpportunitiesPage'
 export { OpportunityForm } from './OpportunityForm'
+export { OpportunityReviewView } from './OpportunityReviewView'
+export { OfficerOpportunitiesPage } from './OfficerOpportunitiesPage'
+export { KnowledgeDirectorPage } from './KnowledgeDirectorPage'
+export { DivisionDirectorPage } from './DivisionDirectorPage'

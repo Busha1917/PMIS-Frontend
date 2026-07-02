@@ -18,6 +18,21 @@ const EventsVisitsPage = lazy(() =>
 const OpportunitiesPage = lazy(() =>
   import('@/features/opportunities/OpportunitiesPage').then(m => ({ default: m.OpportunitiesPage }))
 )
+const OfficerOpportunitiesPage = lazy(() =>
+  import('@/features/opportunities/OfficerOpportunitiesPage').then(m => ({
+    default: m.OfficerOpportunitiesPage,
+  }))
+)
+const KnowledgeDirectorPage = lazy(() =>
+  import('@/features/opportunities/KnowledgeDirectorPage').then(m => ({
+    default: m.KnowledgeDirectorPage,
+  }))
+)
+const DivisionDirectorPage = lazy(() =>
+  import('@/features/opportunities/DivisionDirectorPage').then(m => ({
+    default: m.DivisionDirectorPage,
+  }))
+)
 const EngagementPage = lazy(() =>
   import('@/features/engagement/EngagementPage').then(m => ({ default: m.EngagementPage }))
 )
@@ -77,6 +92,21 @@ const pageRoutes: Record<AdminPage, { path: string; title: string; description: 
     path: '/opportunities',
     title: 'Opportunities',
     description: 'Track active and new partnership opportunities.',
+  },
+  'opportunities-officer': {
+    path: '/opportunities/officer',
+    title: 'Opportunities — Officer',
+    description: 'Register and manage partnership opportunities.',
+  },
+  'opportunities-knowledge-director': {
+    path: '/opportunities/review',
+    title: 'Opportunities — Review',
+    description: 'Review registered opportunities and send for approval.',
+  },
+  'opportunities-division-director': {
+    path: '/opportunities/approval',
+    title: 'Opportunities — Approval',
+    description: 'Approve or reject opportunities sent for final decision.',
   },
   engagement: {
     path: '/engagement',
@@ -194,6 +224,12 @@ function App() {
         return <EventsVisitsPage />
       case 'opportunities':
         return <OpportunitiesPage />
+      case 'opportunities-officer':
+        return <OfficerOpportunitiesPage />
+      case 'opportunities-knowledge-director':
+        return <KnowledgeDirectorPage />
+      case 'opportunities-division-director':
+        return <DivisionDirectorPage />
       case 'engagement':
         return <EngagementPage />
       case 'agreements':

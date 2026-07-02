@@ -4,6 +4,9 @@ export type AdminPage =
   | 'dashboard'
   | 'events'
   | 'opportunities'
+  | 'opportunities-officer'
+  | 'opportunities-knowledge-director'
+  | 'opportunities-division-director'
   | 'engagement'
   | 'agreements'
   | 'partners'
@@ -244,6 +247,10 @@ export type EventRecord = {
   rejectionReason?: string
 }
 
+export type OpportunityStatus = 'Draft' | 'Pending Approval' | 'Approved' | 'Rejected'
+
+export type OpportunityRole = 'officer' | 'knowledge-director' | 'division-director'
+
 export type OpportunityRecord = {
   id: string
   no: number
@@ -251,9 +258,9 @@ export type OpportunityRecord = {
   source: string
   date: string
   division: string
-  status: string
+  status: OpportunityStatus
 
-  // New Fields
+  // Partner Info
   partnerName?: string
   acronym?: string
   organizationType?: string
@@ -280,7 +287,16 @@ export type OpportunityRecord = {
   expectedBenefits?: string
   expectedOutcome?: string
 
-  // Rejection Reason
+  // Workflow tracking
+  registeredBy?: string
+  registeredAt?: string
+  reviewedBy?: string // Knowledge & Ecosystem Director
+  reviewComment?: string // Director's note when sending for approval
+  sentForApprovalAt?: string
+  approvedBy?: string // Division Director
+  approvedAt?: string
+  rejectedBy?: string
+  rejectedAt?: string
   rejectionReason?: string
 }
 

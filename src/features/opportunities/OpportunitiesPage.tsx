@@ -21,8 +21,8 @@ const FILTER_FIELDS = [
     type: 'select' as const,
     options: [
       { label: 'Draft', value: 'Draft' },
+      { label: 'Pending Approval', value: 'Pending Approval' },
       { label: 'Approved', value: 'Approved' },
-      { label: 'Accepted', value: 'Accepted' },
       { label: 'Rejected', value: 'Rejected' },
     ],
   },
@@ -73,16 +73,16 @@ export function OpportunitiesPage() {
         items: filteredOpportunities.filter(op => op.status === 'Draft'),
       },
       {
-        id: 'Approved',
-        title: 'Approved',
-        color: 'bg-blue-500',
-        items: filteredOpportunities.filter(op => op.status === 'Approved'),
+        id: 'Pending Approval',
+        title: 'Pending Approval',
+        color: 'bg-amber-500',
+        items: filteredOpportunities.filter(op => op.status === 'Pending Approval'),
       },
       {
-        id: 'Accepted',
-        title: 'Accepted',
+        id: 'Approved',
+        title: 'Approved',
         color: 'bg-emerald-500',
-        items: filteredOpportunities.filter(op => op.status === 'Accepted'),
+        items: filteredOpportunities.filter(op => op.status === 'Approved'),
       },
       {
         id: 'Rejected',
