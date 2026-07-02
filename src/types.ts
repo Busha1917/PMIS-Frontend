@@ -3,6 +3,9 @@ import type { LucideIcon } from 'lucide-react'
 export type AdminPage =
   | 'dashboard'
   | 'events'
+  | 'events-officer'
+  | 'events-director-general'
+  | 'events-assigned-person'
   | 'opportunities'
   | 'opportunities-officer'
   | 'opportunities-knowledge-director'
@@ -161,7 +164,9 @@ export type EventRecord = {
   no: number
   title: string // Maps to Event Name
   type: string // Maps to Event Type / Visit Type
-  date: string // Maps to Event Date / Visit Date
+  date: string // Maps to Event Start Date & Time / Visit Start Date & Time
+  endDate?: string // Maps to Event End Date & Time
+  visitEndDate?: string // Maps to Visit End Date & Time
   venue: string // Maps to Venue / Host Org / Location
   status:
     | 'Draft'
@@ -185,8 +190,6 @@ export type EventRecord = {
 
   // If Event details
   eventCategory?: 'Internal' | 'Joint'
-  startTime?: string
-  endTime?: string
   organizer?: string
   coOrganizer?: string
   eventMode?: 'Physically' | 'Virtual' | 'Hybrid'

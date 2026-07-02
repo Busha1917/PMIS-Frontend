@@ -15,6 +15,15 @@ const BaseDataPage = lazy(() =>
 const EventsVisitsPage = lazy(() =>
   import('@/features/events/EventsVisitsPage').then(m => ({ default: m.EventsVisitsPage }))
 )
+const OfficerEventsPage = lazy(() =>
+  import('@/features/events/OfficerEventsPage').then(m => ({ default: m.OfficerEventsPage }))
+)
+const DirectorGeneralEventsPage = lazy(() =>
+  import('@/features/events/DirectorGeneralEventsPage').then(m => ({ default: m.DirectorGeneralEventsPage }))
+)
+const AssignedPersonEventsPage = lazy(() =>
+  import('@/features/events/AssignedPersonEventsPage').then(m => ({ default: m.AssignedPersonEventsPage }))
+)
 const OpportunitiesPage = lazy(() =>
   import('@/features/opportunities/OpportunitiesPage').then(m => ({ default: m.OpportunitiesPage }))
 )
@@ -102,6 +111,21 @@ const pageRoutes: Record<AdminPage, { path: string; title: string; description: 
     path: '/events',
     title: 'Events & Visits',
     description: 'Manage events and site visits for partner engagements.',
+  },
+  'events-officer': {
+    path: '/events/officer',
+    title: 'Events & Visits — Officer',
+    description: 'Create and submit events and site visits.',
+  },
+  'events-director-general': {
+    path: '/events/director-general',
+    title: 'Events & Visits — Director General',
+    description: 'Review submitted events and assign outcomes.',
+  },
+  'events-assigned-person': {
+    path: '/events/assigned-person',
+    title: 'Events & Visits — Assigned Person',
+    description: 'Fill outcomes for events assigned to you.',
   },
   opportunities: {
     path: '/opportunities',
@@ -252,6 +276,12 @@ function App() {
         return <AdminDashboard />
       case 'events':
         return <EventsVisitsPage />
+      case 'events-officer':
+        return <OfficerEventsPage />
+      case 'events-director-general':
+        return <DirectorGeneralEventsPage />
+      case 'events-assigned-person':
+        return <AssignedPersonEventsPage />
       case 'opportunities':
         return <OpportunitiesPage />
       case 'opportunities-officer':

@@ -200,11 +200,23 @@ export function EventForm({
   // Determine whether the event has ended (so the assigned person can fill outcomes)
   let eventEnded = false
   try {
-    if (formState.date) {
-      // formState.date might be in ISO or date-only format; normalize to date part
-      const datePart = formState.date.split('T')[0]
-      const timePart = formState.endTime || '23:59:59'
-      const endDate = new Date(`${datePart}T${timePart}`)
+    if (formState.category === 'Event' && formState.endDate) {
+      const endDate = new Date(formState.endDate)
+      if (!isNaN(endDate.getTime())) {
+        eventEnded = Date.now() > endDate.getTime()
+      }
+    } else if (formState.category === 'Visit' && formState.visitEndDate) {
+      const endDate = new Date(formState.visitEndDate)
+      if (!isNaN(endDate.getTime())) {
+        eventEnded = Date.now() > endDate.getTime()
+      }
+    } else if (formState.category === 'Visit' && formState.visitDate) {
+      const endDate = new Date(formState.visitDate)
+      if (!isNaN(endDate.getTime())) {
+        eventEnded = Date.now() > endDate.getTime()
+      }
+    } else if (formState.date) {
+      const endDate = new Date(formState.date)
       if (!isNaN(endDate.getTime())) {
         eventEnded = Date.now() > endDate.getTime()
       }
@@ -769,12 +781,14 @@ export function EventForm({
                 <InfoRow label="Event Type" value={formState.type} />
                 <InfoRow label="Event Category" value={formState.eventCategory} />
                 <InfoRow
-                  label="Event Date"
-                  value={formState.date ? formState.date.split('T')[0] : undefined}
+                  label="Start Date & Time"
+                  value={formState.date ? formState.date.replace('T', ' ') : undefined}
+                />
+                <InfoRow
+                  label="End Date & Time"
+                  value={formState.endDate ? formState.endDate.replace('T', ' ') : undefined}
                 />
                 <InfoRow label="Venue" value={formState.venue} />
-                <InfoRow label="Start Time" value={formState.startTime} />
-                <InfoRow label="End Time" value={formState.endTime} />
                 <InfoRow label="Organizer" value={formState.organizer} />
                 <InfoRow label="Co-organizer" value={formState.coOrganizer} />
                 <InfoRow label="Event Mode" value={formState.eventMode} />
@@ -783,7 +797,14 @@ export function EventForm({
               <>
                 <InfoRow label="Visit Type" value={formState.visitType} />
                 <InfoRow label="Visit Category" value={formState.visitCategory} />
-                <InfoRow label="Visit Date" value={formState.visitDate} />
+                <InfoRow
+                  label="Visit Start (Date & Time)"
+                  value={formState.visitDate ? formState.visitDate.replace('T', ' ') : undefined}
+                />
+                <InfoRow
+                  label="Visit End (Date & Time)"
+                  value={formState.visitEndDate ? formState.visitEndDate.replace('T', ' ') : undefined}
+                />
                 <InfoRow label="Host Organization" value={formState.hostOrganization} />
                 <InfoRow label="Visiting Organization" value={formState.visitingOrganization} />
                 <InfoRow label="Visit Locations" value={formState.visitLocations} />
@@ -1007,11 +1028,19 @@ export function EventForm({
                   <option value="Hybrid">Hybrid</option>
                 </select>
               </FormField>
-              <FormField label="Event Date">
+              <FormField label="Start Date & Time">
                 <Input
-                  type="date"
-                  value={formState.date ? formState.date.split('T')[0] : ''}
+                  type="datetime-local"
+                  value={formState.date || ''}
                   onChange={e => setFormState(prev => ({ ...prev, date: e.target.value }))}
+                  required
+                />
+              </FormField>
+              <FormField label="End Date & Time">
+                <Input
+                  type="datetime-local"
+                  value={formState.endDate || ''}
+                  onChange={e => setFormState(prev => ({ ...prev, endDate: e.target.value }))}
                   required
                 />
               </FormField>
@@ -1021,20 +1050,6 @@ export function EventForm({
                   onChange={e => setFormState(prev => ({ ...prev, venue: e.target.value }))}
                   placeholder="Event venue"
                   required
-                />
-              </FormField>
-              <FormField label="Start Time">
-                <Input
-                  type="time"
-                  value={formState.startTime || ''}
-                  onChange={e => setFormState(prev => ({ ...prev, startTime: e.target.value }))}
-                />
-              </FormField>
-              <FormField label="End Time">
-                <Input
-                  type="time"
-                  value={formState.endTime || ''}
-                  onChange={e => setFormState(prev => ({ ...prev, endTime: e.target.value }))}
                 />
               </FormField>
             </div>
@@ -1076,11 +1091,19 @@ export function EventForm({
                   <option value="international">International</option>
                 </select>
               </FormField>
-              <FormField label="Visit Date">
+              <FormField label="Visit Start (Date & Time)">
                 <Input
-                  type="date"
+                  type="datetime-local"
                   value={formState.visitDate || ''}
                   onChange={e => setFormState(prev => ({ ...prev, visitDate: e.target.value }))}
+                  required
+                />
+              </FormField>
+              <FormField label="Visit End (Date & Time)">
+                <Input
+                  type="datetime-local"
+                  value={formState.visitEndDate || ''}
+                  onChange={e => setFormState(prev => ({ ...prev, visitEndDate: e.target.value }))}
                   required
                 />
               </FormField>
