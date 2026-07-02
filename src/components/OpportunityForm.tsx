@@ -248,7 +248,7 @@ export function OpportunityForm({
                   {formState.status === 'Pending Approval' ? 'Approve' : 'Send for approval'}
                 </Button>
                 <Button
-                  className="h-10 border-none bg-[#ef4444] px-8 font-medium text-white shadow-none hover:bg-[#dc2626]"
+                  className="h-10 border-none bg-red-600 px-8 font-medium text-white shadow-none hover:bg-red-700"
                   type="button"
                   onClick={handleRejectClick}
                 >
