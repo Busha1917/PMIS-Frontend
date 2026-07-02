@@ -1,2 +1,5 @@
 export { EventsVisitsPage } from './EventsVisitsPage'
 export { EventForm } from './EventForm'
+export { OfficerEventsPage } from './OfficerEventsPage'
+export { DirectorGeneralEventsPage } from './DirectorGeneralEventsPage'
+export { AssignedPersonEventsPage } from './AssignedPersonEventsPage'
