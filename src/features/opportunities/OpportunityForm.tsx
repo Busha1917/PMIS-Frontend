@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
-import { Button, Card, CardContent, CardHeader, CardTitle, Input, Modal } from '../ui'
-import { StatusBadge } from './StatusBadge'
-import type { OpportunityRecord } from '../types'
+import { Button, Card, CardContent, CardHeader, CardTitle, Input, Modal } from '../../ui'
+import { StatusBadge } from '../../components/StatusBadge'
+import type { OpportunityRecord } from '../../types'
 
 type OpportunityFormMode = 'create' | 'edit' | 'preview'
 

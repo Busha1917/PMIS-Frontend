@@ -2,9 +2,9 @@ import { useEffect } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
-import type { AgreementRecord } from '../types'
-import { agreementFormSchema, type AgreementFormValues } from '../utils/validation'
+import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '../../ui'
+import type { AgreementRecord } from '../../types'
+import { agreementFormSchema, type AgreementFormValues } from '../../utils/validation'
 
 type AgreementFormMode = 'create' | 'edit' | 'preview'
 

@@ -1,16 +1,16 @@
 import { useMemo, useState } from 'react'
-import { DataTable } from '../components/DataTable'
-import { EngagementForm } from '../components/EngagementForm'
-import { PageHeaderCard } from '../components/PageHeaderCard'
-import { PageToolbar } from '../components/PageToolbar'
-import { StatusBadge } from '../components/StatusBadge'
-import { TableActionButtons } from '../components/TableActionButtons'
+import { DataTable } from '../../components/DataTable'
+import { EngagementForm } from './EngagementForm'
+import { PageHeaderCard } from '../../components/PageHeaderCard'
+import { PageToolbar } from '../../components/PageToolbar'
+import { StatusBadge } from '../../components/StatusBadge'
+import { TableActionButtons } from '../../components/TableActionButtons'
 
-import { ConfirmationModal } from '../components/ConfirmationModal'
-import { FilterDrawer } from '../components/FilterDrawer'
-import type { FilterValues } from '../components/FilterDrawer'
-import type { EngagementRecord } from '../types'
-import { opportunities } from '../data'
+import { ConfirmationModal } from '../../components/ConfirmationModal'
+import { FilterDrawer } from '../../components/FilterDrawer'
+import type { FilterValues } from '../../components/FilterDrawer'
+import type { EngagementRecord } from '../../types'
+import { opportunities } from '../../data'
 
 const initialEngagements: EngagementRecord[] = opportunities
   .filter(opp => opp.status === 'Approved')
@@ -168,7 +168,7 @@ export function EngagementPage() {
               {
                 label: 'No.',
                 render: (_item, index) => (
-                  <span className="font-semibold text-slate-900">{index + 1}</span>
+                  <span className="font-semibold text-slate-900">{(index ?? 0) + 1}</span>
                 ),
                 headClassName: 'bg-[#0b265a] text-white text-center whitespace-nowrap',
               },

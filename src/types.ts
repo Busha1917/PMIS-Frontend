@@ -284,6 +284,20 @@ export type OpportunityRecord = {
   rejectionReason?: string
 }
 
+export type ParticipantRecord = {
+  id: string
+  organizationName: string
+  fullName: string
+  position: string
+}
+
+export type EaiiRepresentativeRecord = {
+  id: string
+  departmentName: string
+  fullName: string
+  position: string
+}
+
 export type EngagementRecord = {
   id: string
   no: number
@@ -292,6 +306,9 @@ export type EngagementRecord = {
   status: string
   organization?: string
   attachments?: any
+  participants?: ParticipantRecord[]
+  eaiiRepresentatives?: EaiiRepresentativeRecord[]
+  discussionSummary?: string
 }
 
 export type AgreementRecord = {

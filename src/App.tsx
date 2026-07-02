@@ -13,19 +13,19 @@ const BaseDataPage = lazy(() =>
   import('@/pages/BaseDataPage').then(m => ({ default: m.BaseDataPage }))
 )
 const EventsVisitsPage = lazy(() =>
-  import('@/pages/EventsVisitsPage').then(m => ({ default: m.EventsVisitsPage }))
+  import('@/features/events/EventsVisitsPage').then(m => ({ default: m.EventsVisitsPage }))
 )
 const OpportunitiesPage = lazy(() =>
-  import('@/pages/OpportunitiesPage').then(m => ({ default: m.OpportunitiesPage }))
+  import('@/features/opportunities/OpportunitiesPage').then(m => ({ default: m.OpportunitiesPage }))
 )
 const EngagementPage = lazy(() =>
-  import('@/pages/EngagementPage').then(m => ({ default: m.EngagementPage }))
+  import('@/features/engagement/EngagementPage').then(m => ({ default: m.EngagementPage }))
 )
 const AgreementsPage = lazy(() =>
-  import('@/pages/AgreementsPage').then(m => ({ default: m.AgreementsPage }))
+  import('@/features/agreements/AgreementsPage').then(m => ({ default: m.AgreementsPage }))
 )
 const PartnersPage = lazy(() =>
-  import('@/pages/PartnersPage').then(m => ({ default: m.PartnersPage }))
+  import('@/features/partners/PartnersPage').then(m => ({ default: m.PartnersPage }))
 )
 const RolesPage = lazy(() => import('@/pages/RolesPage').then(m => ({ default: m.RolesPage })))
 const PermissionActionsPage = lazy(() =>

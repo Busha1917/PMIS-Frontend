@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ArrowLeft, PlusCircle, Trash2 } from 'lucide-react'
-import { Button, Input } from '../ui'
-import type { EngagementRecord, ParticipantRecord, EaiiRepresentativeRecord } from '../types'
+import { Button, Input } from '../../ui'
+import type { EngagementRecord, ParticipantRecord, EaiiRepresentativeRecord } from '../../types'
 
 type EngagementFormMode = 'create' | 'edit' | 'preview'
 
