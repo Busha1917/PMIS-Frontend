@@ -19,6 +19,9 @@ export type AdminPage =
   | 'agreements-legal'
   | 'agreements-ke-director'
   | 'partners'
+  | 'partners-officer'
+  | 'partners-ke-director'
+  | 'partners-division-director'
   | 'baseData'
   | 'users'
   | 'roles'
@@ -441,6 +444,33 @@ export type AgreementRecord = {
   rejectionReason?: string
 }
 
+export type PartnerStatus =
+  | 'Draft'
+  | 'Pending Verification'
+  | 'Verified'
+  | 'Pending Approval'
+  | 'Approved'
+  | 'Rejected'
+
+export type PartnerContact = {
+  id: string
+  fullName: string
+  position: string
+  department: string
+  email: string
+  mobilePhone: string
+  officePhone: string
+}
+
+export type PartnerAdditionalContact = {
+  id: string
+  fullName: string
+  title: string
+  email: string
+  phone: string
+  roleInPartnership: string
+}
+
 export type PartnerRecord = {
   id: string
   no: number
@@ -449,7 +479,64 @@ export type PartnerRecord = {
   country: string
   organization: string
   contact: string
-  status: string
+  status: PartnerStatus | string
+
+  // Step 1: Basic Information
+  acronym?: string
+  organizationType?: string
+  region?: string
+  website?: string
+  yearEstablished?: string
+  registrationLicenseNumber?: string
+  taxNumber?: string
+  partnershipClassification?: string
+
+  // Step 2: Organizational Details
+  partnerLogo?: string
+  mission?: string
+  vision?: string
+  strategicFocusAreas?: string
+  keyExpertiseAreas?: string
+  aiRelatedFocusAreas?: string
+  annualBudget?: string
+  numberOfEmployees?: string
+  geographicCoverage?: string
+
+  // Step 4: Primary Contact
+  primaryContact?: PartnerContact
+
+  // Step 4: Additional Contact
+  additionalContact?: PartnerAdditionalContact
+
+  // Step 5: Internal EAII Focal Person (assigned by system)
+  internalFocalPersonName?: string
+  internalFocalPersonDivision?: string
+
+  // Linked agreement
+  agreementId?: string
+  agreementTitle?: string
+  agreementType?: string
+  agreementApprovedAt?: string
+  agreementApprovedBy?: string
+
+  // Officer workflow
+  submittedBy?: string
+  submittedAt?: string
+  currentStep?: number // for stepper tracking
+
+  // KE Director workflow
+  verifiedBy?: string
+  verifiedAt?: string
+  keRejectedBy?: string
+  keRejectedAt?: string
+  keRejectionReason?: string
+
+  // Division Director workflow
+  approvedBy?: string
+  approvedAt?: string
+  rejectedBy?: string
+  rejectedAt?: string
+  rejectionReason?: string
 }
 
 export type BaseDataItem = {

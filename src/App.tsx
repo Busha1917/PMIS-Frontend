@@ -85,6 +85,21 @@ const KEDirectorAgreementPage = lazy(() =>
 const PartnersPage = lazy(() =>
   import('@/features/partners/PartnersPage').then(m => ({ default: m.PartnersPage }))
 )
+const OfficerPartnerPage = lazy(() =>
+  import('@/features/partners/OfficerPartnerPage').then(m => ({
+    default: m.OfficerPartnerPage,
+  }))
+)
+const KEDirectorPartnerPage = lazy(() =>
+  import('@/features/partners/KEDirectorPartnerPage').then(m => ({
+    default: m.KEDirectorPartnerPage,
+  }))
+)
+const DivisionDirectorPartnerPage = lazy(() =>
+  import('@/features/partners/DivisionDirectorPartnerPage').then(m => ({
+    default: m.DivisionDirectorPartnerPage,
+  }))
+)
 const RolesPage = lazy(() => import('@/pages/RolesPage').then(m => ({ default: m.RolesPage })))
 const PermissionActionsPage = lazy(() =>
   import('@/pages/PermissionActionsPage').then(m => ({ default: m.PermissionActionsPage }))
@@ -210,6 +225,21 @@ const pageRoutes: Record<AdminPage, { path: string; title: string; description: 
     path: '/partners',
     title: 'Partners',
     description: 'Browse partner organizations and contact details.',
+  },
+  'partners-officer': {
+    path: '/partners/officer',
+    title: 'Partners — Officer',
+    description: 'Register partnership organizations from approved agreements.',
+  },
+  'partners-ke-director': {
+    path: '/partners/verification',
+    title: 'Partners — Verification',
+    description: 'Verify submitted partner registrations as KE Director.',
+  },
+  'partners-division-director': {
+    path: '/partners/approval',
+    title: 'Partners — Approval',
+    description: 'Approve or reject verified partners as Division Director.',
   },
   baseData: {
     path: '/base-data',
@@ -342,6 +372,12 @@ function App() {
         return <KEDirectorAgreementPage />
       case 'partners':
         return <PartnersPage />
+      case 'partners-officer':
+        return <OfficerPartnerPage />
+      case 'partners-ke-director':
+        return <KEDirectorPartnerPage />
+      case 'partners-division-director':
+        return <DivisionDirectorPartnerPage />
       case 'baseData':
         return <BaseDataPage />
       case 'users':

@@ -8,9 +8,8 @@ import { StatusBadge } from '../../components/StatusBadge'
 import { FilterDrawer } from '../../components/FilterDrawer'
 import type { FilterValues } from '../../components/FilterDrawer'
 import { Button, Modal } from '../../ui'
-import type { AgreementRecord } from '../../types'
-import { agreementStore } from './agreementStore'
-import { partnerStore } from '../partners/partnerStore'
+import type { PartnerRecord } from '../../types'
+import { partnerStore } from './partnerStore'
 
 const FILTER_FIELDS = [
   {
@@ -25,28 +24,24 @@ const FILTER_FIELDS = [
   },
 ]
 
-// ── Detail / Approval view ────────────────────────────────────────────────────
+// ── Detail / Approval View ───────────────────────────────────────────────────
 
 type DetailViewProps = {
-  agreement: AgreementRecord
+  partner: PartnerRecord
   onApprove: () => void
   onReject: (reason: string) => void
   onBack: () => void
 }
 
-function DetailView({ agreement, onApprove, onReject, onBack }: DetailViewProps) {
+function DetailView({ partner, onApprove, onReject, onBack }: DetailViewProps) {
   const [approveModalOpen, setApproveModalOpen] = useState(false)
   const [rejectModalOpen, setRejectModalOpen] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
 
-  const canAct = agreement.status === 'Verified'
+  const canAct = partner.status === 'Verified'
 
-  const sectionHeader = (title: string, orange = false) => (
-    <h2
-      className={`text-sm font-semibold mb-4 pb-2 border-b ${
-        orange ? 'text-[#ff9500] border-orange-100' : 'text-[#161A61] border-slate-100'
-      }`}
-    >
+  const sectionHeader = (title: string) => (
+    <h2 className="text-sm font-semibold text-[#161A61] mb-4 pb-2 border-b border-slate-100">
       {title}
     </h2>
   )
@@ -60,7 +55,7 @@ function DetailView({ agreement, onApprove, onReject, onBack }: DetailViewProps)
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header with actions */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-4">
           <button
@@ -71,9 +66,9 @@ function DetailView({ agreement, onApprove, onReject, onBack }: DetailViewProps)
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div>
-            <h1 className="text-[22px] font-semibold text-[#161A61]">Agreement Approval</h1>
+            <h1 className="text-[22px] font-semibold text-[#161A61]">Partner Registration</h1>
             <p className="mt-1 text-sm text-slate-500">
-              Register Create New Agreement — {agreement.id}
+              Register and manage partnership organizations — {partner.id}
             </p>
           </div>
         </div>
@@ -99,19 +94,19 @@ function DetailView({ agreement, onApprove, onReject, onBack }: DetailViewProps)
             </button>
           </div>
         ) : (
-          <StatusBadge status={agreement.status} />
+          <StatusBadge status={partner.status} />
         )}
       </div>
 
       {/* Status banners */}
-      {agreement.status === 'Rejected' && agreement.rejectionReason && (
+      {partner.status === 'Rejected' && partner.rejectionReason && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4">
           <p className="text-sm font-semibold text-red-700">Rejection Reason</p>
-          <p className="mt-1 text-sm text-red-600">{agreement.rejectionReason}</p>
+          <p className="mt-1 text-sm text-red-600">{partner.rejectionReason}</p>
         </div>
       )}
 
-      {agreement.status === 'Approved' && (
+      {partner.status === 'Approved' && (
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 flex items-center gap-3">
           <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
             <svg
@@ -129,122 +124,137 @@ function DetailView({ agreement, onApprove, onReject, onBack }: DetailViewProps)
             </svg>
           </div>
           <div>
-            <p className="text-sm font-semibold text-emerald-800">Approved by KE Director</p>
-            {agreement.approvedAt && (
+            <p className="text-sm font-semibold text-emerald-800">Approved by Division Director</p>
+            {partner.approvedAt && (
               <p className="text-xs text-emerald-600">
-                {new Date(agreement.approvedAt).toLocaleDateString()} — {agreement.approvedBy}
+                {new Date(partner.approvedAt).toLocaleDateString()} — {partner.approvedBy}
               </p>
             )}
           </div>
         </div>
       )}
 
-      {/* Legal verification info */}
-      {agreement.verifiedAt && (
+      {/* KE verification info */}
+      {partner.verifiedAt && (
         <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-[13px]">
-          <p className="text-xs font-semibold text-blue-700 mb-2">Legal Officer Verification</p>
+          <p className="text-xs font-semibold text-blue-700 mb-2">KE Director Verification</p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 text-blue-900">
             <div>
               <span className="text-blue-500 text-xs">Verified By</span>
-              <p className="font-semibold">{agreement.verifiedBy || '—'}</p>
+              <p className="font-semibold">{partner.verifiedBy || '—'}</p>
             </div>
             <div>
               <span className="text-blue-500 text-xs">Verified At</span>
-              <p className="font-semibold">{new Date(agreement.verifiedAt).toLocaleDateString()}</p>
+              <p className="font-semibold">{new Date(partner.verifiedAt).toLocaleDateString()}</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Main detail card */}
+      {/* Main detail card with logo preview */}
       <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        {/* 3-column top section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-slate-100">
-          {/* Column 1 — Agreement Details */}
-          <div className="p-6">
-            {sectionHeader('Agreement Details')}
-            {row('Agreement ID', agreement.id)}
-            {row('Agreement Title', agreement.title)}
-            {row('Agreement Type', agreement.type)}
-            {row(
-              'Date',
-              agreement.date
-                ? new Date(agreement.date).toLocaleDateString('en-GB', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                  })
-                : undefined
-            )}
-          </div>
-
-          {/* Column 2 — Parties */}
-          <div className="p-6">
-            {sectionHeader('Parties')}
-            {row('Partner Organization', agreement.partnerOrganization)}
-            {row('Contact Person', agreement.contactPerson)}
-            {row('Position', agreement.contactPosition)}
-          </div>
-
-          {/* Column 3 — EAII Responsible Division */}
-          <div className="p-6">
-            {sectionHeader('EAII Responsible Division')}
-            {agreement.eaiiDivisions && agreement.eaiiDivisions.length > 0 ? (
-              <div className="space-y-2 text-[13px]">
-                {agreement.eaiiDivisions.map(d => (
-                  <div
-                    key={d.id}
-                    className="flex justify-between border-b border-slate-50 py-2 last:border-0"
+        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] divide-y lg:divide-y-0 lg:divide-x divide-slate-100">
+          {/* Logo Preview */}
+          <div className="p-6 flex flex-col items-center justify-center bg-slate-50">
+            {partner.partnerLogo ? (
+              <div className="w-40 h-40 rounded-xl bg-white border-2 border-slate-200 flex items-center justify-center overflow-hidden shadow-sm">
+                <div className="text-center p-4">
+                  <svg
+                    className="h-16 w-16 text-slate-400 mx-auto mb-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
                   >
-                    <span className="font-medium text-slate-800 truncate">{d.fullName}</span>
-                    <span className="text-slate-500 ml-2 shrink-0">{d.division}</span>
-                  </div>
-                ))}
+                    <path
+                      fillRule="evenodd"
+                      d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <p className="text-xs font-medium text-slate-600">{partner.partnerLogo}</p>
+                </div>
               </div>
             ) : (
-              <p className="text-[12px] text-slate-400">No divisions listed.</p>
+              <div className="w-40 h-40 rounded-xl bg-white border-2 border-dashed border-slate-300 flex items-center justify-center">
+                <p className="text-xs text-slate-400">No logo</p>
+              </div>
             )}
+            <p className="mt-3 text-sm font-semibold text-[#161A61]">Partner Logo</p>
+            <p className="text-xs text-slate-500">Preview</p>
           </div>
-        </div>
 
-        {/* Discussion Summary */}
-        <div className="border-t border-slate-100 p-6">
-          {sectionHeader('Discussion Summary', true)}
-          <div>
-            <p className="text-xs font-semibold text-slate-500 mb-2">Key Points</p>
-            <p className="text-sm text-slate-700 leading-relaxed">{agreement.description || '—'}</p>
-          </div>
-        </div>
+          {/* Basic Info & Org Details */}
+          <div className="p-6">
+            {sectionHeader('Basic Information')}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 mb-6">
+              <div>
+                {row('Partner ID', partner.id)}
+                {row('Partner Name', partner.name)}
+                {row('Acronym', partner.acronym)}
+                {row('Organization Type', partner.organizationType)}
+                {row('Country', partner.country)}
+                {row('Website', partner.website)}
+              </div>
+              <div>
+                {row('Year Established', partner.yearEstablished)}
+                {row('Registration/License Number', partner.registrationLicenseNumber)}
+                {row('Tax Number', partner.taxNumber)}
+                {row('Partnership Classification', partner.partnershipClassification)}
+                {row('Region', partner.region)}
+              </div>
+            </div>
 
-        {/* Attachments */}
-        {agreement.attachments && agreement.attachments.length > 0 && (
-          <div className="border-t border-slate-100 p-6">
-            {sectionHeader('Attachments', true)}
-            <p className="text-xs font-semibold text-slate-500 mb-3">
-              Draft Versions — {agreement.attachments.length} document
-              {agreement.attachments.length !== 1 ? 's' : ''}
-            </p>
-            <div className="space-y-2">
-              {agreement.attachments.map((name, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
-                      <svg
-                        className="h-4 w-4 text-blue-600"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
-                      </svg>
-                    </div>
-                    <span className="text-sm font-medium text-slate-700">{name}</span>
-                  </div>
-                  <div className="h-5 w-5 rounded-full border-2 border-slate-300 bg-white" />
+            {sectionHeader('Organizational Details')}
+            <div className="space-y-3 text-sm">
+              <div>
+                <p className="text-xs font-semibold text-slate-500 mb-1">Mission</p>
+                <p className="text-slate-700 leading-relaxed">{partner.mission || '—'}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-slate-500 mb-1">Vision</p>
+                <p className="text-slate-700 leading-relaxed">{partner.vision || '—'}</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 mb-1">Strategic Focus Areas</p>
+                  <p className="text-slate-700">{partner.strategicFocusAreas || '—'}</p>
                 </div>
-              ))}
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 mb-1">Key Expertise Areas</p>
+                  <p className="text-slate-700">{partner.keyExpertiseAreas || '—'}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>{row('Annual Budget', partner.annualBudget)}</div>
+                <div>{row('Number of Employees', partner.numberOfEmployees)}</div>
+                <div>{row('Geographic Coverage', partner.geographicCoverage)}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Primary Contact */}
+        <div className="border-t border-slate-100 p-6">
+          {sectionHeader('Primary Contact')}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>{row('Full Name', partner.primaryContact?.fullName)}</div>
+            <div>{row('Position', partner.primaryContact?.position)}</div>
+            <div>{row('Department', partner.primaryContact?.department)}</div>
+            <div>{row('Email', partner.primaryContact?.email)}</div>
+            <div>{row('Mobile Phone', partner.primaryContact?.mobilePhone)}</div>
+            <div>{row('Office Phone', partner.primaryContact?.officePhone)}</div>
+          </div>
+        </div>
+
+        {/* Additional Contact */}
+        {partner.additionalContact && (
+          <div className="border-t border-slate-100 p-6">
+            {sectionHeader('Additional Contact')}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>{row('Name', partner.additionalContact.fullName)}</div>
+              <div>{row('Title', partner.additionalContact.title)}</div>
+              <div>{row('Email', partner.additionalContact.email)}</div>
+              <div>{row('Phone', partner.additionalContact.phone)}</div>
+              <div>{row('Role in Partnership', partner.additionalContact.roleInPartnership)}</div>
             </div>
           </div>
         )}
@@ -254,13 +264,13 @@ function DetailView({ agreement, onApprove, onReject, onBack }: DetailViewProps)
       <Modal
         open={approveModalOpen}
         onClose={() => setApproveModalOpen(false)}
-        title="Approve Agreement"
+        title="Approve Partner"
         size="sm"
       >
         <div className="px-6 py-6 space-y-4">
           <p className="text-sm text-slate-600">
-            Approve agreement <span className="font-semibold text-slate-900">{agreement.id}</span> —{' '}
-            <span className="font-semibold">{agreement.title}</span>?
+            Approve partner <span className="font-semibold text-slate-900">{partner.id}</span> —{' '}
+            <span className="font-semibold">{partner.name}</span>?
           </p>
           <div className="flex justify-end gap-3">
             <Button variant="outline" onClick={() => setApproveModalOpen(false)}>
@@ -284,7 +294,7 @@ function DetailView({ agreement, onApprove, onReject, onBack }: DetailViewProps)
       <Modal
         open={rejectModalOpen}
         onClose={() => setRejectModalOpen(false)}
-        title="Reject Agreement"
+        title="Reject Partner"
         size="md"
       >
         <div className="px-6 py-6 space-y-4">
@@ -324,64 +334,61 @@ function DetailView({ agreement, onApprove, onReject, onBack }: DetailViewProps)
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
-export function KEDirectorAgreementPage() {
-  const [agreements, setAgreements] = useState<AgreementRecord[]>(() => agreementStore.getAll())
-  const [selected, setSelected] = useState<AgreementRecord | null>(null)
+export function DivisionDirectorPartnerPage() {
+  const [partners, setPartners] = useState<PartnerRecord[]>(() => partnerStore.getAll())
+  const [selected, setSelected] = useState<PartnerRecord | null>(null)
   const [showFilter, setShowFilter] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilters, setActiveFilters] = useState<FilterValues>({})
 
-  useEffect(() => agreementStore.subscribe(setAgreements), [])
+  useEffect(() => partnerStore.subscribe(setPartners), [])
 
-  // KE Director only sees verified (and already decided) agreements
   const filtered = useMemo(() => {
-    return agreements.filter(item => {
+    return partners.filter(item => {
       if (item.status === 'Draft' || item.status === 'Pending Verification') return false
       if (
         searchQuery &&
-        !item.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !item.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !item.id.toLowerCase().includes(searchQuery.toLowerCase())
       )
         return false
       if (activeFilters.status && item.status !== activeFilters.status) return false
       return true
     })
-  }, [agreements, searchQuery, activeFilters])
+  }, [partners, searchQuery, activeFilters])
 
   const handleApprove = () => {
     if (!selected) return
-    const updated: AgreementRecord = {
+    const updated: PartnerRecord = {
       ...selected,
       status: 'Approved',
-      approvedBy: 'KE Director',
+      approvedBy: 'Division Director',
       approvedAt: new Date().toISOString(),
       rejectionReason: '',
     }
-    agreementStore.update(updated)
-    // Automatically create a partner record for this approved agreement
-    partnerStore.addFromAgreement(updated)
+    partnerStore.update(updated)
     setSelected(updated)
-    toast.success('Agreement approved', { description: updated.title })
+    toast.success('Partner approved', { description: updated.name })
   }
 
   const handleReject = (reason: string) => {
     if (!selected) return
-    const updated: AgreementRecord = {
+    const updated: PartnerRecord = {
       ...selected,
       status: 'Rejected',
-      rejectedBy: 'KE Director',
+      rejectedBy: 'Division Director',
       rejectedAt: new Date().toISOString(),
       rejectionReason: reason,
     }
-    agreementStore.update(updated)
+    partnerStore.update(updated)
     setSelected(updated)
-    toast.error('Agreement rejected', { description: updated.title })
+    toast.error('Partner rejected', { description: updated.name })
   }
 
   if (selected) {
     return (
       <DetailView
-        agreement={selected}
+        partner={selected}
         onApprove={handleApprove}
         onReject={handleReject}
         onBack={() => setSelected(null)}
@@ -392,11 +399,11 @@ export function KEDirectorAgreementPage() {
   return (
     <div className="space-y-6">
       <PageHeaderCard
-        title="Agreement Approval"
-        subtitle="Review verified agreements and make final approval decisions"
+        title="Partner Approval"
+        subtitle="Review verified partners and make final approval decisions"
       />
       <PageToolbar
-        searchPlaceholder="Search agreements..."
+        searchPlaceholder="Search partners..."
         onSearch={setSearchQuery}
         onFilter={() => setShowFilter(true)}
         showSearchAndFilters
@@ -404,7 +411,7 @@ export function KEDirectorAgreementPage() {
       <DataTable
         items={filtered}
         rowKey={item => item.id}
-        emptyVariant="agreements"
+        emptyVariant="partners"
         columns={[
           {
             label: 'No.',
@@ -414,13 +421,13 @@ export function KEDirectorAgreementPage() {
             headClassName: 'bg-[#0b265a] text-white text-center',
           },
           {
-            label: 'Agreement ID',
+            label: 'Partner ID',
             render: item => <span className="font-medium text-slate-900">{item.id}</span>,
             headClassName: 'bg-[#0b265a] text-white',
           },
           {
-            label: 'Title',
-            render: item => <span className="block truncate max-w-[200px]">{item.title}</span>,
+            label: 'Partner Name',
+            render: item => <span className="block truncate max-w-[200px]">{item.name}</span>,
             headClassName: 'bg-[#0b265a] text-white',
           },
           {
@@ -429,8 +436,8 @@ export function KEDirectorAgreementPage() {
             headClassName: 'bg-[#0b265a] text-white',
           },
           {
-            label: 'Organization',
-            render: item => item.engagementOrganization || '—',
+            label: 'Country',
+            render: item => item.country || '—',
             headClassName: 'bg-[#0b265a] text-white',
           },
           {
@@ -464,7 +471,7 @@ export function KEDirectorAgreementPage() {
         onClose={() => setShowFilter(false)}
         onApply={setActiveFilters}
         fields={FILTER_FIELDS}
-        title="Filter Agreements"
+        title="Filter Partners"
       />
     </div>
   )
