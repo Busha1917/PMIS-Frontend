@@ -54,6 +54,21 @@ const DivisionDirectorEngagementPage = lazy(() =>
 const AgreementsPage = lazy(() =>
   import('@/features/agreements/AgreementsPage').then(m => ({ default: m.AgreementsPage }))
 )
+const OfficerAgreementPage = lazy(() =>
+  import('@/features/agreements/OfficerAgreementPage').then(m => ({
+    default: m.OfficerAgreementPage,
+  }))
+)
+const LegalOfficerAgreementPage = lazy(() =>
+  import('@/features/agreements/LegalOfficerAgreementPage').then(m => ({
+    default: m.LegalOfficerAgreementPage,
+  }))
+)
+const KEDirectorAgreementPage = lazy(() =>
+  import('@/features/agreements/KEDirectorAgreementPage').then(m => ({
+    default: m.KEDirectorAgreementPage,
+  }))
+)
 const PartnersPage = lazy(() =>
   import('@/features/partners/PartnersPage').then(m => ({ default: m.PartnersPage }))
 )
@@ -147,6 +162,21 @@ const pageRoutes: Record<AdminPage, { path: string; title: string; description: 
     path: '/agreements',
     title: 'Agreements',
     description: 'Manage partnership agreements and MoU records.',
+  },
+  'agreements-officer': {
+    path: '/agreements/officer',
+    title: 'Agreements — Officer',
+    description: 'Fill in and submit agreement details for approved engagements.',
+  },
+  'agreements-legal': {
+    path: '/agreements/legal',
+    title: 'Agreements — Verification',
+    description: 'Verify submitted agreements as Legal Officer.',
+  },
+  'agreements-ke-director': {
+    path: '/agreements/approval',
+    title: 'Agreements — Approval',
+    description: 'Approve or reject verified agreements as KE Director.',
   },
   partners: {
     path: '/partners',
@@ -270,6 +300,12 @@ function App() {
         return <DivisionDirectorEngagementPage />
       case 'agreements':
         return <AgreementsPage />
+      case 'agreements-officer':
+        return <OfficerAgreementPage />
+      case 'agreements-legal':
+        return <LegalOfficerAgreementPage />
+      case 'agreements-ke-director':
+        return <KEDirectorAgreementPage />
       case 'partners':
         return <PartnersPage />
       case 'baseData':

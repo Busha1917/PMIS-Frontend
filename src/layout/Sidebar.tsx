@@ -1,5 +1,5 @@
 import { navigationItems } from '../data'
-import { ChevronRight, LogOut, Handshake, FolderOpen, ChevronDown } from 'lucide-react'
+import { ChevronRight, LogOut, Handshake, FolderOpen, FileText, ChevronDown } from 'lucide-react'
 import type { AdminPage } from '../types'
 import { cn } from '../utils'
 import { useState } from 'react'
@@ -53,6 +53,19 @@ const engagementPages: AdminPage[] = [
   'engagement-division-director',
 ]
 
+const agreementSubItems: { label: string; page: AdminPage; description: string }[] = [
+  { label: 'Officer', page: 'agreements-officer', description: 'Fill & submit agreement details' },
+  { label: 'Legal Officer', page: 'agreements-legal', description: 'Verify submitted agreements' },
+  { label: 'KE Director', page: 'agreements-ke-director', description: 'Approve or reject' },
+]
+
+const agreementPages: AdminPage[] = [
+  'agreements',
+  'agreements-officer',
+  'agreements-legal',
+  'agreements-ke-director',
+]
+
 export function Sidebar({
   activePage,
   collapsed,
@@ -63,8 +76,10 @@ export function Sidebar({
 }: SidebarProps) {
   const isOpportunityActive = opportunityPages.includes(activePage)
   const isEngagementActive = engagementPages.includes(activePage)
+  const isAgreementActive = agreementPages.includes(activePage)
   const [opportunitiesOpen, setOpportunitiesOpen] = useState(isOpportunityActive)
   const [engagementOpen, setEngagementOpen] = useState(isEngagementActive)
+  const [agreementsOpen, setAgreementsOpen] = useState(isAgreementActive)
   return (
     <aside
       className={cn(
@@ -260,6 +275,84 @@ export function Sidebar({
                           {!collapsed && engagementOpen && (
                             <div className="ml-4 mt-0.5 space-y-0.5 border-l-2 border-slate-100 pl-3">
                               {engagementSubItems.map(sub => {
+                                const isSubActive = activePage === sub.page
+                                return (
+                                  <button
+                                    key={sub.page}
+                                    type="button"
+                                    onClick={() => onNavigate(sub.page)}
+                                    className={cn(
+                                      'flex w-full flex-col rounded-lg px-3 py-2 text-left transition-all duration-150',
+                                      isSubActive
+                                        ? 'bg-[#161A61]/10 text-[#161A61]'
+                                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                                    )}
+                                  >
+                                    <span
+                                      className={cn(
+                                        'text-xs font-semibold',
+                                        isSubActive && 'text-[#161A61]'
+                                      )}
+                                    >
+                                      {sub.label}
+                                    </span>
+                                    <span className="text-[10px] text-slate-400 leading-tight mt-0.5">
+                                      {sub.description}
+                                    </span>
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    }
+
+                    // ── Agreements: expandable with sub-items ───────────────
+                    if (item.page === 'agreements') {
+                      return (
+                        <div key={item.label}>
+                          <button
+                            type="button"
+                            title={collapsed ? item.label : undefined}
+                            onClick={() => {
+                              if (collapsed) {
+                                onNavigate('agreements')
+                              } else {
+                                setAgreementsOpen(o => !o)
+                              }
+                            }}
+                            className={cn(
+                              'relative flex w-full items-center rounded-xl text-sm font-semibold transition-all duration-200',
+                              collapsed
+                                ? 'justify-center px-0 py-3'
+                                : 'gap-3 px-3 py-2.5 text-left',
+                              isAgreementActive
+                                ? 'bg-[#161A61] text-white shadow-md'
+                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                            )}
+                          >
+                            {isAgreementActive && !collapsed && (
+                              <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-[#ff9500]" />
+                            )}
+                            <FileText
+                              className={cn('flex-shrink-0', collapsed ? 'h-5 w-5' : 'h-4 w-4')}
+                            />
+                            {!collapsed && (
+                              <>
+                                <span className="flex-1">Agreements</span>
+                                <ChevronDown
+                                  className={cn(
+                                    'h-3.5 w-3.5 transition-transform duration-200',
+                                    agreementsOpen ? 'rotate-180' : ''
+                                  )}
+                                />
+                              </>
+                            )}
+                          </button>
+                          {!collapsed && agreementsOpen && (
+                            <div className="ml-4 mt-0.5 space-y-0.5 border-l-2 border-slate-100 pl-3">
+                              {agreementSubItems.map(sub => {
                                 const isSubActive = activePage === sub.page
                                 return (
                                   <button

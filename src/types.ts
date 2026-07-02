@@ -12,6 +12,9 @@ export type AdminPage =
   | 'engagement-officer'
   | 'engagement-division-director'
   | 'agreements'
+  | 'agreements-officer'
+  | 'agreements-legal'
+  | 'agreements-ke-director'
   | 'partners'
   | 'baseData'
   | 'users'
@@ -369,6 +372,21 @@ export type EngagementRecord = {
   rejectionReason?: string
 }
 
+export type AgreementStatus =
+  | 'Draft'
+  | 'Pending Verification'
+  | 'Verified'
+  | 'Pending Approval'
+  | 'Approved'
+  | 'Rejected'
+
+export type AgreementEaiiDivision = {
+  id: string
+  division: string
+  fullName: string
+  position: string
+}
+
 export type AgreementRecord = {
   id: string
   no: number
@@ -377,7 +395,47 @@ export type AgreementRecord = {
   date: string
   startDate: string
   endDate: string
-  status: string
+  status: AgreementStatus | string
+
+  // Linked engagement
+  engagementId?: string
+  engagementOrganization?: string
+  engagementType?: string
+  engagementDate?: string
+  engagementApprovedAt?: string
+  engagementApprovedBy?: string
+
+  // Parties (from Officer form)
+  partnerOrganization?: string
+  contactPerson?: string
+  contactPosition?: string
+
+  // EAII Responsible divisions (multi-row)
+  eaiiDivisions?: AgreementEaiiDivision[]
+
+  // Discussion Summary
+  description?: string
+
+  // Attachment filenames
+  attachments?: string[]
+
+  // Officer workflow
+  submittedBy?: string
+  submittedAt?: string
+
+  // Legal Officer workflow
+  verifiedBy?: string
+  verifiedAt?: string
+  legalRejectedBy?: string
+  legalRejectedAt?: string
+  legalRejectionReason?: string
+
+  // KE Director workflow
+  approvedBy?: string
+  approvedAt?: string
+  rejectedBy?: string
+  rejectedAt?: string
+  rejectionReason?: string
 }
 
 export type PartnerRecord = {

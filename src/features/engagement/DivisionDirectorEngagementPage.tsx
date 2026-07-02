@@ -11,6 +11,7 @@ import { Button, Modal } from '../../ui'
 import { EngagementTimeline } from '../../components/EngagementTimeline'
 import type { EngagementRecord } from '../../types'
 import { engagementStore } from './engagementStore'
+import { agreementStore } from '../agreements/agreementStore'
 
 const FILTER_FIELDS = [
   {
@@ -62,6 +63,8 @@ export function DivisionDirectorEngagementPage() {
       rejectionReason: '',
     }
     engagementStore.update(updated)
+    // Automatically create an agreement record for this approved engagement
+    agreementStore.addFromEngagement(updated)
     setSelected(updated)
     toast.success('Engagement approved', { description: updated.organization })
     setApproveModalOpen(false)
