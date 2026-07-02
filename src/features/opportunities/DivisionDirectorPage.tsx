@@ -10,6 +10,7 @@ import { Button, Modal } from '../../ui'
 import { OpportunityReviewView } from './OpportunityReviewView'
 import type { OpportunityRecord } from '../../types'
 import { opportunities as initialOpportunities } from '../../data'
+import { engagementStore } from '../engagement/engagementStore'
 
 const FILTER_FIELDS = [
   {
@@ -75,6 +76,7 @@ export function DivisionDirectorPage() {
       rejectionReason: '',
     }
     updateOpportunity(updated)
+    engagementStore.addFromOpportunity(updated)
     toast.success('Opportunity approved — added to Engagement list', { description: updated.title })
     setApproveModalOpen(false)
   }
@@ -97,23 +99,23 @@ export function DivisionDirectorPage() {
   const actionButtons =
     selected && selected.status === 'Pending Approval' ? (
       <>
-        <Button
-          className="h-10 border-none bg-[#22c55e] px-8 font-medium text-white shadow-none hover:bg-[#16a34a]"
+        <button
           type="button"
           onClick={() => setApproveModalOpen(true)}
+          className="flex items-center gap-1.5 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 transition-colors"
         >
           Approve
-        </Button>
-        <Button
-          className="h-10 border-none bg-red-600 px-8 font-medium text-white shadow-none hover:bg-red-700"
+        </button>
+        <button
           type="button"
           onClick={() => {
             setRejectReason('')
             setRejectModalOpen(true)
           }}
+          className="flex items-center gap-1.5 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 transition-colors"
         >
           Reject
-        </Button>
+        </button>
       </>
     ) : null
 
@@ -156,12 +158,13 @@ export function DivisionDirectorPage() {
                 <Button variant="outline" onClick={() => setApproveModalOpen(false)}>
                   Cancel
                 </Button>
-                <Button
-                  className="rounded-full bg-[#22c55e] text-white hover:bg-[#16a34a]"
+                <button
+                  type="button"
+                  className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 transition-colors"
                   onClick={handleConfirmApprove}
                 >
                   Approve
-                </Button>
+                </button>
               </div>
             </div>
           </Modal>
@@ -190,13 +193,14 @@ export function DivisionDirectorPage() {
                 <Button variant="outline" onClick={() => setRejectModalOpen(false)}>
                   Cancel
                 </Button>
-                <Button
-                  className="rounded-full bg-red-600 text-white hover:bg-red-700"
+                <button
+                  type="button"
+                  className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 transition-colors disabled:opacity-40"
                   onClick={handleConfirmReject}
                   disabled={!rejectReason.trim()}
                 >
                   Confirm Reject
-                </Button>
+                </button>
               </div>
             </div>
           </Modal>

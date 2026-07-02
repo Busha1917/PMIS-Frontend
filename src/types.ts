@@ -8,6 +8,9 @@ export type AdminPage =
   | 'opportunities-knowledge-director'
   | 'opportunities-division-director'
   | 'engagement'
+  | 'engagement-ke-director'
+  | 'engagement-officer'
+  | 'engagement-division-director'
   | 'agreements'
   | 'partners'
   | 'baseData'
@@ -314,17 +317,56 @@ export type EaiiRepresentativeRecord = {
   position: string
 }
 
+export type EngagementStatus = 'Draft' | 'Assigned' | 'Pending Approval' | 'Approved' | 'Rejected'
+
 export type EngagementRecord = {
   id: string
   no: number
   type: string
   date: string
-  status: string
+  status: EngagementStatus
   organization?: string
-  attachments?: any
+  attachments?: string | File | null
+
+  // Linked opportunity
+  opportunityId?: string
+  opportunityTitle?: string
+  opportunitySource?: string
+  opportunityCategory?: string
+  opportunityCountry?: string
+  opportunityStrategicImportance?: string
+  opportunityApprovedAt?: string
+  opportunityApprovedBy?: string
+
+  // Participants
   participants?: ParticipantRecord[]
   eaiiRepresentatives?: EaiiRepresentativeRecord[]
+
+  // Discussion Summary fields (from design)
+  keyPoints?: string
+  agreedAction?: string
+  nextSteps?: string
+
+  // Legacy field kept for backward compat
   discussionSummary?: string
+
+  // Assignment (KE Director assigns officer)
+  assignedOfficer?: string
+  assignedDepartment?: string
+  assignmentNotes?: string
+  assignedAt?: string
+  assignedBy?: string
+
+  // Officer submission
+  submittedAt?: string
+  submittedBy?: string
+
+  // Division Director decision
+  approvedBy?: string
+  approvedAt?: string
+  rejectedBy?: string
+  rejectedAt?: string
+  rejectionReason?: string
 }
 
 export type AgreementRecord = {

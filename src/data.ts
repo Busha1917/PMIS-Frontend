@@ -1,12 +1,10 @@
 import {
-  BarChart3,
   CalendarDays,
   FileText,
   FolderOpen,
   Handshake,
   LayoutDashboard,
   Layers,
-  LockKeyhole,
   Settings,
   ShieldCheck,
   Users,
@@ -16,7 +14,6 @@ import {
 } from 'lucide-react'
 
 import type {
-  AdminPage,
   BaseDataItem,
   EngagementRecord,
   EventRecord,
@@ -26,7 +23,6 @@ import type {
   AgreementRecord,
   RoleRecord,
   UserRecord,
-  PermissionRecord,
   AuditLogRecord,
   NotificationRecord,
 } from './types'
@@ -401,12 +397,12 @@ export const engagements: EngagementRecord[] = [
   { id: 'eng-002', no: 2, type: 'Workshop', date: '24 FEB 2020', status: 'Draft' },
   { id: 'eng-003', no: 3, type: 'Meeting', date: '24 FEB 2020', status: 'Approved' },
   { id: 'eng-004', no: 4, type: 'Follow-Up', date: '12 FEB 2020', status: 'Approved' },
-  { id: 'eng-005', no: 5, type: 'Site Visit', date: '26 MAR 2020', status: 'Accepted' },
-  { id: 'eng-006', no: 6, type: 'Negotiation', date: '15 MAR 2020', status: 'Accepted' },
-  { id: 'eng-007', no: 7, type: 'Negotiation', date: '10 MAR 2020', status: 'Accepted' },
+  { id: 'eng-005', no: 5, type: 'Site Visit', date: '26 MAR 2020', status: 'Approved' },
+  { id: 'eng-006', no: 6, type: 'Negotiation', date: '15 MAR 2020', status: 'Approved' },
+  { id: 'eng-007', no: 7, type: 'Negotiation', date: '10 MAR 2020', status: 'Assigned' },
   { id: 'eng-008', no: 8, type: 'Workshop', date: '3 FEB 2020', status: 'Rejected' },
   { id: 'eng-009', no: 9, type: 'Workshop', date: '28 APR 2020', status: 'Rejected' },
-  { id: 'eng-010', no: 10, type: 'Negotiation', date: '17 MAR 2020', status: 'Accepted' },
+  { id: 'eng-010', no: 10, type: 'Negotiation', date: '17 MAR 2020', status: 'Pending Approval' },
 ]
 
 export const agreements: AgreementRecord[] = [

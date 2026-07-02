@@ -36,6 +36,21 @@ const DivisionDirectorPage = lazy(() =>
 const EngagementPage = lazy(() =>
   import('@/features/engagement/EngagementPage').then(m => ({ default: m.EngagementPage }))
 )
+const KEDirectorEngagementPage = lazy(() =>
+  import('@/features/engagement/KEDirectorEngagementPage').then(m => ({
+    default: m.KEDirectorEngagementPage,
+  }))
+)
+const OfficerEngagementPage = lazy(() =>
+  import('@/features/engagement/OfficerEngagementPage').then(m => ({
+    default: m.OfficerEngagementPage,
+  }))
+)
+const DivisionDirectorEngagementPage = lazy(() =>
+  import('@/features/engagement/DivisionDirectorEngagementPage').then(m => ({
+    default: m.DivisionDirectorEngagementPage,
+  }))
+)
 const AgreementsPage = lazy(() =>
   import('@/features/agreements/AgreementsPage').then(m => ({ default: m.AgreementsPage }))
 )
@@ -112,6 +127,21 @@ const pageRoutes: Record<AdminPage, { path: string; title: string; description: 
     path: '/engagement',
     title: 'Engagement',
     description: 'View engagement records and follow-up activity.',
+  },
+  'engagement-ke-director': {
+    path: '/engagement/review',
+    title: 'Engagement — Review',
+    description: 'Review approved opportunities and assign officers.',
+  },
+  'engagement-officer': {
+    path: '/engagement/officer',
+    title: 'Engagement — Officer',
+    description: 'Fill in engagement details assigned to you.',
+  },
+  'engagement-division-director': {
+    path: '/engagement/approval',
+    title: 'Engagement — Approval',
+    description: 'Approve or reject submitted engagement records.',
   },
   agreements: {
     path: '/agreements',
@@ -232,6 +262,12 @@ function App() {
         return <DivisionDirectorPage />
       case 'engagement':
         return <EngagementPage />
+      case 'engagement-ke-director':
+        return <KEDirectorEngagementPage />
+      case 'engagement-officer':
+        return <OfficerEngagementPage />
+      case 'engagement-division-director':
+        return <DivisionDirectorEngagementPage />
       case 'agreements':
         return <AgreementsPage />
       case 'partners':

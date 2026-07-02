@@ -143,10 +143,12 @@ export function EngagementPage() {
       {showForm ? (
         <EngagementForm
           engagement={selectedEngagement}
-          mode={formMode}
+          mode={formMode === 'create' ? 'create' : 'edit'}
+          onSaveDraft={data => {
+            handleSubmit({ ...data, status: 'Draft' })
+          }}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
-          onEdit={() => setFormMode('edit')}
         />
       ) : (
         <>

@@ -98,26 +98,26 @@ export function KnowledgeDirectorPage() {
   const actionButtons =
     selected && selected.status === 'Draft' ? (
       <>
-        <Button
-          className="h-10 border-none bg-[#22c55e] px-8 font-medium text-white shadow-none hover:bg-[#16a34a]"
+        <button
           type="button"
           onClick={() => {
             setReviewComment('')
             setSendModalOpen(true)
           }}
+          className="flex items-center gap-1.5 rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white hover:bg-[#e68a00] transition-colors"
         >
           Send for Approval
-        </Button>
-        <Button
-          className="h-10 border-none bg-red-600 px-8 font-medium text-white shadow-none hover:bg-red-700"
+        </button>
+        <button
           type="button"
           onClick={() => {
             setRejectReason('')
             setRejectModalOpen(true)
           }}
+          className="flex items-center gap-1.5 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 transition-colors"
         >
           Reject
-        </Button>
+        </button>
       </>
     ) : null
 
@@ -173,12 +173,13 @@ export function KnowledgeDirectorPage() {
                 <Button variant="outline" onClick={() => setSendModalOpen(false)}>
                   Cancel
                 </Button>
-                <Button
-                  className="rounded-full bg-[#22c55e] text-white hover:bg-[#16a34a]"
+                <button
+                  type="button"
+                  className="flex items-center gap-1.5 rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white hover:bg-[#e68a00] transition-colors"
                   onClick={handleConfirmSend}
                 >
                   Confirm &amp; Send
-                </Button>
+                </button>
               </div>
             </div>
           </Modal>
@@ -207,13 +208,14 @@ export function KnowledgeDirectorPage() {
                 <Button variant="outline" onClick={() => setRejectModalOpen(false)}>
                   Cancel
                 </Button>
-                <Button
-                  className="rounded-full bg-red-600 text-white hover:bg-red-700"
+                <button
+                  type="button"
+                  className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 transition-colors disabled:opacity-40"
                   onClick={handleConfirmReject}
                   disabled={!rejectReason.trim()}
                 >
                   Confirm Reject
-                </Button>
+                </button>
               </div>
             </div>
           </Modal>

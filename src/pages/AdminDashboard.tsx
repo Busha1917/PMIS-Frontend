@@ -101,7 +101,7 @@ const metrics = [
   },
   {
     label: 'Active Engagements',
-    value: engagements.filter(e => e.status === 'Accepted' || e.status === 'Approved').length,
+    value: engagements.filter(e => e.status === 'Assigned' || e.status === 'Approved').length,
     icon: Activity,
     color: '#10b981',
     bg: 'from-emerald-100 to-emerald-50',
@@ -119,12 +119,20 @@ const metrics = [
   },
 ]
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean
+  payload?: { name: string; value: number; color: string }[]
+  label?: string
+}) => {
   if (active && payload && payload.length) {
     return (
       <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg text-xs">
         <p className="font-semibold text-slate-700 mb-1">{label}</p>
-        {payload.map((entry: any) => (
+        {payload.map((entry: { name: string; value: number; color: string }) => (
           <p key={entry.name} style={{ color: entry.color }}>
             {entry.name}: <span className="font-bold">{entry.value}</span>
           </p>

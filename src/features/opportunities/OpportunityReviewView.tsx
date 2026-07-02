@@ -1,5 +1,6 @@
 import { ArrowLeft } from 'lucide-react'
 import { StatusBadge } from '../../components/StatusBadge'
+import { OpportunityTimeline } from '../../components/OpportunityTimeline'
 import type { OpportunityRecord } from '../../types'
 
 type OpportunityReviewViewProps = {
@@ -60,40 +61,39 @@ export function OpportunityReviewView({
       )}
 
       <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6 sm:p-8 shadow-inner">
-        <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
-          {/* Left: details */}
-          <div className="rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm">
-            <h2 className="mb-6 text-sm font-semibold text-[#161A61]">Opportunity Information</h2>
-            <dl className="flex flex-col text-[13px] text-slate-800">
-              {[
-                { label: 'Opportunity ID', value: opp.id },
-                { label: 'Title', value: opp.title || 'N/A' },
-                { label: 'Partner Name', value: opp.partnerName || 'N/A' },
-                { label: 'Organization Type', value: opp.organizationType || 'N/A' },
-                { label: 'Country', value: opp.country || 'N/A' },
-                { label: 'Website', value: opp.website || 'N/A' },
-                { label: 'Contact Person', value: opp.contactPersonName || 'N/A' },
-                { label: 'Email', value: opp.email || 'N/A' },
-                { label: 'Partner Interest Area', value: opp.partnerInterestArea || 'N/A' },
-                { label: 'Opportunity Category', value: opp.opportunityCategory || 'N/A' },
-                { label: 'Source', value: opp.source || 'N/A' },
-                { label: 'Division', value: opp.division || 'N/A' },
-                { label: 'Strategic Importance', value: opp.strategicImportance || 'N/A' },
-                { label: 'Date', value: opp.date || 'N/A' },
-              ].map((item, i, arr) => (
-                <div
-                  key={item.label}
-                  className={`flex items-center justify-between gap-4 py-3 ${i !== arr.length - 1 ? 'border-b border-slate-100' : ''}`}
-                >
-                  <dt className="text-slate-500">{item.label}</dt>
-                  <dd className="font-semibold text-slate-900 text-right">{item.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-
-          {/* Right: outcomes + workflow trail */}
+        <div className="grid gap-6 xl:grid-cols-[1fr_280px]">
+          {/* Left: details + outcomes */}
           <div className="space-y-6">
+            <div className="rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm">
+              <h2 className="mb-6 text-sm font-semibold text-[#161A61]">Opportunity Information</h2>
+              <dl className="flex flex-col text-[13px] text-slate-800">
+                {[
+                  { label: 'Opportunity ID', value: opp.id },
+                  { label: 'Title', value: opp.title || 'N/A' },
+                  { label: 'Partner Name', value: opp.partnerName || 'N/A' },
+                  { label: 'Organization Type', value: opp.organizationType || 'N/A' },
+                  { label: 'Country', value: opp.country || 'N/A' },
+                  { label: 'Website', value: opp.website || 'N/A' },
+                  { label: 'Contact Person', value: opp.contactPersonName || 'N/A' },
+                  { label: 'Email', value: opp.email || 'N/A' },
+                  { label: 'Partner Interest Area', value: opp.partnerInterestArea || 'N/A' },
+                  { label: 'Opportunity Category', value: opp.opportunityCategory || 'N/A' },
+                  { label: 'Source', value: opp.source || 'N/A' },
+                  { label: 'Division', value: opp.division || 'N/A' },
+                  { label: 'Strategic Importance', value: opp.strategicImportance || 'N/A' },
+                  { label: 'Date', value: opp.date || 'N/A' },
+                ].map((item, i, arr) => (
+                  <div
+                    key={item.label}
+                    className={`flex items-center justify-between gap-4 py-3 ${i !== arr.length - 1 ? 'border-b border-slate-100' : ''}`}
+                  >
+                    <dt className="text-slate-500">{item.label}</dt>
+                    <dd className="font-semibold text-slate-900 text-right">{item.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+
             <div className="rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm">
               <h2 className="mb-4 text-sm font-semibold text-[#161A61]">Outcomes</h2>
               <div className="space-y-4 text-[12px] text-slate-600">
@@ -115,47 +115,17 @@ export function OpportunityReviewView({
                 </p>
               </div>
             </div>
+          </div>
 
-            <div className="rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm">
-              <h2 className="mb-4 text-sm font-semibold text-[#161A61]">Workflow Trail</h2>
-              <ol className="relative border-l border-slate-200 pl-5 space-y-4 text-[12px]">
-                <li>
-                  <span className="absolute -left-1.5 mt-0.5 h-3 w-3 rounded-full border-2 border-white bg-slate-400" />
-                  <p className="font-semibold text-slate-700">Registered</p>
-                  <p className="text-slate-500">
-                    {opp.registeredBy ?? 'Officer'} ·{' '}
-                    {opp.registeredAt ? new Date(opp.registeredAt).toLocaleDateString() : opp.date}
-                  </p>
-                </li>
-                {opp.sentForApprovalAt && (
-                  <li>
-                    <span className="absolute -left-1.5 mt-0.5 h-3 w-3 rounded-full border-2 border-white bg-blue-400" />
-                    <p className="font-semibold text-slate-700">Sent for Approval</p>
-                    <p className="text-slate-500">
-                      {opp.reviewedBy} · {new Date(opp.sentForApprovalAt).toLocaleDateString()}
-                    </p>
-                  </li>
-                )}
-                {opp.approvedAt && (
-                  <li>
-                    <span className="absolute -left-1.5 mt-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500" />
-                    <p className="font-semibold text-slate-700">Approved</p>
-                    <p className="text-slate-500">
-                      {opp.approvedBy} · {new Date(opp.approvedAt).toLocaleDateString()}
-                    </p>
-                  </li>
-                )}
-                {opp.rejectedAt && (
-                  <li>
-                    <span className="absolute -left-1.5 mt-0.5 h-3 w-3 rounded-full border-2 border-white bg-red-500" />
-                    <p className="font-semibold text-slate-700">Rejected</p>
-                    <p className="text-slate-500">
-                      {opp.rejectedBy} · {new Date(opp.rejectedAt).toLocaleDateString()}
-                    </p>
-                  </li>
-                )}
-              </ol>
-            </div>
+          {/* Right: timeline */}
+          <div>
+            <OpportunityTimeline
+              opportunityStatus={opp.status}
+              registeredAt={opp.registeredAt}
+              sentForApprovalAt={opp.sentForApprovalAt}
+              approvedAt={opp.approvedAt}
+              rejectedAt={opp.rejectedAt}
+            />
           </div>
         </div>
       </div>

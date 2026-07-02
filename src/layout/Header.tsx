@@ -13,7 +13,7 @@ import {
   User,
   Settings as SettingsIcon,
 } from 'lucide-react'
-import type { AdminPage } from '../types'
+import type { AdminPage, UserRole } from '../types'
 import { Drawer } from '../ui/Drawer'
 import { Button } from '../ui'
 import { useLayout } from '../contexts/LayoutContext'
@@ -32,6 +32,9 @@ const PAGE_LABELS: Record<AdminPage, string> = {
   'opportunities-knowledge-director': 'Opportunities — Review',
   'opportunities-division-director': 'Opportunities — Approval',
   engagement: 'Engagement',
+  'engagement-ke-director': 'Engagement — Review',
+  'engagement-officer': 'Engagement — Officer',
+  'engagement-division-director': 'Engagement — Approval',
   agreements: 'Agreements',
   partners: 'Partners',
   baseData: 'Base Data',
@@ -166,7 +169,7 @@ export function Header({ activePage, onNavigate, onLogout }: HeaderProps) {
                       </label>
                       <select
                         value={user?.role || ''}
-                        onChange={e => changeRole(e.target.value as any)}
+                        onChange={e => changeRole(e.target.value as UserRole)}
                         className="w-full text-sm border border-slate-200 rounded-md py-1 px-2 outline-none focus:border-[#161A61] focus:ring-1 focus:ring-[#161A61]/10 bg-slate-50 text-slate-700 cursor-pointer"
                       >
                         <option value="admin">System Admin</option>
