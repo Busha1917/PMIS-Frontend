@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, Trash2, Plus, User, CheckCircle2, ClipboardList, Edit3 } from 'lucide-react'
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '../ui'
 import { Modal } from '../ui/Modal'
 import type { EventRecord, PartnerParticipant, EaiiParticipant, DelegationMember } from '../types'
 import { StatusBadge } from './StatusBadge'
+import { OutcomeDraftPanel, type OutcomeDraftPanelHandle } from './OutcomeDraftPanel'
 
 type EventFormMode = 'create' | 'edit' | 'preview'
 
@@ -154,6 +155,9 @@ export function EventForm({
     email: '',
   })
   const [attachmentFiles, setAttachmentFiles] = useState<File[]>([])
+
+  // Ref for OutcomeDraftPanel imperative handle — enables programmatic scroll+focus (Req 5.5)
+  const outcomePanelRef = useRef<OutcomeDraftPanelHandle>(null)
 
   const [outcomeForm, setOutcomeForm] = useState({
     keyDiscussions: event?.keyDiscussions || '',
@@ -734,7 +738,21 @@ export function EventForm({
           </button>
         </div>
       )}
-      {editingOutcome && renderOutcomeEditPanel()}
+      {editingOutcome && (
+        <OutcomeDraftPanel
+          ref={outcomePanelRef}
+          category={formState.category === 'Visit' ? 'Visit' : 'Event'}
+          values={outcomeForm}
+          onChange={setOutcomeForm}
+          onSaveDraft={() => {
+            onSubmit?.({ ...formState, ...outcomeForm, hasOutcomeDraft: true })
+          }}
+          onSubmit={handleSubmitOutcome}
+          onCancel={() => setEditingOutcome(false)}
+          hasDraft={!!formState.hasOutcomeDraft}
+          revisionComment={formState.reviewComment}
+        />
+      )}
 
       <div className="grid gap-6 xl:grid-cols-2">
         <SectionCard title={formState.category === 'Event' ? 'Event Details' : 'Visit Details'}>
