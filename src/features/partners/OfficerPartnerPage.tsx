@@ -1180,7 +1180,7 @@ function PartnerStepperForm({ partner, onSave, onSubmit, onCancel }: PartnerStep
 
       {/* Submit Confirmation Modal */}
       <Modal
-        isOpen={submitModalOpen}
+        open={submitModalOpen}
         onClose={() => setSubmitModalOpen(false)}
         title="Submit Partner Registration"
       >
@@ -1266,15 +1266,56 @@ export default function OfficerPartnerPage() {
   }
 
   const columns = [
-    { key: 'name', label: 'Partner Name', sortable: true },
-    { key: 'acronym', label: 'Acronym' },
-    { key: 'organizationType', label: 'Type' },
-    { key: 'country', label: 'Country' },
-    { key: 'partnershipClassification', label: 'Classification' },
     {
-      key: 'status',
+      label: 'No.',
+      render: (_item: PartnerRecord, index?: number) => (
+        <span className="font-semibold text-slate-900">{index || 1}</span>
+      ),
+      headClassName: 'bg-[#0b265a] text-white text-center',
+    },
+    {
+      label: 'Partner Name',
+      render: (item: PartnerRecord) => item.name,
+      headClassName: 'bg-[#0b265a] text-white',
+    },
+    {
+      label: 'Acronym',
+      render: (item: PartnerRecord) => item.acronym || '—',
+      headClassName: 'bg-[#0b265a] text-white',
+    },
+    {
+      label: 'Type',
+      render: (item: PartnerRecord) => item.organizationType || '—',
+      headClassName: 'bg-[#0b265a] text-white',
+    },
+    {
+      label: 'Country',
+      render: (item: PartnerRecord) => item.country || '—',
+      headClassName: 'bg-[#0b265a] text-white',
+    },
+    {
+      label: 'Classification',
+      render: (item: PartnerRecord) => item.partnershipClassification || '—',
+      headClassName: 'bg-[#0b265a] text-white',
+    },
+    {
       label: 'Status',
-      render: (partner: PartnerRecord) => <StatusBadge status={partner.status} />,
+      render: (item: PartnerRecord) => <StatusBadge status={item.status} />,
+      headClassName: 'bg-[#0b265a] text-white text-center',
+      cellClassName: 'text-center',
+    },
+    {
+      label: 'Action',
+      render: (item: PartnerRecord) => (
+        <button
+          onClick={() => handleEdit(item)}
+          className="text-sm font-medium text-[#ff9500] hover:text-[#e68a00]"
+        >
+          Edit
+        </button>
+      ),
+      headClassName: 'bg-[#0b265a] text-white text-center',
+      cellClassName: 'text-center',
     },
   ]
 
@@ -1297,17 +1338,31 @@ export default function OfficerPartnerPage() {
       />
       <PageToolbar
         searchPlaceholder="Search partners..."
-        onAddClick={handleCreate}
-        addButtonText="Register Partner"
-        onFilterClick={() => setFilterDrawerOpen(true)}
+        addLabel="Register Partner"
+        onAdd={handleCreate}
+        onFilter={() => setFilterDrawerOpen(true)}
       />
-      <DataTable data={filteredPartners} columns={columns} onEdit={handleEdit} />
+      <DataTable
+        items={filteredPartners}
+        rowKey={item => item.id}
+        columns={columns}
+        emptyVariant="empty"
+        emptyMessage="No partners found"
+        emptyAction={
+          <button
+            onClick={handleCreate}
+            className="rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#e68a00]"
+          >
+            Register Partner
+          </button>
+        }
+      />
       <FilterDrawer
-        isOpen={filterDrawerOpen}
+        open={filterDrawerOpen}
         onClose={() => setFilterDrawerOpen(false)}
         fields={FILTER_FIELDS}
-        values={filters}
-        onChange={setFilters}
+        onApply={setFilters}
+        title="Filter Partners"
       />
     </div>
   )

@@ -28,6 +28,24 @@ export const partnerStore = {
     }
   },
 
+  create(): PartnerRecord {
+    const newPartner: PartnerRecord = {
+      id: `PAR-2026-${String(_partners.length + 1).padStart(3, '0')}`,
+      no: _partners.length + 1,
+      name: '',
+      type: '',
+      country: '',
+      organization: '',
+      contact: '',
+      status: 'Draft' as PartnerStatus,
+      currentStep: 1,
+      partnershipClassification: '',
+    }
+    _partners = [..._partners, newPartner]
+    notify()
+    return newPartner
+  },
+
   update(updated: PartnerRecord) {
     _partners = _partners.map(p => (p.id === updated.id ? updated : p))
     notify()

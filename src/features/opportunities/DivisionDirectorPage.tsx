@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { DataTable } from '../../components/DataTable'
 import { PageHeaderCard } from '../../components/PageHeaderCard'
@@ -9,7 +9,7 @@ import type { FilterValues } from '../../components/FilterDrawer'
 import { Button, Modal } from '../../ui'
 import { OpportunityReviewView } from './OpportunityReviewView'
 import type { OpportunityRecord } from '../../types'
-import { opportunities as initialOpportunities } from '../../data'
+import { opportunityStore } from './opportunityStore'
 import { engagementStore } from '../engagement/engagementStore'
 
 const FILTER_FIELDS = [
@@ -39,7 +39,9 @@ const FILTER_FIELDS = [
 ]
 
 export function DivisionDirectorPage() {
-  const [opportunities, setOpportunities] = useState<OpportunityRecord[]>(initialOpportunities)
+  const [opportunities, setOpportunities] = useState<OpportunityRecord[]>(() =>
+    opportunityStore.getAll()
+  )
   const [selected, setSelected] = useState<OpportunityRecord | null>(null)
   const [showFilter, setShowFilter] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -49,6 +51,8 @@ export function DivisionDirectorPage() {
   const [approveModalOpen, setApproveModalOpen] = useState(false)
   const [rejectModalOpen, setRejectModalOpen] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
+
+  useEffect(() => opportunityStore.subscribe(setOpportunities), [])
 
   // Show all opportunities that have been sent to Division Director (Pending Approval, Approved, Rejected)
   const queue = useMemo(() => {
@@ -62,7 +66,7 @@ export function DivisionDirectorPage() {
   }, [opportunities, searchQuery, activeFilters])
 
   const updateOpportunity = (updated: OpportunityRecord) => {
-    setOpportunities(cur => cur.map(o => (o.id === updated.id ? updated : o)))
+    opportunityStore.update(updated)
     setSelected(updated)
   }
 

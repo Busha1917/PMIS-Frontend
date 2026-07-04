@@ -85,7 +85,9 @@ const KEDirectorAgreementPage = lazy(() =>
 const PartnersPage = lazy(() =>
   import('@/features/partners/PartnersPage').then(m => ({ default: m.PartnersPage }))
 )
-const OfficerPartnerPage = lazy(() => import('@/features/partners/OfficerPartnerPage'))
+const OfficerPartnerPage = lazy(() =>
+  import('@/features/partners/OfficerPartnerPage').then(m => ({ default: m.default }))
+)
 const KEDirectorPartnerPage = lazy(() =>
   import('@/features/partners/KEDirectorPartnerPage').then(m => ({
     default: m.KEDirectorPartnerPage,
