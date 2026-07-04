@@ -1338,9 +1338,9 @@ export default function OfficerPartnerPage() {
       />
       <PageToolbar
         searchPlaceholder="Search partners..."
-        onAddClick={handleCreate}
-        addButtonText="Register Partner"
-        onFilterClick={() => setFilterDrawerOpen(true)}
+        addLabel="Register Partner"
+        onAdd={handleCreate}
+        onFilter={() => setFilterDrawerOpen(true)}
       />
       <DataTable
         items={filteredPartners}

@@ -498,6 +498,11 @@ export function OfficerAgreementPage() {
 
   useEffect(() => agreementStore.subscribe(setAgreements), [])
 
+  const handleCreateNew = () => {
+    const newAgreement = agreementStore.create()
+    setSelected(newAgreement)
+  }
+
   const filtered = useMemo(() => {
     return agreements.filter(item => {
       if (
@@ -550,8 +555,10 @@ export function OfficerAgreementPage() {
       />
       <PageToolbar
         searchPlaceholder="Search agreements..."
+        addLabel="Add Agreement"
         onSearch={setSearchQuery}
         onFilter={() => setShowFilter(true)}
+        onAdd={handleCreateNew}
         showSearchAndFilters
       />
       <DataTable

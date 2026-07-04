@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { DataTable } from '../../components/DataTable'
 import { OpportunityForm } from './OpportunityForm'
@@ -10,7 +10,7 @@ import { ConfirmationModal } from '../../components/ConfirmationModal'
 import { FilterDrawer } from '../../components/FilterDrawer'
 import type { FilterValues } from '../../components/FilterDrawer'
 import type { OpportunityRecord } from '../../types'
-import { opportunities as initialOpportunities } from '../../data'
+import { opportunityStore } from './opportunityStore'
 import { exportToCsv } from '../../utils/exportCsv'
 
 const FILTER_FIELDS = [
@@ -40,7 +40,9 @@ const FILTER_FIELDS = [
   },
 ]
 export function OfficerOpportunitiesPage() {
-  const [opportunities, setOpportunities] = useState<OpportunityRecord[]>(initialOpportunities)
+  const [opportunities, setOpportunities] = useState<OpportunityRecord[]>(() =>
+    opportunityStore.getAll()
+  )
   const [showForm, setShowForm] = useState(false)
   const [showFilter, setShowFilter] = useState(false)
   const [selected, setSelected] = useState<OpportunityRecord | null>(null)
@@ -48,6 +50,8 @@ export function OfficerOpportunitiesPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilters, setActiveFilters] = useState<FilterValues>({})
+
+  useEffect(() => opportunityStore.subscribe(setOpportunities), [])
 
   const filtered = useMemo(() => {
     return opportunities.filter(item => {
@@ -59,7 +63,8 @@ export function OfficerOpportunitiesPage() {
   }, [opportunities, searchQuery, activeFilters])
 
   const handleAddNew = () => {
-    setSelected(null)
+    const newOpp = opportunityStore.create()
+    setSelected(newOpp)
     setFormMode('create')
     setShowForm(true)
   }
@@ -84,19 +89,14 @@ export function OfficerOpportunitiesPage() {
   }
 
   const handleSubmit = (data: OpportunityRecord) => {
-    if (formMode === 'edit' && selected) {
-      setOpportunities(cur => cur.map(item => (item.id === selected.id ? data : item)))
+    const updated = {
+      ...data,
+      registeredAt: data.registeredAt || new Date().toISOString(),
+    }
+    opportunityStore.update(updated)
+    if (formMode === 'edit') {
       toast.success('Opportunity updated', { description: data.title })
     } else {
-      setOpportunities(cur => [
-        ...cur,
-        {
-          ...data,
-          id: `opp-${Date.now()}`,
-          no: cur.length + 1,
-          registeredAt: new Date().toISOString(),
-        },
-      ])
       toast.success('Opportunity registered', { description: data.title })
     }
     handleCancel()
@@ -104,7 +104,7 @@ export function OfficerOpportunitiesPage() {
 
   const confirmDelete = () => {
     if (!selected) return
-    setOpportunities(cur => cur.filter(item => item.id !== selected.id))
+    opportunityStore.delete(selected.id)
     toast.error('Opportunity deleted', { description: selected.title })
     setShowDeleteModal(false)
     setSelected(null)

@@ -5,34 +5,11 @@
  *
  * In a real app this would be Redux / RTK Query / server state.
  */
-import { opportunities } from '../../data'
 import type { EngagementRecord, EngagementStatus, OpportunityRecord } from '../../types'
 
-// Seed from approved opportunities
+// Start with empty engagements - they will be added when opportunities are approved
 function buildInitialEngagements(): EngagementRecord[] {
-  return opportunities
-    .filter(opp => opp.status === 'Approved')
-    .map((opp, index) => ({
-      id: `ENG-2026-${String(index + 1).padStart(3, '0')}`,
-      no: index + 1,
-      type: opp.opportunityCategory || 'Partnership',
-      date: opp.date,
-      status: 'Draft' as EngagementStatus,
-      organization: opp.partnerName || 'Unknown Organization',
-      opportunityId: opp.id,
-      opportunityTitle: opp.title,
-      opportunitySource: opp.source,
-      opportunityCategory: opp.opportunityCategory,
-      opportunityCountry: opp.country,
-      opportunityStrategicImportance: opp.strategicImportance,
-      opportunityApprovedAt: opp.approvedAt,
-      opportunityApprovedBy: opp.approvedBy,
-      participants: [],
-      eaiiRepresentatives: [],
-      keyPoints: '',
-      agreedAction: '',
-      nextSteps: '',
-    }))
+  return []
 }
 
 // Module-level singleton
@@ -55,6 +32,26 @@ export const engagementStore = {
       const idx = _listeners.indexOf(fn)
       if (idx !== -1) _listeners.splice(idx, 1)
     }
+  },
+
+  create(): EngagementRecord {
+    const newId = `ENG-2026-${String(_engagements.length + 1).padStart(3, '0')}`
+    const newEng: EngagementRecord = {
+      id: newId,
+      no: _engagements.length + 1,
+      type: '',
+      date: new Date().toISOString().split('T')[0],
+      status: 'Draft' as EngagementStatus,
+      organization: '',
+      participants: [],
+      eaiiRepresentatives: [],
+      keyPoints: '',
+      agreedAction: '',
+      nextSteps: '',
+    }
+    _engagements = [..._engagements, newEng]
+    notify()
+    return newEng
   },
 
   update(updated: EngagementRecord) {

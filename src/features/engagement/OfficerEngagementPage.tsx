@@ -33,6 +33,11 @@ export function OfficerEngagementPage() {
 
   useEffect(() => engagementStore.subscribe(setEngagements), [])
 
+  const handleCreateNew = () => {
+    const newEngagement = engagementStore.create()
+    setSelected(newEngagement)
+  }
+
   // Officer only sees Assigned engagements (and their own submitted ones)
   const filtered = useMemo(() => {
     return engagements.filter(item => {
@@ -93,8 +98,10 @@ export function OfficerEngagementPage() {
       />
       <PageToolbar
         searchPlaceholder="Search engagements..."
+        addLabel="Add Engagement"
         onSearch={setSearchQuery}
         onFilter={() => setShowFilter(true)}
+        onAdd={handleCreateNew}
         showSearchAndFilters
       />
       <DataTable
