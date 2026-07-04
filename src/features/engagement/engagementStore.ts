@@ -65,7 +65,7 @@ export const engagementStore = {
   },
 
   /** Called by Division Director Opportunities page when an opportunity is approved */
-  addFromOpportunity(opp: OpportunityRecord) {
+  addFromOpportunity(opp: OpportunityRecord): void {
     const alreadyExists = _engagements.some(e => e.opportunityId === opp.id)
     if (alreadyExists) return
     const next: EngagementRecord = {

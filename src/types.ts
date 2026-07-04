@@ -22,6 +22,10 @@ export type AdminPage =
   | 'partners-officer'
   | 'partners-ke-director'
   | 'partners-division-director'
+  | 'collaboration-projects'
+  | 'collaboration-activities'
+  | 'collaboration-grants'
+  | 'collaboration-contributions'
   | 'baseData'
   | 'users'
   | 'roles'
@@ -471,6 +475,11 @@ export type PartnerAdditionalContact = {
   roleInPartnership: string
 }
 
+export interface SelectOption {
+  label: string
+  value: string
+}
+
 export type PartnerRecord = {
   id: string
   no: number
@@ -550,4 +559,172 @@ export type PermissionRecord = {
   key: string
   description: string
   group: string
+}
+
+// ── Collaboration Module Types ──────────────────────────────────────────────
+
+export type CollaborationStatus = 'Draft' | 'Pending Approval' | 'Approved' | 'Rejected'
+
+// Project Collaboration
+export type ProjectMilestone = {
+  id: string
+  milestone: string
+  plannedDate: string
+  actualDate?: string
+  status: 'Not Started' | 'In Progress' | 'Completed' | 'Delayed'
+}
+
+export type ProjectDeliverable = {
+  id: string
+  deliverable: string
+  dueDate: string
+  status: 'Pending' | 'In Progress' | 'Completed' | 'Overdue'
+}
+
+export type ProjectRisk = {
+  id: string
+  riskId: string
+  impact: 'Low' | 'Medium' | 'High' | 'Critical'
+  description: string
+  mitigation: string
+  status: 'Open' | 'Mitigating' | 'Resolved'
+}
+
+export type ProjectRecord = {
+  id: string
+  no: number
+  partnerId: string
+  partnerName: string
+  projectName: string
+  description: string
+  thematicArea: string
+  budget: string
+  fundingSource: string
+  currency: string
+  projectManager: string
+  partnerLead: string
+  teamMembers: string[]
+  startDate: string
+  endDate: string
+  percentageCompletion: number
+  milestones: ProjectMilestone[]
+  deliverables: ProjectDeliverable[]
+  risks: ProjectRisk[]
+  status: CollaborationStatus
+  submittedBy?: string
+  submittedAt?: string
+  approvedBy?: string
+  approvedAt?: string
+  rejectedBy?: string
+  rejectedAt?: string
+  rejectionReason?: string
+  currentPhase?: string
+}
+
+// Joint Activity
+export type ActivityOutput = {
+  id: string
+  output: string
+  type: 'Planned' | 'Actual'
+}
+
+export type ActivityRecord = {
+  id: string
+  no: number
+  partnerId: string
+  partnerName: string
+  activityName: string
+  activityType: string
+  description: string
+  startDate: string
+  endDate: string
+  leadOrganization: string
+  eaiiResponsibleUnit: string
+  partnerResponsibleUnit: string
+  plannedOutputs: string[]
+  actualOutputs: string[]
+  attachments?: string[]
+  status: CollaborationStatus
+  submittedBy?: string
+  submittedAt?: string
+  approvedBy?: string
+  approvedAt?: string
+  rejectedBy?: string
+  rejectedAt?: string
+  rejectionReason?: string
+}
+
+// Funding & Grant Tracking
+export type GrantRecord = {
+  id: string
+  no: number
+  partnerId: string
+  partnerName: string
+  donorName: string
+  amount: string
+  currency: string
+  submissionDate: string
+  approvalDate?: string
+  endDate: string
+  description?: string
+  status: CollaborationStatus
+  submittedBy?: string
+  submittedAt?: string
+  approvedBy?: string
+  approvedAt?: string
+  rejectedBy?: string
+  rejectedAt?: string
+  rejectionReason?: string
+}
+
+// Resource Contribution
+export type ContributionItem = {
+  id: string
+  category: string
+  checked: boolean
+  description?: string
+}
+
+export type ResourceContributionRecord = {
+  id: string
+  no: number
+  partnerId: string
+  partnerName: string
+  projectName?: string
+  eaiiContributions: {
+    staff: boolean
+    infrastructure: boolean
+    funding: boolean
+    equipment: boolean
+    dataResources: boolean
+    staffDetails?: string
+    infrastructureDetails?: string
+    fundingDetails?: string
+    equipmentDetails?: string
+    dataResourcesDetails?: string
+  }
+  partnerContributions: {
+    staff: boolean
+    funding: boolean
+    technology: boolean
+    equipment: boolean
+    expertise: boolean
+    staffDetails?: string
+    fundingDetails?: string
+    technologyDetails?: string
+    equipmentDetails?: string
+    expertiseDetails?: string
+  }
+  monetaryValue: string
+  inKindValue: string
+  totalValue: string
+  currency: string
+  status: CollaborationStatus
+  submittedBy?: string
+  submittedAt?: string
+  approvedBy?: string
+  approvedAt?: string
+  rejectedBy?: string
+  rejectedAt?: string
+  rejectionReason?: string
 }
