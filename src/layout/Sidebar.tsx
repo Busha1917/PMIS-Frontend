@@ -113,6 +113,25 @@ const partnerPages: AdminPage[] = [
   'partners-division-director',
 ]
 
+const activitySubItems: { label: string; page: AdminPage; description: string }[] = [
+  {
+    label: 'Officer',
+    page: 'collaboration-activities-officer',
+    description: 'Register & submit activities',
+  },
+  {
+    label: 'Division Director',
+    page: 'collaboration-activities-division-director',
+    description: 'Review & approve activities',
+  },
+]
+
+const activityPages: AdminPage[] = [
+  'collaboration-activities',
+  'collaboration-activities-officer',
+  'collaboration-activities-division-director',
+]
+
 const projectSubItems: { label: string; page: AdminPage; description: string }[] = [
   {
     label: 'Officer',

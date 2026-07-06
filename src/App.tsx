@@ -134,6 +134,16 @@ const DivisionDirectorProjectsPage = lazy(() =>
 const ActivitiesPage = lazy(() =>
   import('@/features/collaboration/ActivitiesPage').then(m => ({ default: m.ActivitiesPage }))
 )
+const OfficerActivitiesPage = lazy(() =>
+  import('@/features/collaboration/OfficerActivitiesPage').then(m => ({
+    default: m.OfficerActivitiesPage,
+  }))
+)
+const DivisionDirectorActivitiesPage = lazy(() =>
+  import('@/features/collaboration/DivisionDirectorActivitiesPage').then(m => ({
+    default: m.DivisionDirectorActivitiesPage,
+  }))
+)
 const GrantsPage = lazy(() =>
   import('@/features/collaboration/GrantsPage').then(m => ({ default: m.GrantsPage }))
 )
