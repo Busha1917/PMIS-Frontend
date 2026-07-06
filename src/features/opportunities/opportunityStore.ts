@@ -40,8 +40,7 @@ export const opportunityStore = {
       opportunityCategory: '',
       country: '',
       partnerName: '',
-      strategicImportance: '',
-      description: '',
+      strategicImportance: undefined,
     }
     _opportunities = [..._opportunities, newOpp]
     notify()

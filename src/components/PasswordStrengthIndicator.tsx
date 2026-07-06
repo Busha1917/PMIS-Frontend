@@ -1,5 +1,5 @@
-import { cn } from '../../utils'
-import { calculatePasswordStrength, strengthPercentage } from '../../utils/helpers'
+import { cn } from '../utils'
+import { calculatePasswordStrength, strengthPercentage } from '../utils/helpers'
 import { Check, X } from 'lucide-react'
 
 interface PasswordStrengthIndicatorProps {

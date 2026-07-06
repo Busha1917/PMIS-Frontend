@@ -174,11 +174,13 @@ export type FeedbackEntry = {
 export type EventRecord = {
   id: string
   no: number
-  title: string // Maps to Event Name
-  type: string // Maps to Event Type / Visit Type
-  date: string // Maps to Event Start Date & Time / Visit Start Date & Time
-  endDate?: string // Maps to Event End Date & Time
-  visitEndDate?: string // Maps to Visit End Date & Time
+  title: string
+  type: string
+  date: string
+  endDate?: string
+  visitEndDate?: string
+  startTime?: string
+  endTime?: string
   venue: string // Maps to Venue / Host Org / Location
   status:
     | 'Draft'
@@ -592,6 +594,20 @@ export type ProjectRisk = {
   status: 'Open' | 'Mitigating' | 'Resolved'
 }
 
+export type ProjectTeamMember = {
+  id: string
+  name: string
+  role: string
+  email: string
+}
+
+export type ProjectPartnerOrg = {
+  id: string
+  name: string
+  lead: string
+  country: string
+}
+
 export type ProjectRecord = {
   id: string
   no: number
@@ -605,7 +621,9 @@ export type ProjectRecord = {
   currency: string
   projectManager: string
   partnerLead: string
-  teamMembers: string[]
+  partnerCountry?: string
+  teamMembers: ProjectTeamMember[]
+  partnerOrganizations?: ProjectPartnerOrg[]
   startDate: string
   endDate: string
   percentageCompletion: number
@@ -613,6 +631,10 @@ export type ProjectRecord = {
   deliverables: ProjectDeliverable[]
   risks: ProjectRisk[]
   status: CollaborationStatus
+  // Cost sharing
+  costSharing?: boolean
+  orgContribution?: string
+  partnerContribution?: string
   submittedBy?: string
   submittedAt?: string
   approvedBy?: string

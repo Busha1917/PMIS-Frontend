@@ -3,6 +3,7 @@ import { cn } from '../utils'
 type PageHeaderCardProps = {
   title: string
   subtitle: string
+  description?: string
   actions?: React.ReactNode
 }
 

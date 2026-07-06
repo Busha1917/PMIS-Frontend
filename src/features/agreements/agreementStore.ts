@@ -28,6 +28,29 @@ export const agreementStore = {
     }
   },
 
+  create(): AgreementRecord {
+    const newId = `AGR-2026-${String(_agreements.length + 1).padStart(3, '0')}`
+    const newAgreement: AgreementRecord = {
+      id: newId,
+      no: _agreements.length + 1,
+      title: '',
+      type: 'MoU',
+      date: '',
+      startDate: '',
+      endDate: '',
+      status: 'Draft' as AgreementStatus,
+      partnerOrganization: '',
+      contactPerson: '',
+      contactPosition: '',
+      eaiiDivisions: [],
+      description: '',
+      attachments: [],
+    }
+    _agreements = [..._agreements, newAgreement]
+    notify()
+    return newAgreement
+  },
+
   update(updated: AgreementRecord) {
     _agreements = _agreements.map(a => (a.id === updated.id ? updated : a))
     notify()
