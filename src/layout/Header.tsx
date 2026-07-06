@@ -178,7 +178,9 @@ export function Header({ activePage, onNavigate, onLogout }: HeaderProps) {
                       </label>
                       <select
                         value={user?.role || ''}
-                        onChange={e => changeRole(e.target.value as UserRole)}
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                          changeRole(e.target.value as UserRole)
+                        }
                         className="w-full text-sm border border-slate-200 rounded-md py-1 px-2 outline-none focus:border-[#161A61] focus:ring-1 focus:ring-[#161A61]/10 bg-slate-50 text-slate-700 cursor-pointer"
                       >
                         <option value="admin">System Admin</option>

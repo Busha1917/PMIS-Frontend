@@ -119,20 +119,24 @@ const metrics = [
   },
 ]
 
-const CustomTooltip = ({
-  active,
-  payload,
-  label,
-}: {
+interface TooltipPayload {
+  name: string
+  value: number
+  color: string
+}
+
+interface CustomTooltipProps {
   active?: boolean
-  payload?: { name: string; value: number; color: string }[]
+  payload?: TooltipPayload[]
   label?: string
-}) => {
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg text-xs">
         <p className="font-semibold text-slate-700 mb-1">{label}</p>
-        {payload.map((entry: { name: string; value: number; color: string }) => (
+        {payload.map((entry: TooltipPayload) => (
           <p key={entry.name} style={{ color: entry.color }}>
             {entry.name}: <span className="font-bold">{entry.value}</span>
           </p>

@@ -5,7 +5,8 @@
  *
  * In a real app this would be Redux / RTK Query / server state.
  */
-import type { EngagementRecord, EngagementStatus, OpportunityRecord } from '../../types'
+import type { EngagementRecord, EngagementStatus } from '../../types'
+import type { OpportunityRecord } from '../../types'
 
 // Start with empty engagements - they will be added when opportunities are approved
 function buildInitialEngagements(): EngagementRecord[] {
@@ -65,7 +66,7 @@ export const engagementStore = {
   },
 
   /** Called by Division Director Opportunities page when an opportunity is approved */
-  addFromOpportunity(opp: OpportunityRecord) {
+  addFromOpportunity(opp: OpportunityRecord): void {
     const alreadyExists = _engagements.some(e => e.opportunityId === opp.id)
     if (alreadyExists) return
     const next: EngagementRecord = {

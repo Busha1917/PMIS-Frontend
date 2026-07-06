@@ -117,6 +117,30 @@ const NotificationsPage = lazy(() =>
 const UsersPage = lazy(() => import('@/pages/UsersPage').then(m => ({ default: m.UsersPage })))
 const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m.LoginPage })))
 
+// Collaboration pages
+const ProjectsPage = lazy(() =>
+  import('@/features/collaboration/ProjectsPage').then(m => ({ default: m.ProjectsPage }))
+)
+const OfficerProjectsPage = lazy(() =>
+  import('@/features/collaboration/OfficerProjectsPage').then(m => ({
+    default: m.OfficerProjectsPage,
+  }))
+)
+const DivisionDirectorProjectsPage = lazy(() =>
+  import('@/features/collaboration/DivisionDirectorProjectsPage').then(m => ({
+    default: m.DivisionDirectorProjectsPage,
+  }))
+)
+const ActivitiesPage = lazy(() =>
+  import('@/features/collaboration/ActivitiesPage').then(m => ({ default: m.ActivitiesPage }))
+)
+const GrantsPage = lazy(() =>
+  import('@/features/collaboration/GrantsPage').then(m => ({ default: m.GrantsPage }))
+)
+const ContributionsPage = lazy(() =>
+  import('@/features/collaboration/ContributionsPage').then(m => ({ default: m.ContributionsPage }))
+)
+
 // Full-page skeleton shown while a lazy page chunk is loading
 function PageLoadingFallback() {
   return (
@@ -279,6 +303,36 @@ const pageRoutes: Record<AdminPage, { path: string; title: string; description: 
     title: 'Notifications',
     description: 'Manage your alerts and stay up to date with system activities.',
   },
+  'collaboration-projects': {
+    path: '/collaboration/projects',
+    title: 'Project Collaborations',
+    description: 'Track programmatic tech project execution with partners',
+  },
+  'collaboration-projects-officer': {
+    path: '/collaboration/projects/officer',
+    title: 'Projects — Officer',
+    description: 'Create and manage project collaboration records',
+  },
+  'collaboration-projects-division-director': {
+    path: '/collaboration/projects/approval',
+    title: 'Projects — Division Director',
+    description: 'Review and approve project collaboration records',
+  },
+  'collaboration-activities': {
+    path: '/collaboration/activities',
+    title: 'Joint Activities',
+    description: 'Manage standalone activity modules and mutual events',
+  },
+  'collaboration-grants': {
+    path: '/collaboration/grants',
+    title: 'Funding & Grants',
+    description: 'Manage incoming and outgoing fiscal grant vehicles',
+  },
+  'collaboration-contributions': {
+    path: '/collaboration/contributions',
+    title: 'Resource Contributions',
+    description: 'Track monetary and non-monetary investments',
+  },
 }
 
 const pathToPage: Record<string, AdminPage> = Object.fromEntries(
@@ -376,6 +430,18 @@ function App() {
         return <KEDirectorPartnerPage />
       case 'partners-division-director':
         return <DivisionDirectorPartnerPage />
+      case 'collaboration-projects':
+        return <ProjectsPage />
+      case 'collaboration-projects-officer':
+        return <OfficerProjectsPage />
+      case 'collaboration-projects-division-director':
+        return <DivisionDirectorProjectsPage />
+      case 'collaboration-activities':
+        return <ActivitiesPage />
+      case 'collaboration-grants':
+        return <GrantsPage />
+      case 'collaboration-contributions':
+        return <ContributionsPage />
       case 'baseData':
         return <BaseDataPage />
       case 'users':
