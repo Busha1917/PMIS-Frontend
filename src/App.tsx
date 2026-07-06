@@ -121,6 +121,16 @@ const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m
 const ProjectsPage = lazy(() =>
   import('@/features/collaboration/ProjectsPage').then(m => ({ default: m.ProjectsPage }))
 )
+const OfficerProjectsPage = lazy(() =>
+  import('@/features/collaboration/OfficerProjectsPage').then(m => ({
+    default: m.OfficerProjectsPage,
+  }))
+)
+const DivisionDirectorProjectsPage = lazy(() =>
+  import('@/features/collaboration/DivisionDirectorProjectsPage').then(m => ({
+    default: m.DivisionDirectorProjectsPage,
+  }))
+)
 const ActivitiesPage = lazy(() =>
   import('@/features/collaboration/ActivitiesPage').then(m => ({ default: m.ActivitiesPage }))
 )
@@ -298,6 +308,16 @@ const pageRoutes: Record<AdminPage, { path: string; title: string; description: 
     title: 'Project Collaborations',
     description: 'Track programmatic tech project execution with partners',
   },
+  'collaboration-projects-officer': {
+    path: '/collaboration/projects/officer',
+    title: 'Projects — Officer',
+    description: 'Create and manage project collaboration records',
+  },
+  'collaboration-projects-division-director': {
+    path: '/collaboration/projects/approval',
+    title: 'Projects — Division Director',
+    description: 'Review and approve project collaboration records',
+  },
   'collaboration-activities': {
     path: '/collaboration/activities',
     title: 'Joint Activities',
@@ -412,6 +432,10 @@ function App() {
         return <DivisionDirectorPartnerPage />
       case 'collaboration-projects':
         return <ProjectsPage />
+      case 'collaboration-projects-officer':
+        return <OfficerProjectsPage />
+      case 'collaboration-projects-division-director':
+        return <DivisionDirectorProjectsPage />
       case 'collaboration-activities':
         return <ActivitiesPage />
       case 'collaboration-grants':

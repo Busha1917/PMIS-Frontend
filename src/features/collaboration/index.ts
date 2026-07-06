@@ -1,4 +1,8 @@
 export { ProjectsPage } from './ProjectsPage'
+export { OfficerProjectsPage } from './OfficerProjectsPage'
+export { DivisionDirectorProjectsPage } from './DivisionDirectorProjectsPage'
+export { OfficerProjectForm } from './OfficerProjectForm'
+export { DivisionDirectorProjectApproval } from './DivisionDirectorProjectApproval'
 export { ActivitiesPage } from './ActivitiesPage'
 export { GrantsPage } from './GrantsPage'
 export { ContributionsPage } from './ContributionsPage'

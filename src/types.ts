@@ -23,6 +23,8 @@ export type AdminPage =
   | 'partners-ke-director'
   | 'partners-division-director'
   | 'collaboration-projects'
+  | 'collaboration-projects-officer'
+  | 'collaboration-projects-division-director'
   | 'collaboration-activities'
   | 'collaboration-grants'
   | 'collaboration-contributions'
@@ -667,7 +669,7 @@ export type GrantRecord = {
   approvalDate?: string
   endDate: string
   description?: string
-  status: CollaborationStatus
+  status: CollaborationStatus | string
   submittedBy?: string
   submittedAt?: string
   approvedBy?: string

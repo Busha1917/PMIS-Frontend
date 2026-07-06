@@ -125,15 +125,13 @@ interface TooltipPayload {
   color: string
 }
 
-const CustomTooltip = ({
-  active,
-  payload,
-  label,
-}: {
+interface CustomTooltipProps {
   active?: boolean
   payload?: TooltipPayload[]
   label?: string
-}) => {
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg text-xs">

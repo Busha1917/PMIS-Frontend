@@ -8,6 +8,9 @@ import { FilterDrawer } from '../../components/FilterDrawer'
 import type { FilterValues } from '../../components/FilterDrawer'
 import type { ProjectRecord } from '../../types'
 import { projectStore } from './projectStore'
+import { OfficerProjectForm } from './OfficerProjectForm'
+import { DivisionDirectorProjectApproval } from './DivisionDirectorProjectApproval'
+import { useAuth } from '../../hooks/useAuth'
 
 const FILTER_FIELDS = [
   {
@@ -24,10 +27,13 @@ const FILTER_FIELDS = [
 ]
 
 export function ProjectsPage() {
+  const { user } = useAuth()
   const [projects, setProjects] = useState<ProjectRecord[]>(() => projectStore.getAll())
   const [showFilter, setShowFilter] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilters, setActiveFilters] = useState<FilterValues>({})
+  const [showForm, setShowForm] = useState(false)
+  const [selectedProject, setSelectedProject] = useState<ProjectRecord | undefined>()
 
   useEffect(() => projectStore.subscribe(setProjects), [])
 
@@ -45,8 +51,24 @@ export function ProjectsPage() {
   }, [projects, searchQuery, activeFilters])
 
   const handleAddNew = () => {
-    toast.info('Project creation coming soon')
+    // Create a new draft project
+    const newProject = projectStore.create('PARTNER-001', 'Sample Partner')
+    setSelectedProject(newProject)
+    setShowForm(true)
   }
+
+  const handleView = (project: ProjectRecord) => {
+    setSelectedProject(project)
+    setShowForm(true)
+  }
+
+  const handleCloseForm = () => {
+    setShowForm(false)
+    setSelectedProject(undefined)
+  }
+
+  const isOfficer = user?.role === 'Officer'
+  const isDivisionDirector = user?.role === 'Division Director'
 
   return (
     <div className="space-y-6">
@@ -128,7 +150,7 @@ export function ProjectsPage() {
             label: 'Action',
             render: item => (
               <button
-                onClick={() => toast.info('View project details')}
+                onClick={() => handleView(item)}
                 className="rounded-lg bg-[#161A61] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#0f1347]"
               >
                 View
@@ -146,6 +168,17 @@ export function ProjectsPage() {
         fields={FILTER_FIELDS}
         title="Filter Projects"
       />
+
+      {/* Forms */}
+      {showForm && selectedProject && (
+        <>
+          {isDivisionDirector && selectedProject.status === 'Pending Approval' ? (
+            <DivisionDirectorProjectApproval project={selectedProject} onClose={handleCloseForm} />
+          ) : (
+            <OfficerProjectForm project={selectedProject} onClose={handleCloseForm} />
+          )}
+        </>
+      )}
     </div>
   )
 }
