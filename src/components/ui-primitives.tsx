@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
-import { cn } from '../../utils'
-import { timeAgo } from '../../utils/helpers'
+import { cn } from '../utils'
+import { timeAgo } from '../utils/helpers'
 
 /**
  * InfoRow — adapted from Addis Land's info-row component.

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { toast } from 'sonner'
 import { DataTable } from '../../components/DataTable'
 import { PageHeaderCard } from '../../components/PageHeaderCard'
 import { PageToolbar } from '../../components/PageToolbar'
@@ -49,7 +48,7 @@ export function OfficerProjectsPage() {
   }, [projects, searchQuery, activeFilters])
 
   const handleAddNew = () => {
-    const newProject = projectStore.create('PARTNER-001', 'Sample Partner')
+    const newProject = projectStore.create()
     setSelectedProject(newProject)
     setShowForm(true)
   }

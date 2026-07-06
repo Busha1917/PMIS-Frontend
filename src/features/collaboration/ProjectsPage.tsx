@@ -52,7 +52,7 @@ export function ProjectsPage() {
 
   const handleAddNew = () => {
     // Create a new draft project
-    const newProject = projectStore.create('PARTNER-001', 'Sample Partner')
+    const newProject = projectStore.create()
     setSelectedProject(newProject)
     setShowForm(true)
   }
@@ -68,7 +68,7 @@ export function ProjectsPage() {
   }
 
   const isOfficer = user?.role === 'Officer'
-  const isDivisionDirector = user?.role === 'Division Director'
+  const isDivisionDirector = (user?.role as string) === 'Division Director'
 
   return (
     <div className="space-y-6">

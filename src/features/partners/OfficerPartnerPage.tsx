@@ -1334,7 +1334,7 @@ export default function OfficerPartnerPage() {
     <div className="space-y-4 p-6">
       <PageHeaderCard
         title="Partner Management"
-        description="Register and manage partnership organizations"
+        subtitle="Register and manage partnership organizations"
       />
       <PageToolbar
         searchPlaceholder="Search partners..."

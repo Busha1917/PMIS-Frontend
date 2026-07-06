@@ -25,13 +25,13 @@ export const projectStore = {
     }
   },
 
-  create(partnerId: string, partnerName: string): ProjectRecord {
+  create(): ProjectRecord {
     const newId = `PROJ-2026-${String(_projects.length + 1).padStart(3, '0')}`
     const newProject: ProjectRecord = {
       id: newId,
       no: _projects.length + 1,
-      partnerId,
-      partnerName,
+      partnerId: '',
+      partnerName: '',
       projectName: '',
       description: '',
       thematicArea: '',
@@ -40,7 +40,9 @@ export const projectStore = {
       currency: 'ETB',
       projectManager: '',
       partnerLead: '',
+      partnerCountry: '',
       teamMembers: [],
+      partnerOrganizations: [],
       startDate: '',
       endDate: '',
       percentageCompletion: 0,
@@ -49,6 +51,9 @@ export const projectStore = {
       risks: [],
       status: 'Draft' as CollaborationStatus,
       currentPhase: 'Planning',
+      costSharing: false,
+      orgContribution: '',
+      partnerContribution: '',
     }
     _projects = [..._projects, newProject]
     notify()
