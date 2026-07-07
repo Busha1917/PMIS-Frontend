@@ -4,7 +4,6 @@ import {
   FolderOpen,
   Handshake,
   LayoutDashboard,
-  Layers,
   Settings,
   ShieldCheck,
   Users,

@@ -1,10 +1,3 @@
-/**
- * Shared in-memory engagement store.
- * All three actor pages (KE Director, Officer, Division Director) read from
- * and write to the same array so state is consistent across navigations.
- *
- * In a real app this would be Redux / RTK Query / server state.
- */
 import type { EngagementRecord, EngagementStatus } from '../../types'
 import type { OpportunityRecord } from '../../types'
 

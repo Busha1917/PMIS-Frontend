@@ -7,7 +7,7 @@ import {
   Handshake,
   TrendingUp,
   Users,
-  BarChart3,
+  BarChart3 as BarChartIcon,
 } from 'lucide-react'
 import {
   ResponsiveContainer,
@@ -295,7 +295,7 @@ export function AdminDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <BarChart3 className="h-4 w-4 text-[#ff9500]" />
+              <BarChartIcon className="h-4 w-4 text-[#ff9500]" />
               Records by Module
             </CardTitle>
           </CardHeader>

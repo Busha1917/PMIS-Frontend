@@ -567,13 +567,6 @@ export type BaseDataItem = {
   description: string
 }
 
-export type PermissionRecord = {
-  id: string
-  key: string
-  description: string
-  group: string
-}
-
 // ── Collaboration Module Types ──────────────────────────────────────────────
 
 export type CollaborationStatus = 'Draft' | 'Pending Approval' | 'Approved' | 'Rejected'
