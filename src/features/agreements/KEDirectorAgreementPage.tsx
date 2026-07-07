@@ -248,6 +248,54 @@ function DetailView({ agreement, onApprove, onReject, onBack }: DetailViewProps)
             </div>
           </div>
         )}
+
+        {/* Amendment History */}
+        {agreement.amendments && agreement.amendments.length > 0 && (
+          <div className="border-t border-slate-100 p-6">
+            {sectionHeader('Amendment History', true)}
+            <div className="space-y-4">
+              {agreement.amendments.map(amendment => (
+                <div
+                  key={amendment.versionId}
+                  className="rounded-lg border border-slate-200 bg-slate-50 p-4"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">
+                        Version {amendment.versionNumber} — {amendment.createdBy}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        {new Date(amendment.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <span
+                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
+                        amendment.status === 'Pending'
+                          ? 'bg-amber-100 text-amber-700'
+                          : amendment.status === 'Responded'
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-green-100 text-green-700'
+                      }`}
+                    >
+                      {amendment.status}
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-700 leading-relaxed mb-3">
+                    {amendment.comments}
+                  </p>
+                  {amendment.attachmentUrl && (
+                    <div className="flex items-center gap-2 text-xs text-blue-600 hover:text-blue-700 cursor-pointer">
+                      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                      </svg>
+                      <span>📎 {amendment.attachmentUrl}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Approve modal */}

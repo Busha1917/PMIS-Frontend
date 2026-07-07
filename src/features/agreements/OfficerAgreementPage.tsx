@@ -77,9 +77,19 @@ function AgreementFormView({ agreement, onSaveDraft, onSubmit, onCancel }: Agree
   const [form, setForm] = useState<FormState>(() => buildForm(agreement))
   const [divisionRow, setDivisionRow] = useState({ division: '', fullName: '', position: '' })
   const [submitModalOpen, setSubmitModalOpen] = useState(false)
+  const [amendmentModalOpen, setAmendmentModalOpen] = useState(false)
+  const [amendmentResponse, setAmendmentResponse] = useState('')
+  const [responseFiles, setResponseFiles] = useState<File[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const responseFileInputRef = useRef<HTMLInputElement>(null)
 
   const isReadOnly = agreement.status !== 'Draft'
+
+  // Check if there are pending amendments from legal officer
+  const pendingAmendments =
+    agreement.amendments?.filter(a => a.createdBy === 'Legal Officer' && a.status === 'Pending') ??
+    []
+  const hasPendingAmendments = pendingAmendments.length > 0
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm(prev => ({ ...prev, [key]: value }))
@@ -429,6 +439,46 @@ function AgreementFormView({ agreement, onSaveDraft, onSubmit, onCancel }: Agree
             />
           </>
         )}
+
+        {/* Amendments from Legal Officer */}
+        {agreement.amendments && agreement.amendments.length > 0 && (
+          <>
+            <hr className="border-slate-100" />
+            {sectionLabel('Legal Officer Amendments')}
+            <div className="space-y-4">
+              {agreement.amendments.map(amendment => (
+                <div
+                  key={amendment.versionId}
+                  className="rounded-lg border border-amber-200 bg-amber-50 p-4"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="text-sm font-semibold text-amber-900">
+                        Amendment Version {amendment.versionNumber}
+                      </p>
+                      <p className="text-xs text-amber-700 mt-1">
+                        {new Date(amendment.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <span className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">
+                      {amendment.status}
+                    </span>
+                  </div>
+                  <p className="text-sm text-amber-900 leading-relaxed">{amendment.comments}</p>
+                  {amendment.status === 'Pending' && isReadOnly && (
+                    <button
+                      type="button"
+                      onClick={() => setAmendmentModalOpen(true)}
+                      className="mt-4 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 transition-colors"
+                    >
+                      Respond to Amendment
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Action buttons */}
@@ -479,6 +529,161 @@ function AgreementFormView({ agreement, onSaveDraft, onSubmit, onCancel }: Agree
               }}
             >
               Confirm Submit
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Amendment Response Modal */}
+      <Modal
+        open={amendmentModalOpen}
+        onClose={() => {
+          setAmendmentModalOpen(false)
+          setResponseFiles([])
+        }}
+        title="Respond to Legal Officer Amendment"
+        size="md"
+      >
+        <div className="px-6 py-6 space-y-4">
+          <div>
+            <label className="mb-2 block text-xs font-medium text-slate-700">
+              Your Response/Changes <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              value={amendmentResponse}
+              onChange={e => setAmendmentResponse(e.target.value)}
+              placeholder="Describe the changes you've made to address the legal officer's comments..."
+              rows={4}
+              className="w-full rounded-lg border border-slate-300 bg-white p-3 text-sm text-slate-900 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10 resize-none"
+            />
+          </div>
+
+          {/* File Attachment */}
+          <div>
+            <label className="mb-2 block text-xs font-medium text-slate-700">
+              Attachments (Optional)
+            </label>
+            {responseFiles.length > 0 && (
+              <div className="mb-3 space-y-2">
+                {responseFiles.map((file, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <svg
+                        className="h-4 w-4 text-blue-600"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                      </svg>
+                      <span className="text-sm font-medium text-slate-700 truncate">
+                        {file.name}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setResponseFiles(prev => prev.filter((_, j) => j !== i))}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div
+              onClick={() => responseFileInputRef.current?.click()}
+              className="flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 p-4 cursor-pointer hover:border-blue-500 transition-colors"
+            >
+              <svg
+                className="h-5 w-5 text-slate-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              <p className="text-sm font-medium text-slate-600">Upload revised document</p>
+              <p className="text-xs text-slate-400">pdf, doc, docx, xlsx accepted</p>
+            </div>
+            <input
+              ref={responseFileInputRef}
+              type="file"
+              multiple
+              className="hidden"
+              accept=".pdf,.doc,.docx,.xlsx,.xls"
+              onChange={e =>
+                setResponseFiles(prev => [
+                  ...prev,
+                  ...(e.target.files ? Array.from(e.target.files) : []),
+                ])
+              }
+            />
+          </div>
+
+          <p className="text-xs text-slate-500">
+            After submitting your response and attachments, the legal officer will review the
+            updated agreement again.
+          </p>
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setAmendmentModalOpen(false)
+                setResponseFiles([])
+              }}
+            >
+              Cancel
+            </Button>
+            <button
+              type="button"
+              className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-40"
+              disabled={!amendmentResponse.trim()}
+              onClick={() => {
+                // Mark amendment as responded and mark agreement as Pending Verification again
+                const updatedAmendments =
+                  agreement.amendments?.map(a =>
+                    a.status === 'Pending' ? { ...a, status: 'Responded' as const } : a
+                  ) ?? []
+
+                // Create response attachment reference
+                const responseAttachmentRef =
+                  responseFiles.length > 0 ? responseFiles.map(f => f.name).join(', ') : undefined
+
+                const updatedAgreement: AgreementRecord = {
+                  ...agreement,
+                  amendments: [
+                    ...updatedAmendments,
+                    {
+                      versionId: `RSP-${Date.now()}`,
+                      versionNumber: (agreement.amendments?.length ?? 0) + 1,
+                      createdBy: 'Officer',
+                      createdAt: new Date().toISOString(),
+                      comments: amendmentResponse,
+                      attachmentUrl: responseAttachmentRef,
+                      status: 'Responded',
+                    },
+                  ],
+                  status: 'Pending Verification',
+                }
+
+                agreementStore.update(updatedAgreement)
+                setAmendmentModalOpen(false)
+                setAmendmentResponse('')
+                setResponseFiles([])
+                toast.success('Response sent to legal officer', {
+                  description: `With ${responseFiles.length > 0 ? responseFiles.length + ' attachment(s)' : 'no attachments'}`,
+                })
+              }}
+            >
+              Submit Response
             </button>
           </div>
         </div>

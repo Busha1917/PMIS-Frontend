@@ -410,6 +410,17 @@ export type AgreementEaiiDivision = {
   position: string
 }
 
+// ── Amendment System ──────────────────────────────────────────────────────
+export type AgreementAmendment = {
+  versionId: string
+  versionNumber: number // 1, 2, 3, etc.
+  createdBy: 'Officer' | 'Legal Officer'
+  createdAt: string
+  comments: string // Legal officer's comments or Officer's response
+  attachmentUrl?: string // File attachment reference
+  status: 'Pending' | 'Responded' | 'Verified'
+}
+
 export type AgreementRecord = {
   id: string
   no: number
@@ -439,8 +450,12 @@ export type AgreementRecord = {
   // Discussion Summary
   description?: string
 
-  // Attachment filenames
+  // Attachment filenames (deprecated, use amendments instead)
   attachments?: string[]
+
+  // Amendment/Version tracking system
+  amendments?: AgreementAmendment[] // Track all amendments/versions
+  currentVersion?: number // Current version being worked on
 
   // Officer workflow
   submittedBy?: string
