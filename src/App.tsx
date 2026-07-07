@@ -148,8 +148,26 @@ const DivisionDirectorActivitiesPage = lazy(() =>
 const GrantsPage = lazy(() =>
   import('@/features/collaboration/GrantsPage').then(m => ({ default: m.GrantsPage }))
 )
+const OfficerGrantsPage = lazy(() =>
+  import('@/features/collaboration/OfficerGrantsPage').then(m => ({ default: m.OfficerGrantsPage }))
+)
+const DivisionDirectorGrantsPage = lazy(() =>
+  import('@/features/collaboration/DivisionDirectorGrantsPage').then(m => ({
+    default: m.DivisionDirectorGrantsPage,
+  }))
+)
 const ContributionsPage = lazy(() =>
   import('@/features/collaboration/ContributionsPage').then(m => ({ default: m.ContributionsPage }))
+)
+const OfficerContributionsPage = lazy(() =>
+  import('@/features/collaboration/OfficerContributionsPage').then(m => ({
+    default: m.OfficerContributionsPage,
+  }))
+)
+const DivisionDirectorContributionsPage = lazy(() =>
+  import('@/features/collaboration/DivisionDirectorContributionsPage').then(m => ({
+    default: m.DivisionDirectorContributionsPage,
+  }))
 )
 
 // Full-page skeleton shown while a lazy page chunk is loading
@@ -337,22 +355,42 @@ const pageRoutes: Record<AdminPage, { path: string; title: string; description: 
   'collaboration-activities-officer': {
     path: '/collaboration/activities/officer',
     title: 'Joint Activities — Officer',
-    description: 'Register and submit joint activity records for approval',
+    description: 'Create and submit joint activity records',
   },
   'collaboration-activities-division-director': {
     path: '/collaboration/activities/approval',
     title: 'Joint Activities — Division Director',
-    description: 'Review and approve submitted joint activity records',
+    description: 'Review and approve joint activity records',
   },
   'collaboration-grants': {
     path: '/collaboration/grants',
     title: 'Funding & Grants',
     description: 'Manage incoming and outgoing fiscal grant vehicles',
   },
+  'collaboration-grants-officer': {
+    path: '/collaboration/grants/officer',
+    title: 'Funding & Grants — Officer',
+    description: 'Register and submit grant records for approval',
+  },
+  'collaboration-grants-division-director': {
+    path: '/collaboration/grants/approval',
+    title: 'Funding & Grants — Division Director',
+    description: 'Review and approve submitted grant records',
+  },
   'collaboration-contributions': {
     path: '/collaboration/contributions',
     title: 'Resource Contributions',
     description: 'Track monetary and non-monetary investments',
+  },
+  'collaboration-contributions-officer': {
+    path: '/collaboration/contributions/officer',
+    title: 'Resource Contributions — Officer',
+    description: 'Register and submit contribution records for approval',
+  },
+  'collaboration-contributions-division-director': {
+    path: '/collaboration/contributions/approval',
+    title: 'Resource Contributions — Division Director',
+    description: 'Review and approve submitted contribution records',
   },
 }
 
@@ -465,8 +503,16 @@ function App() {
         return <DivisionDirectorActivitiesPage />
       case 'collaboration-grants':
         return <GrantsPage />
+      case 'collaboration-grants-officer':
+        return <OfficerGrantsPage />
+      case 'collaboration-grants-division-director':
+        return <DivisionDirectorGrantsPage />
       case 'collaboration-contributions':
         return <ContributionsPage />
+      case 'collaboration-contributions-officer':
+        return <OfficerContributionsPage />
+      case 'collaboration-contributions-division-director':
+        return <DivisionDirectorContributionsPage />
       case 'baseData':
         return <BaseDataPage />
       case 'users':

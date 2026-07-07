@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { toast } from 'sonner'
 import { DataTable } from '../../components/DataTable'
 import { PageHeaderCard } from '../../components/PageHeaderCard'
 import { PageToolbar } from '../../components/PageToolbar'
@@ -35,7 +34,7 @@ export function GrantsPage() {
     return grants.filter(item => {
       if (
         searchQuery &&
-        !item.donorName.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !item.projectName.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !item.id.toLowerCase().includes(searchQuery.toLowerCase())
       )
         return false
@@ -44,37 +43,23 @@ export function GrantsPage() {
     })
   }, [grants, searchQuery, activeFilters])
 
-  const handleAddNew = () => {
-    toast.info('Grant creation coming soon')
-  }
-
   return (
     <div className="space-y-6">
       <PageHeaderCard
         title="Funding & Grant Tracking"
-        subtitle="Manage incoming and outgoing fiscal grant vehicles tied to partners"
+        subtitle="Overview of all incoming and outgoing fiscal grant vehicles tied to partners"
       />
       <PageToolbar
         searchPlaceholder="Search grants..."
-        addLabel="Add Grant"
         onSearch={setSearchQuery}
         onFilter={() => setShowFilter(true)}
-        onAdd={handleAddNew}
         showSearchAndFilters
       />
       <DataTable
         items={filtered}
         rowKey={item => item.id}
         emptyVariant="empty"
-        emptyMessage="No grants found. Start by adding a grant record."
-        emptyAction={
-          <button
-            onClick={handleAddNew}
-            className="rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#e68a00]"
-          >
-            Add Grant
-          </button>
-        }
+        emptyMessage="No grants found."
         columns={[
           {
             label: 'No.',
@@ -89,42 +74,44 @@ export function GrantsPage() {
             headClassName: 'bg-[#0b265a] text-white',
           },
           {
-            label: 'Donor Name',
-            render: item => item.donorName || '—',
+            label: 'Project Name',
+            render: item => item.projectName || '—',
             headClassName: 'bg-[#0b265a] text-white',
           },
           {
-            label: 'Partner',
-            render: item => item.partnerName,
+            label: 'Thematic Area',
+            render: item => item.thematicArea || '—',
             headClassName: 'bg-[#0b265a] text-white',
           },
           {
-            label: 'Amount',
+            label: 'Budget',
             render: item =>
               item.amount ? `${item.currency} ${parseFloat(item.amount).toLocaleString()}` : '—',
             headClassName: 'bg-[#0b265a] text-white',
           },
           {
-            label: 'Submission Date',
-            render: item => item.submissionDate || '—',
+            label: 'Funding Source',
+            render: item => item.fundingSource || '—',
+            headClassName: 'bg-[#0b265a] text-white',
+          },
+          {
+            label: 'Progress',
+            render: item => (
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-16 rounded-full bg-slate-200">
+                  <div
+                    className="h-full rounded-full bg-[#ff9500]"
+                    style={{ width: `${item.percentageCompletion ?? 0}%` }}
+                  />
+                </div>
+                <span className="text-xs text-slate-600">{item.percentageCompletion ?? 0}%</span>
+              </div>
+            ),
             headClassName: 'bg-[#0b265a] text-white',
           },
           {
             label: 'Status',
             render: item => <StatusBadge status={item.status} />,
-            headClassName: 'bg-[#0b265a] text-white text-center',
-            cellClassName: 'text-center',
-          },
-          {
-            label: 'Action',
-            render: item => (
-              <button
-                onClick={() => toast.info('View grant details')}
-                className="rounded-lg bg-[#161A61] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#0f1347]"
-              >
-                View
-              </button>
-            ),
             headClassName: 'bg-[#0b265a] text-white text-center',
             cellClassName: 'text-center',
           },

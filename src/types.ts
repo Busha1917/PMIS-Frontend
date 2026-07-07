@@ -29,6 +29,8 @@ export type AdminPage =
   | 'collaboration-activities-officer'
   | 'collaboration-activities-division-director'
   | 'collaboration-grants'
+  | 'collaboration-grants-officer'
+  | 'collaboration-grants-division-director'
   | 'collaboration-contributions'
   | 'baseData'
   | 'users'
@@ -681,18 +683,64 @@ export type ActivityRecord = {
 }
 
 // Funding & Grant Tracking
+export type GrantMilestone = {
+  id: string
+  milestone: string
+  plannedDate: string
+  actualDate: string
+  status: 'Not Started' | 'In Progress' | 'Completed' | 'Delayed'
+}
+
+export type GrantDeliverable = {
+  id: string
+  deliverable: string
+  dueDate: string
+  status: 'Pending' | 'In Progress' | 'Completed' | 'Overdue'
+}
+
+export type GrantRisk = {
+  id: string
+  description: string
+  mitigationPlan: string
+}
+
+export type GrantTeamMember = {
+  id: string
+  name: string
+  role: string
+  email: string
+}
+
 export type GrantRecord = {
   id: string
   no: number
   partnerId: string
   partnerName: string
+  // Project Details
+  projectName: string
+  description: string
+  thematicArea: string
+  // Funding
   donorName: string
   amount: string
+  fundingSource: string
   currency: string
+  // Team
+  projectManager: string
+  partnerLead: string
+  teamMembers: GrantTeamMember[]
+  // Timeline
+  startDate: string
+  endDate: string
   submissionDate: string
   approvalDate?: string
-  endDate: string
-  description?: string
+  // Progress
+  percentageCompletion: number
+  milestones: GrantMilestone[]
+  deliverables: GrantDeliverable[]
+  // Risks
+  risks: GrantRisk[]
+  // Workflow
   status: CollaborationStatus | string
   submittedBy?: string
   submittedAt?: string

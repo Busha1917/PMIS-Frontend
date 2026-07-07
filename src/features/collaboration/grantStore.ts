@@ -1,6 +1,5 @@
 /**
  * Funding & Grant Tracking Store
- * Manages grant records for approved partners
  */
 import type { GrantRecord, CollaborationStatus } from '../../types'
 
@@ -25,18 +24,37 @@ export const grantStore = {
     }
   },
 
-  create(partnerId: string, partnerName: string): GrantRecord {
+  create(): GrantRecord {
     const newId = `GNT-2026-${String(_grants.length + 1).padStart(3, '0')}`
     const newGrant: GrantRecord = {
       id: newId,
       no: _grants.length + 1,
-      partnerId,
-      partnerName,
+      partnerId: '',
+      partnerName: '',
+      // Project Details
+      projectName: '',
+      description: '',
+      thematicArea: '',
+      // Funding
       donorName: '',
       amount: '',
+      fundingSource: '',
       currency: 'USD',
-      submissionDate: '',
+      // Team
+      projectManager: '',
+      partnerLead: '',
+      teamMembers: [],
+      // Timeline
+      startDate: '',
       endDate: '',
+      submissionDate: '',
+      // Progress
+      percentageCompletion: 0,
+      milestones: [],
+      deliverables: [],
+      // Risks
+      risks: [],
+      // Workflow
       status: 'Draft' as CollaborationStatus,
     }
     _grants = [..._grants, newGrant]
