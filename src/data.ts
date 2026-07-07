@@ -4,7 +4,6 @@ import {
   FolderOpen,
   Handshake,
   LayoutDashboard,
-  Layers,
   Settings,
   ShieldCheck,
   Users,
@@ -34,7 +33,7 @@ export const navigationItems: NavigationItem[] = [
   { label: 'Engagement', page: 'engagement', icon: FolderOpen, group: 'MAIN' },
   { label: 'Agreements', page: 'agreements', icon: FileText, group: 'MAIN' },
   { label: 'Partners', page: 'partners', icon: Users, group: 'MAIN' },
-  { label: 'Base Data', page: 'baseData', icon: Layers, group: 'BASE DATA' },
+  { label: 'Base Data', page: 'baseData', icon: FileText, group: 'BASE DATA' },
   { label: 'Users', page: 'users', icon: UserCircle2, group: 'USER MANAGEMENT' },
   { label: 'Roles', page: 'roles', icon: ShieldCheck, group: 'USER MANAGEMENT' },
   {

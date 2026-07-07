@@ -1,5 +1,4 @@
-import type { EngagementRecord, EngagementStatus } from '../../types'
-import type { OpportunityRecord } from '../../types'
+import type { EngagementRecord, EngagementStatus, OpportunityRecord } from '../../types'
 
 // Start with empty engagements - they will be added when opportunities are approved
 function buildInitialEngagements(): EngagementRecord[] {
