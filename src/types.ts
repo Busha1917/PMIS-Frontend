@@ -34,6 +34,9 @@ export type AdminPage =
   | 'collaboration-contributions'
   | 'collaboration-contributions-officer'
   | 'collaboration-contributions-division-director'
+  | 'kpi-monitoring'
+  | 'kpi-monitoring-officer'
+  | 'kpi-monitoring-division-director'
   | 'baseData'
   | 'users'
   | 'roles'
@@ -684,6 +687,93 @@ export type ActivityRecord = {
   rejectionReason?: string
 }
 
+// ────────────────── KPI MONITORING ──────────────────
+export type KPIStatus = 'Draft' | 'Pending Review' | 'Approved' | 'Returned'
+
+export type KPIRating = 'Poor' | 'Fair' | 'Good' | 'Excellent'
+
+export type KPISupportingEvidence = {
+  reportUrl?: string
+  agreementUrl?: string
+  photoUrl?: string
+  publicationUrl?: string
+  financialDocumentUrl?: string
+}
+
+export type KPIRecord = {
+  id: string
+  kpiId: string // e.g., KPI-2026-001
+  kpiName: string
+  reportingYear: string
+  division: string
+  focalPerson: string
+  leadOrganization: string
+  partnerOrganization: string
+  eaiiResponsibleUnit: string
+  startDate: string
+  endDate: string
+  period: string // e.g., "first quarter", "second quarter"
+  status: KPIStatus
+  ratingApproval?: KPIRating
+  performanceScore: number // 0-100
+
+  // Step 1: General Information
+  generalInfo: {
+    kpiName: string
+    reportingYear: string
+    division: string
+    focalPerson: string
+  }
+
+  // Step 2: Partnership Indicators
+  partnershipIndicators: {
+    jointProjects: number
+    fundingMobilized: number
+    fundingMobilizedCurrency: string
+    trainingsConduc: number
+    researchOutputs: number
+    aiSolutionsDeveloped: number
+    startupsSupported: number
+    expertsExchanged: number
+    eventsConducted: number
+  }
+
+  // Step 3: KPI Scoring
+  kpiScoring: {
+    strategicValueScore: number
+    strategicValueDetail: string
+    technicalValueScore: number
+    technicalValueDetail: string
+    financialValueScore: number
+    financialValueDetail: string
+    sustainabilityScore: number
+    sustainabilityDetail: string
+  }
+
+  // Step 4: Remarks & Evidence
+  remarks: {
+    majorAchievements: string
+    challengesEncountered: string
+    recommendations: string
+    supportingComments: string
+  }
+
+  supportingEvidence: KPISupportingEvidence
+
+  // Division Director Review
+  directorReview?: {
+    approvedBy?: string
+    approvedAt?: string
+    returnedBy?: string
+    returnedAt?: string
+    returnReason?: string
+  }
+
+  submittedAt?: string
+  submittedBy?: string
+  createdAt: string
+  updatedAt: string
+}
 // Funding & Grant Tracking
 export type GrantMilestone = {
   id: string

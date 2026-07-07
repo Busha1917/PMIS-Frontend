@@ -167,6 +167,18 @@ const DivisionDirectorContributionsPage = lazy(() =>
   }))
 )
 
+// KPI Monitoring pages
+const OfficerKPIListPage = lazy(() =>
+  import('@/features/kpi-monitoring/OfficerKPIListPage').then(m => ({
+    default: m.OfficerKPIListPage,
+  }))
+)
+const DivisionDirectorKPIApprovalPage = lazy(() =>
+  import('@/features/kpi-monitoring/DivisionDirectorKPIApprovalPage').then(m => ({
+    default: m.DivisionDirectorKPIApprovalPage,
+  }))
+)
+
 // Full-page skeleton shown while a lazy page chunk is loading
 function PageLoadingFallback() {
   return (
@@ -389,6 +401,21 @@ const pageRoutes: Record<AdminPage, { path: string; title: string; description: 
     title: 'Resource Contributions — Division Director',
     description: 'Review and approve submitted contribution records',
   },
+  'kpi-monitoring': {
+    path: '/kpi-monitoring',
+    title: 'KPI Monitoring',
+    description: 'Track and monitor key performance indicators',
+  },
+  'kpi-monitoring-officer': {
+    path: '/kpi-monitoring/officer',
+    title: 'KPI Monitoring — Officer',
+    description: 'Register and submit KPI metrics for division director review',
+  },
+  'kpi-monitoring-division-director': {
+    path: '/kpi-monitoring/approval',
+    title: 'KPI Monitoring — Division Director',
+    description: 'Review and approve submitted KPI metrics',
+  },
 }
 
 const pathToPage: Record<string, AdminPage> = Object.fromEntries(
@@ -510,6 +537,12 @@ function App() {
         return <OfficerContributionsPage />
       case 'collaboration-contributions-division-director':
         return <DivisionDirectorContributionsPage />
+      case 'kpi-monitoring':
+        return <OfficerKPIListPage />
+      case 'kpi-monitoring-officer':
+        return <OfficerKPIListPage />
+      case 'kpi-monitoring-division-director':
+        return <DivisionDirectorKPIApprovalPage />
       case 'baseData':
         return <BaseDataPage />
       case 'users':
