@@ -113,25 +113,6 @@ const partnerPages: AdminPage[] = [
   'partners-division-director',
 ]
 
-const activitySubItems: { label: string; page: AdminPage; description: string }[] = [
-  {
-    label: 'Officer',
-    page: 'collaboration-activities-officer',
-    description: 'Register & submit activities',
-  },
-  {
-    label: 'Division Director',
-    page: 'collaboration-activities-division-director',
-    description: 'Review & approve activities',
-  },
-]
-
-const activityPages: AdminPage[] = [
-  'collaboration-activities',
-  'collaboration-activities-officer',
-  'collaboration-activities-division-director',
-]
-
 const projectSubItems: { label: string; page: AdminPage; description: string }[] = [
   {
     label: 'Officer',
@@ -149,6 +130,25 @@ const projectPages: AdminPage[] = [
   'collaboration-projects',
   'collaboration-projects-officer',
   'collaboration-projects-division-director',
+]
+
+const activitySubItems: { label: string; page: AdminPage; description: string }[] = [
+  {
+    label: 'Officer',
+    page: 'collaboration-activities-officer',
+    description: 'Register & submit activities',
+  },
+  {
+    label: 'Division Director',
+    page: 'collaboration-activities-division-director',
+    description: 'Review & approve activities',
+  },
+]
+
+const activityPages: AdminPage[] = [
+  'collaboration-activities',
+  'collaboration-activities-officer',
+  'collaboration-activities-division-director',
 ]
 
 const collaborationSubItems: { label: string; page: AdminPage; description: string }[] = [
@@ -179,6 +179,8 @@ const collaborationPages: AdminPage[] = [
   'collaboration-projects-officer',
   'collaboration-projects-division-director',
   'collaboration-activities',
+  'collaboration-activities-officer',
+  'collaboration-activities-division-director',
   'collaboration-grants',
   'collaboration-contributions',
 ]
@@ -198,6 +200,7 @@ export function Sidebar({
   const isPartnerActive = partnerPages.includes(activePage)
   const isCollaborationActive = collaborationPages.includes(activePage)
   const isProjectActive = projectPages.includes(activePage)
+  const isActivityActive = activityPages.includes(activePage)
 
   const [eventsOpen, setEventsOpen] = useState(isEventActive)
   const [opportunitiesOpen, setOpportunitiesOpen] = useState(isOpportunityActive)
@@ -206,6 +209,7 @@ export function Sidebar({
   const [partnersOpen, setPartnersOpen] = useState(isPartnerActive)
   const [collaborationOpen, setCollaborationOpen] = useState(isCollaborationActive)
   const [projectsOpen, setProjectsOpen] = useState(isProjectActive)
+  const [activitiesOpen, setActivitiesOpen] = useState(isActivityActive)
   return (
     <aside
       className={cn(
@@ -738,6 +742,76 @@ export function Sidebar({
                       <div className="ml-4 mt-0.5 space-y-0.5 border-l-2 border-slate-100 pl-3">
                         {collaborationSubItems.map(sub => {
                           const isSubActive = activePage === sub.page
+
+                          // Joint Activity has nested sub-items
+                          if (sub.page === 'collaboration-activities') {
+                            return (
+                              <div key={sub.page}>
+                                <button
+                                  type="button"
+                                  onClick={() => setActivitiesOpen(o => !o)}
+                                  className={cn(
+                                    'flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition-all duration-150',
+                                    isActivityActive
+                                      ? 'bg-[#161A61]/10 text-[#161A61]'
+                                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                                  )}
+                                >
+                                  <div className="flex flex-col">
+                                    <span
+                                      className={cn(
+                                        'text-xs font-semibold',
+                                        isActivityActive && 'text-[#161A61]'
+                                      )}
+                                    >
+                                      {sub.label}
+                                    </span>
+                                    <span className="text-[10px] text-slate-400 leading-tight mt-0.5">
+                                      {sub.description}
+                                    </span>
+                                  </div>
+                                  <ChevronDown
+                                    className={cn(
+                                      'h-3 w-3 transition-transform duration-200',
+                                      activitiesOpen ? 'rotate-180' : ''
+                                    )}
+                                  />
+                                </button>
+                                {activitiesOpen && (
+                                  <div className="ml-3 mt-0.5 space-y-0.5 border-l border-slate-200 pl-2">
+                                    {activitySubItems.map(actSub => {
+                                      const isActSubActive = activePage === actSub.page
+                                      return (
+                                        <button
+                                          key={actSub.page}
+                                          type="button"
+                                          onClick={() => onNavigate(actSub.page)}
+                                          className={cn(
+                                            'flex w-full flex-col rounded-lg px-2 py-1.5 text-left transition-all duration-150',
+                                            isActSubActive
+                                              ? 'bg-[#161A61]/10 text-[#161A61]'
+                                              : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                                          )}
+                                        >
+                                          <span
+                                            className={cn(
+                                              'text-[11px] font-semibold',
+                                              isActSubActive && 'text-[#161A61]'
+                                            )}
+                                          >
+                                            {actSub.label}
+                                          </span>
+                                          <span className="text-[9px] text-slate-400 leading-tight mt-0.5">
+                                            {actSub.description}
+                                          </span>
+                                        </button>
+                                      )
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          }
 
                           // Projects has nested sub-items
                           if (sub.page === 'collaboration-projects') {

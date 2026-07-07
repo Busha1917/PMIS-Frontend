@@ -144,6 +144,7 @@ const DivisionDirectorActivitiesPage = lazy(() =>
     default: m.DivisionDirectorActivitiesPage,
   }))
 )
+
 const GrantsPage = lazy(() =>
   import('@/features/collaboration/GrantsPage').then(m => ({ default: m.GrantsPage }))
 )
@@ -333,6 +334,16 @@ const pageRoutes: Record<AdminPage, { path: string; title: string; description: 
     title: 'Joint Activities',
     description: 'Manage standalone activity modules and mutual events',
   },
+  'collaboration-activities-officer': {
+    path: '/collaboration/activities/officer',
+    title: 'Joint Activities — Officer',
+    description: 'Register and submit joint activity records for approval',
+  },
+  'collaboration-activities-division-director': {
+    path: '/collaboration/activities/approval',
+    title: 'Joint Activities — Division Director',
+    description: 'Review and approve submitted joint activity records',
+  },
   'collaboration-grants': {
     path: '/collaboration/grants',
     title: 'Funding & Grants',
@@ -448,6 +459,10 @@ function App() {
         return <DivisionDirectorProjectsPage />
       case 'collaboration-activities':
         return <ActivitiesPage />
+      case 'collaboration-activities-officer':
+        return <OfficerActivitiesPage />
+      case 'collaboration-activities-division-director':
+        return <DivisionDirectorActivitiesPage />
       case 'collaboration-grants':
         return <GrantsPage />
       case 'collaboration-contributions':

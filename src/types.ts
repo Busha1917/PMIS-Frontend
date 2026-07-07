@@ -26,6 +26,8 @@ export type AdminPage =
   | 'collaboration-projects-officer'
   | 'collaboration-projects-division-director'
   | 'collaboration-activities'
+  | 'collaboration-activities-officer'
+  | 'collaboration-activities-division-director'
   | 'collaboration-grants'
   | 'collaboration-contributions'
   | 'baseData'
