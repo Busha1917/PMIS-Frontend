@@ -156,9 +156,6 @@ const DivisionDirectorGrantsPage = lazy(() =>
     default: m.DivisionDirectorGrantsPage,
   }))
 )
-const ContributionsPage = lazy(() =>
-  import('@/features/collaboration/ContributionsPage').then(m => ({ default: m.ContributionsPage }))
-)
 const OfficerContributionsPage = lazy(() =>
   import('@/features/collaboration/OfficerContributionsPage').then(m => ({
     default: m.OfficerContributionsPage,
@@ -508,7 +505,7 @@ function App() {
       case 'collaboration-grants-division-director':
         return <DivisionDirectorGrantsPage />
       case 'collaboration-contributions':
-        return <ContributionsPage />
+        return <OfficerContributionsPage />
       case 'collaboration-contributions-officer':
         return <OfficerContributionsPage />
       case 'collaboration-contributions-division-director':

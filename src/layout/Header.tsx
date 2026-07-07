@@ -56,6 +56,8 @@ const PAGE_LABELS: Record<AdminPage, string> = {
   'collaboration-grants-officer': 'Funding & Grants — Officer',
   'collaboration-grants-division-director': 'Funding & Grants — Division Director',
   'collaboration-contributions': 'Collaboration — Contributions',
+  'collaboration-contributions-officer': 'Resource Contributions — Officer',
+  'collaboration-contributions-division-director': 'Resource Contributions — Division Director',
   baseData: 'Base Data',
   users: 'Users',
   roles: 'Roles',

@@ -999,6 +999,76 @@ export function Sidebar({
                             )
                           }
 
+                          // Resource Contributions has nested sub-items
+                          if (sub.page === 'collaboration-contributions') {
+                            return (
+                              <div key={sub.page}>
+                                <button
+                                  type="button"
+                                  onClick={() => setContributionsOpen(o => !o)}
+                                  className={cn(
+                                    'flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition-all duration-150',
+                                    isContributionActive
+                                      ? 'bg-[#161A61]/10 text-[#161A61]'
+                                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                                  )}
+                                >
+                                  <div className="flex flex-col">
+                                    <span
+                                      className={cn(
+                                        'text-xs font-semibold',
+                                        isContributionActive && 'text-[#161A61]'
+                                      )}
+                                    >
+                                      {sub.label}
+                                    </span>
+                                    <span className="text-[10px] text-slate-400 leading-tight mt-0.5">
+                                      {sub.description}
+                                    </span>
+                                  </div>
+                                  <ChevronDown
+                                    className={cn(
+                                      'h-3 w-3 transition-transform duration-200',
+                                      contributionsOpen ? 'rotate-180' : ''
+                                    )}
+                                  />
+                                </button>
+                                {contributionsOpen && (
+                                  <div className="ml-3 mt-0.5 space-y-0.5 border-l border-slate-200 pl-2">
+                                    {contributionSubItems.map(contSub => {
+                                      const isContSubActive = activePage === contSub.page
+                                      return (
+                                        <button
+                                          key={contSub.page}
+                                          type="button"
+                                          onClick={() => onNavigate(contSub.page)}
+                                          className={cn(
+                                            'flex w-full flex-col rounded-lg px-2 py-1.5 text-left transition-all duration-150',
+                                            isContSubActive
+                                              ? 'bg-[#161A61]/10 text-[#161A61]'
+                                              : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                                          )}
+                                        >
+                                          <span
+                                            className={cn(
+                                              'text-[11px] font-semibold',
+                                              isContSubActive && 'text-[#161A61]'
+                                            )}
+                                          >
+                                            {contSub.label}
+                                          </span>
+                                          <span className="text-[9px] text-slate-400 leading-tight mt-0.5">
+                                            {contSub.description}
+                                          </span>
+                                        </button>
+                                      )
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          }
+
                           // Other collaboration items (plain button)
                           return (
                             <button
