@@ -25,19 +25,25 @@ export const contributionStore = {
     }
   },
 
-  create(partnerId: string, partnerName: string): ResourceContributionRecord {
+  create(): ResourceContributionRecord {
     const newId = `RC-2026-${String(_contributions.length + 1).padStart(3, '0')}`
     const newContribution: ResourceContributionRecord = {
       id: newId,
       no: _contributions.length + 1,
-      partnerId,
-      partnerName,
+      partnerId: '',
+      partnerName: '',
+      projectName: '',
       eaiiContributions: {
         staff: false,
         infrastructure: false,
         funding: false,
         equipment: false,
         dataResources: false,
+        staffDetails: '',
+        infrastructureDetails: '',
+        fundingDetails: '',
+        equipmentDetails: '',
+        dataResourcesDetails: '',
       },
       partnerContributions: {
         staff: false,
@@ -45,10 +51,15 @@ export const contributionStore = {
         technology: false,
         equipment: false,
         expertise: false,
+        staffDetails: '',
+        fundingDetails: '',
+        technologyDetails: '',
+        equipmentDetails: '',
+        expertiseDetails: '',
       },
-      monetaryValue: '0',
-      inKindValue: '0',
-      totalValue: '0',
+      monetaryValue: '',
+      inKindValue: '',
+      totalValue: '',
       currency: 'ETB',
       status: 'Draft' as CollaborationStatus,
     }

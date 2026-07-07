@@ -32,6 +32,8 @@ export type AdminPage =
   | 'collaboration-grants-officer'
   | 'collaboration-grants-division-director'
   | 'collaboration-contributions'
+  | 'collaboration-contributions-officer'
+  | 'collaboration-contributions-division-director'
   | 'baseData'
   | 'users'
   | 'roles'
