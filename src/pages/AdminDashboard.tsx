@@ -25,7 +25,8 @@ import {
   Area,
 } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui'
-import { agreements, engagements, events, opportunities, partners, users } from '../data'
+import { events, opportunities, partners, users, agreements } from '../data'
+const engagements: any[] = []
 import { StatusBadge } from '../components/StatusBadge'
 
 const allRecords = [
@@ -101,7 +102,7 @@ const metrics = [
   },
   {
     label: 'Active Engagements',
-    value: engagements.filter(e => e.status === 'Assigned' || e.status === 'Approved').length,
+    value: engagements.filter(e => e.status === 'In Progress' || e.status === 'Completed').length,
     icon: Activity,
     color: '#10b981',
     bg: 'from-emerald-100 to-emerald-50',

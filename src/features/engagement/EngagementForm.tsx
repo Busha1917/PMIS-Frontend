@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, PlusCircle, Trash2, Upload } from 'lucide-react'
 import { Button, Input } from '../../ui'
-import type { EngagementRecord, ParticipantRecord, EaiiRepresentativeRecord } from '../../types'
+import type { EngagementRecord, ExternalParticipant, EaiiRepresentative } from '../../types'
 
 type EngagementFormMode = 'create' | 'edit'
 
@@ -33,22 +33,35 @@ export function EngagementForm({
   const [formState, setFormState] = useState<EngagementRecord>(() => {
     const base = engagement ?? {
       id: `ENG-2026-${String(Date.now()).slice(-3)}`,
-      no: 0,
-      type: '',
-      date: '',
+      opportunityId: '',
+      title: '',
+      engagementTypeId: '',
+      engagementDate: '',
       status: 'Draft' as const,
-      organization: '',
+      keyPoints: '',
+      agreedActions: '',
+      nextSteps: '',
+      followUpRequired: false,
     }
     return {
       ...base,
-      participants: base.participants?.length
-        ? base.participants
-        : [{ id: 'p-init', organizationName: '', fullName: '', position: '' }],
+      externalParticipants: base.externalParticipants?.length
+        ? base.externalParticipants
+        : [
+            {
+              id: 'p-init',
+              organizationName: '',
+              fullName: '',
+              position: '',
+              email: '',
+              phoneNumber: '',
+            },
+          ],
       eaiiRepresentatives: base.eaiiRepresentatives?.length
         ? base.eaiiRepresentatives
-        : [{ id: 'r-init', departmentName: '', fullName: '', position: '' }],
+        : [{ id: 'r-init', division: '', fullName: '', role: '', email: '' }],
       keyPoints: base.keyPoints ?? '',
-      agreedAction: base.agreedAction ?? '',
+      agreedActions: base.agreedActions ?? '',
       nextSteps: base.nextSteps ?? '',
     }
   })
@@ -57,14 +70,23 @@ export function EngagementForm({
     if (engagement) {
       setFormState({
         ...engagement,
-        participants: engagement.participants?.length
-          ? engagement.participants
-          : [{ id: 'p-init', organizationName: '', fullName: '', position: '' }],
+        externalParticipants: engagement.externalParticipants?.length
+          ? engagement.externalParticipants
+          : [
+              {
+                id: 'p-init',
+                organizationName: '',
+                fullName: '',
+                position: '',
+                email: '',
+                phoneNumber: '',
+              },
+            ],
         eaiiRepresentatives: engagement.eaiiRepresentatives?.length
           ? engagement.eaiiRepresentatives
-          : [{ id: 'r-init', departmentName: '', fullName: '', position: '' }],
+          : [{ id: 'r-init', division: '', fullName: '', role: '', email: '' }],
         keyPoints: engagement.keyPoints ?? '',
-        agreedAction: engagement.agreedAction ?? '',
+        agreedActions: engagement.agreedActions ?? '',
         nextSteps: engagement.nextSteps ?? '',
       })
     }
@@ -77,20 +99,38 @@ export function EngagementForm({
   const addParticipant = () =>
     setFormState(s => ({
       ...s,
-      participants: [
-        ...(s.participants ?? []),
-        { id: `p-${Date.now()}`, organizationName: '', fullName: '', position: '' },
+      externalParticipants: [
+        ...(s.externalParticipants ?? []),
+        {
+          id: `p-${Date.now()}`,
+          organizationName: '',
+          fullName: '',
+          position: '',
+          email: '',
+          phoneNumber: '',
+        },
       ],
     }))
 
-  const updateParticipant = (id: string, field: keyof ParticipantRecord, value: string) =>
+  const updateParticipant = (
+    id: string | undefined,
+    field: keyof ExternalParticipant,
+    value: string
+  ) => {
+    if (!id) return
     setFormState(s => ({
       ...s,
-      participants: s.participants?.map(p => (p.id === id ? { ...p, [field]: value } : p)),
+      externalParticipants: s.externalParticipants?.map(p =>
+        p.id === id ? { ...p, [field]: value } : p
+      ),
     }))
+  }
 
   const removeParticipant = (id: string) =>
-    setFormState(s => ({ ...s, participants: s.participants?.filter(p => p.id !== id) }))
+    setFormState(s => ({
+      ...s,
+      externalParticipants: s.externalParticipants?.filter(p => p.id !== id),
+    }))
 
   // EAII reps helpers
   const addRepresentative = () =>
@@ -98,23 +138,31 @@ export function EngagementForm({
       ...s,
       eaiiRepresentatives: [
         ...(s.eaiiRepresentatives ?? []),
-        { id: `r-${Date.now()}`, departmentName: '', fullName: '', position: '' },
+        { id: `r-${Date.now()}`, division: '', fullName: '', role: '', email: '' },
       ],
     }))
 
-  const updateRepresentative = (id: string, field: keyof EaiiRepresentativeRecord, value: string) =>
+  const updateRepresentative = (
+    id: string | undefined,
+    field: keyof EaiiRepresentative,
+    value: string
+  ) => {
+    if (!id) return
     setFormState(s => ({
       ...s,
       eaiiRepresentatives: s.eaiiRepresentatives?.map(r =>
         r.id === id ? { ...r, [field]: value } : r
       ),
     }))
+  }
 
-  const removeRepresentative = (id: string) =>
+  const removeRepresentative = (id: string | undefined) => {
+    if (!id) return
     setFormState(s => ({
       ...s,
       eaiiRepresentatives: s.eaiiRepresentatives?.filter(r => r.id !== id),
     }))
+  }
 
   const inputCls =
     'h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10 placeholder:text-slate-400'
@@ -165,19 +213,19 @@ export function EngagementForm({
                   <label className="mb-1.5 block text-sm font-medium text-slate-700">Date</label>
                   <Input
                     type="date"
-                    value={formState.date}
-                    onChange={e => setFormState(s => ({ ...s, date: e.target.value }))}
+                    value={formState.engagementDate}
+                    onChange={e => setFormState(s => ({ ...s, engagementDate: e.target.value }))}
                     placeholder="dd / mm / yyyy"
                   />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                    Organization Name <span className="text-[#ff9500]">*</span>
+                    Title <span className="text-[#ff9500]">*</span>
                   </label>
                   <Input
-                    value={formState.organization ?? ''}
-                    onChange={e => setFormState(s => ({ ...s, organization: e.target.value }))}
-                    placeholder="Enter Organization Name"
+                    value={formState.title ?? ''}
+                    onChange={e => setFormState(s => ({ ...s, title: e.target.value }))}
+                    placeholder="Enter Title"
                     required
                   />
                 </div>
@@ -186,11 +234,12 @@ export function EngagementForm({
                     Engagement Type
                   </label>
                   <select
-                    value={formState.type}
-                    onChange={e => setFormState(s => ({ ...s, type: e.target.value }))}
+                    value={formState.engagementTypeId ?? ''}
+                    onChange={e => setFormState(s => ({ ...s, engagementTypeId: e.target.value }))}
                     className={inputCls}
                   >
                     <option value="">select Engagement Type</option>
+                    {/* Assuming engagementTypes are just mocked strings or IDs for now */}
                     {engagementTypes.map(t => (
                       <option key={t} value={t}>
                         {t}
@@ -203,10 +252,10 @@ export function EngagementForm({
 
             {/* ── Participants List ───────────────────────── */}
             <section>
-              {sectionHeader('Participants List')}
+              {sectionHeader('External Participants')}
               <div className="space-y-4">
-                {formState.participants?.map((p, i) => (
-                  <div key={p.id} className="grid grid-cols-3 gap-4 items-end">
+                {formState.externalParticipants?.map((p, i) => (
+                  <div key={p.id} className="grid grid-cols-4 gap-4 items-end">
                     <div>
                       {i === 0 && (
                         <label className="mb-1.5 block text-sm font-medium text-slate-700">
@@ -231,6 +280,18 @@ export function EngagementForm({
                         placeholder="Enter Full Name"
                       />
                     </div>
+                    <div>
+                      {i === 0 && (
+                        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                          Email
+                        </label>
+                      )}
+                      <Input
+                        value={p.email ?? ''}
+                        onChange={e => updateParticipant(p.id, 'email', e.target.value)}
+                        placeholder="Enter Email"
+                      />
+                    </div>
                     <div className="flex items-end gap-2">
                       <div className="flex-1">
                         {i === 0 && (
@@ -239,15 +300,15 @@ export function EngagementForm({
                           </label>
                         )}
                         <Input
-                          value={p.position}
+                          value={p.position ?? ''}
                           onChange={e => updateParticipant(p.id, 'position', e.target.value)}
                           placeholder="Enter Position"
                         />
                       </div>
-                      {(formState.participants?.length ?? 0) > 1 && (
+                      {(formState.externalParticipants?.length ?? 0) > 1 && (
                         <button
                           type="button"
-                          onClick={() => removeParticipant(p.id)}
+                          onClick={() => removeParticipant(p.id as string)}
                           className="mb-0.5 text-slate-400 hover:text-red-500 flex-shrink-0"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -274,17 +335,17 @@ export function EngagementForm({
               {sectionHeader('EAII Representatives')}
               <div className="space-y-4">
                 {formState.eaiiRepresentatives?.map((r, i) => (
-                  <div key={r.id} className="grid grid-cols-3 gap-4 items-end">
+                  <div key={r.id} className="grid grid-cols-4 gap-4 items-end">
                     <div>
                       {i === 0 && (
                         <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                          Department Name <span className="text-[#ff9500]">*</span>
+                          Division <span className="text-[#ff9500]">*</span>
                         </label>
                       )}
                       <Input
-                        value={r.departmentName}
-                        onChange={e => updateRepresentative(r.id, 'departmentName', e.target.value)}
-                        placeholder="Enter Organization Name"
+                        value={r.division}
+                        onChange={e => updateRepresentative(r.id, 'division', e.target.value)}
+                        placeholder="Enter Division"
                       />
                     </div>
                     <div>
@@ -299,17 +360,29 @@ export function EngagementForm({
                         placeholder="Enter Full Name"
                       />
                     </div>
+                    <div>
+                      {i === 0 && (
+                        <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                          Email
+                        </label>
+                      )}
+                      <Input
+                        value={r.email}
+                        onChange={e => updateRepresentative(r.id, 'email', e.target.value)}
+                        placeholder="Enter Email"
+                      />
+                    </div>
                     <div className="flex items-end gap-2">
                       <div className="flex-1">
                         {i === 0 && (
                           <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                            Position
+                            Role
                           </label>
                         )}
                         <Input
-                          value={r.position}
-                          onChange={e => updateRepresentative(r.id, 'position', e.target.value)}
-                          placeholder="Enter Position"
+                          value={r.role ?? ''}
+                          onChange={e => updateRepresentative(r.id, 'role', e.target.value)}
+                          placeholder="Enter Role"
                         />
                       </div>
                       {(formState.eaiiRepresentatives?.length ?? 0) > 1 && (
@@ -358,9 +431,9 @@ export function EngagementForm({
                     Agreed Action
                   </label>
                   <textarea
-                    value={formState.agreedAction ?? ''}
-                    onChange={e => setFormState(s => ({ ...s, agreedAction: e.target.value }))}
-                    placeholder="Opportunity Description"
+                    value={formState.agreedActions ?? ''}
+                    onChange={e => setFormState(s => ({ ...s, agreedActions: e.target.value }))}
+                    placeholder="Agreed Actions"
                     rows={5}
                     className="w-full rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10 placeholder:text-slate-400 resize-none"
                   />
@@ -422,14 +495,14 @@ export function EngagementForm({
             <Button
               variant="outline"
               type="button"
-              onClick={() => onSaveDraft?.({ ...formState, status: 'Assigned' })}
+              onClick={() => onSaveDraft?.({ ...formState, status: 'Draft' })}
               className="px-6 rounded-lg"
             >
               Save Draft
             </Button>
             <button
               type="button"
-              onClick={() => onSubmit?.({ ...formState, status: 'Pending Approval' })}
+              onClick={() => onSubmit?.({ ...formState, status: 'In Progress' })}
               className="flex items-center gap-1.5 rounded-lg bg-[#ff9500] px-6 py-2 text-sm font-semibold text-white hover:bg-[#e68a00] transition-colors"
             >
               Next

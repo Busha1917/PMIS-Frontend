@@ -9,6 +9,17 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      // All requests from the browser to /pmis-api are forwarded
+      // server-side to the real backend — bypasses CORS in dev.
+      '/pmis-api': {
+        target: 'https://pmis.zor.et',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
   build: {
     // Raise the warning threshold slightly — chunking handles the real problem
     chunkSizeWarningLimit: 600,

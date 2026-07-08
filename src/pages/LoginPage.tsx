@@ -1,15 +1,61 @@
-import type { FormEvent } from 'react'
-import { EyeOff, Mail } from 'lucide-react'
+import { useState, type FormEvent } from 'react'
+import { EyeOff, Eye, Mail, Loader2 } from 'lucide-react'
 import { Button, Input, Label } from '../ui'
+import { useLoginMutation } from '../store/apiSlice'
+import { useAuth } from '../hooks/useAuth'
+import { toast } from 'sonner'
 
 type LoginPageProps = {
   onLogin?: () => void
 }
 
 export function LoginPage({ onLogin }: LoginPageProps) {
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+
+  const [loginApi, { isLoading }] = useLoginMutation()
+  const { login } = useAuth()
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    onLogin?.()
+
+    if (!email || !password) {
+      toast.error('Please enter your email and password.')
+      return
+    }
+
+    try {
+      const rawResult = await loginApi({ email, password }).unwrap()
+
+      // The backend might wrap the payload in { data: ... }
+      const result = (rawResult as any)?.data || rawResult
+
+      const token = result?.accessToken || result?.access_token || result?.token
+
+      if (!token) {
+        console.error('No token found in response:', rawResult)
+        toast.error('Login failed: Invalid server response format')
+        return
+      }
+
+      // Store the token and user in Redux + localStorage
+      login({
+        user: {
+          id: result.user?.id ?? 'unknown',
+          name: result.user?.fullName ?? result.user?.email ?? email,
+          email: result.user?.email ?? email,
+          role: result.user?.role?.name ?? result.user?.roles?.[0]?.name ?? 'Officer',
+        },
+        token,
+      })
+
+      toast.success('Login successful!')
+      onLogin?.()
+    } catch (err: any) {
+      const msg = err?.data?.message ?? err?.message ?? 'Invalid credentials. Please try again.'
+      toast.error(msg)
+    }
   }
 
   return (
@@ -44,6 +90,9 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     id="email"
                     type="email"
                     placeholder="Enter your email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required
                     className="pl-9 py-2.5 text-xs bg-slate-50 border-slate-200 focus:border-[#F58A27] focus:ring-[#F58A27] rounded-md h-10 w-full"
                   />
                 </div>
@@ -56,11 +105,20 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 <div className="relative">
                   <Input
                     id="password"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     placeholder="Enter your password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required
                     className="px-3 pr-9 py-2.5 text-xs bg-slate-50 border-slate-200 focus:border-[#F58A27] focus:ring-[#F58A27] rounded-md h-10 w-full"
                   />
-                  <EyeOff className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 cursor-pointer" />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    {showPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                  </button>
                 </div>
               </div>
 
@@ -81,9 +139,17 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               <div className="pt-2">
                 <Button
                   type="submit"
-                  className="w-full bg-[#F58A27] hover:bg-[#e07b22] text-white font-bold py-2.5 rounded-lg text-sm h-10 transition-colors uppercase tracking-wide"
+                  disabled={isLoading}
+                  className="w-full bg-[#F58A27] hover:bg-[#e07b22] text-white font-bold py-2.5 rounded-lg text-sm h-10 transition-colors uppercase tracking-wide flex items-center justify-center gap-2 disabled:opacity-70"
                 >
-                  LOGIN
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    'LOGIN'
+                  )}
                 </Button>
               </div>
             </form>

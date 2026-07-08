@@ -10,10 +10,12 @@ type TimelineNode = {
 
 type Props = {
   opportunityStatus: OpportunityStatus
-  registeredAt?: string
-  sentForApprovalAt?: string
+  createdAt?: string
+  screenedAt?: string
+  verifiedAt?: string
+  reviewedAt?: string
   approvedAt?: string
-  rejectedAt?: string
+  updatedAt?: string
 }
 
 function deriveNodes(props: Props): TimelineNode[] {
@@ -24,18 +26,17 @@ function deriveNodes(props: Props): TimelineNode[] {
 
   // Step 2: KE Director review
   let reviewStatus: TimelineNode['status'] = 'Draft'
-  if (s === 'Pending Approval') reviewStatus = 'Completed'
+  if (s === 'Reviewed') reviewStatus = 'Completed'
   else if (s === 'Approved') reviewStatus = 'Completed'
-  else if (s === 'Rejected' && props.sentForApprovalAt) reviewStatus = 'Completed'
-  else if (s === 'Rejected' && !props.sentForApprovalAt) reviewStatus = 'Rejected'
+  else if (s === 'Rejected' && props.screenedAt) reviewStatus = 'Completed'
+  else if (s === 'Rejected' && !props.screenedAt) reviewStatus = 'Rejected'
   else if (s === 'Draft') reviewStatus = 'Pending'
 
   // Step 3: Division Director approval
   let approvalStatus: TimelineNode['status'] = 'Draft'
-  if (s === 'Pending Approval') approvalStatus = 'Pending'
+  if (s === 'Reviewed') approvalStatus = 'Pending'
   else if (s === 'Approved') approvalStatus = 'Completed'
-  else if (s === 'Rejected' && props.approvedAt === undefined && props.rejectedAt)
-    approvalStatus = 'Rejected'
+  else if (s === 'Rejected' && props.approvedAt === undefined) approvalStatus = 'Rejected'
 
   // Step 4: Move to Engagement
   let engagementStatus: TimelineNode['status'] = 'Draft'
@@ -46,17 +47,13 @@ function deriveNodes(props: Props): TimelineNode[] {
       title: 'Register Opportunity',
       role: 'Officer',
       status: registerStatus,
-      date: props.registeredAt
-        ? new Date(props.registeredAt).toISOString().split('T')[0]
-        : 'Pending',
+      date: props.createdAt ? new Date(props.createdAt).toISOString().split('T')[0] : 'Pending',
     },
     {
       title: 'Review & Send for Approval',
       role: 'KE Director',
       status: reviewStatus,
-      date: props.sentForApprovalAt
-        ? new Date(props.sentForApprovalAt).toISOString().split('T')[0]
-        : 'Pending',
+      date: props.reviewedAt ? new Date(props.reviewedAt).toISOString().split('T')[0] : 'Pending',
     },
     {
       title: 'Final Approval',
@@ -64,8 +61,8 @@ function deriveNodes(props: Props): TimelineNode[] {
       status: approvalStatus,
       date: props.approvedAt
         ? new Date(props.approvedAt).toISOString().split('T')[0]
-        : props.rejectedAt
-          ? new Date(props.rejectedAt).toISOString().split('T')[0]
+        : props.updatedAt && approvalStatus === 'Rejected'
+          ? new Date(props.updatedAt).toISOString().split('T')[0]
           : 'Pending',
     },
     {

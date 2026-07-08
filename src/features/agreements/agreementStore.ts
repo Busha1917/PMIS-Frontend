@@ -69,7 +69,7 @@ export const agreementStore = {
     const next: AgreementRecord = {
       id: `AGR-2026-${String(_agreements.length + 1).padStart(3, '0')}`,
       no: _agreements.length + 1,
-      title: eng.opportunityTitle || eng.organization || 'Untitled Agreement',
+      title: eng.title || 'Untitled Agreement',
       type: 'MoU',
       date: '',
       startDate: '',
@@ -78,16 +78,16 @@ export const agreementStore = {
 
       // Linked engagement context
       engagementId: eng.id,
-      engagementOrganization: eng.organization,
-      engagementType: eng.type,
-      engagementDate: eng.date,
-      engagementApprovedAt: eng.approvedAt,
-      engagementApprovedBy: eng.approvedBy,
+      engagementOrganization: eng.externalParticipants?.[0]?.organizationName || '',
+      engagementType: eng.engagementType?.typeName || '',
+      engagementDate: eng.engagementDate,
+      engagementApprovedAt: eng.approvalDate || undefined,
+      engagementApprovedBy: undefined, // Needs proper User object mapping
 
       // Pre-fill partner from engagement
-      partnerOrganization: eng.organization || '',
-      contactPerson: '',
-      contactPosition: '',
+      partnerOrganization: eng.externalParticipants?.[0]?.organizationName || '',
+      contactPerson: eng.externalParticipants?.[0]?.fullName || '',
+      contactPosition: eng.externalParticipants?.[0]?.position || '',
       eaiiDivisions: [],
       description: '',
       attachments: [],

@@ -1,5 +1,4 @@
 import { CheckCircle2 } from 'lucide-react'
-import type { EngagementStatus } from '../types'
 
 type TimelineNode = {
   title: string
@@ -9,7 +8,7 @@ type TimelineNode = {
 }
 
 type Props = {
-  engagementStatus: EngagementStatus
+  engagementStatus: 'Draft' | 'In Progress' | 'Completed' | 'Cancelled' | string
   registeredAt?: string
   assignedAt?: string
   submittedAt?: string
@@ -23,21 +22,21 @@ function deriveNodes(props: Props): TimelineNode[] {
   // Register — always completed once it exists
   const registerStatus: TimelineNode['status'] = 'Completed'
 
-  // Review & Assign — KE Director assigns officer
+  // Review & Assign
   let reviewStatus: TimelineNode['status'] = 'Draft'
-  if (s === 'Assigned') reviewStatus = 'Completed'
-  else if (['Pending Approval', 'Approved', 'Rejected'].includes(s)) reviewStatus = 'Completed'
+  if (['In Progress', 'Completed'].includes(s)) reviewStatus = 'Completed'
+  else if (s === 'Cancelled') reviewStatus = 'Rejected'
 
   // Officer fills details
   let outcomeStatus: TimelineNode['status'] = 'Draft'
-  if (s === 'Assigned') outcomeStatus = 'Pending'
-  else if (['Pending Approval', 'Approved', 'Rejected'].includes(s)) outcomeStatus = 'Completed'
+  if (s === 'In Progress') outcomeStatus = 'Pending'
+  else if (s === 'Completed') outcomeStatus = 'Completed'
+  else if (s === 'Cancelled') outcomeStatus = 'Rejected'
 
   // Division Director final review
   let finalStatus: TimelineNode['status'] = 'Draft'
-  if (s === 'Pending Approval') finalStatus = 'Pending'
-  else if (s === 'Approved') finalStatus = 'Completed'
-  else if (s === 'Rejected') finalStatus = 'Rejected'
+  if (s === 'Completed') finalStatus = 'Completed'
+  else if (s === 'Cancelled') finalStatus = 'Rejected'
 
   return [
     {

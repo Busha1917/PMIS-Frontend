@@ -8,7 +8,12 @@ import { FilterDrawer } from '../../components/FilterDrawer'
 import type { FilterValues } from '../../components/FilterDrawer'
 import { EngagementForm } from './EngagementForm'
 import type { EngagementRecord } from '../../types'
-import { engagementStore } from './engagementStore'
+import {
+  useGetEngagementsQuery,
+  useCreateEngagementMutation,
+  useUpdateEngagementMutation,
+  useCompleteEngagementMutation,
+} from '../../store/apiSlice'
 
 const FILTER_FIELDS = [
   {
@@ -16,35 +21,35 @@ const FILTER_FIELDS = [
     label: 'Status',
     type: 'select' as const,
     options: [
-      { label: 'Assigned', value: 'Assigned' },
-      { label: 'Pending Approval', value: 'Pending Approval' },
-      { label: 'Approved', value: 'Approved' },
-      { label: 'Rejected', value: 'Rejected' },
+      { label: 'Draft', value: 'Draft' },
+      { label: 'In Progress', value: 'In Progress' },
+      { label: 'Completed', value: 'Completed' },
+      { label: 'Cancelled', value: 'Cancelled' },
     ],
   },
 ]
 
 export function OfficerEngagementPage() {
-  const [engagements, setEngagements] = useState<EngagementRecord[]>(() => engagementStore.getAll())
-  const [selected, setSelected] = useState<EngagementRecord | null>(null)
+  const { data: engagements = [] } = useGetEngagementsQuery()
+  const [createEngagement] = useCreateEngagementMutation()
+  const [updateEngagement] = useUpdateEngagementMutation()
+  const [completeEngagement] = useCompleteEngagementMutation()
+
+  const [selected, setSelected] = useState<any | null>(null)
   const [showFilter, setShowFilter] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilters, setActiveFilters] = useState<FilterValues>({})
 
-  useEffect(() => engagementStore.subscribe(setEngagements), [])
-
   const handleCreateNew = () => {
-    const newEngagement = engagementStore.create()
-    setSelected(newEngagement)
+    setSelected({ status: 'Draft' })
   }
 
-  // Officer only sees Assigned engagements (and their own submitted ones)
   const filtered = useMemo(() => {
     return engagements.filter(item => {
-      if (item.status === 'Draft') return false
+      const orgName = item.externalParticipants?.[0]?.organizationName || ''
       if (
         searchQuery &&
-        !item.organization?.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !orgName.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !item.id.toLowerCase().includes(searchQuery.toLowerCase())
       )
         return false
@@ -53,27 +58,37 @@ export function OfficerEngagementPage() {
     })
   }, [engagements, searchQuery, activeFilters])
 
-  const handleSaveDraft = (data: EngagementRecord) => {
-    const updated: EngagementRecord = {
-      ...data,
-      status: 'Assigned',
-      submittedAt: undefined,
+  const handleSaveDraft = async (data: any) => {
+    try {
+      if (data.id && !data.id.startsWith('ENG-2026-')) {
+        // Real ID exists
+        await updateEngagement({ id: data.id, data }).unwrap()
+      } else {
+        await createEngagement(data).unwrap()
+      }
+      setSelected(null)
+      toast.success('Engagement saved successfully.')
+    } catch (err) {
+      console.error(err)
+      toast.error('Failed to save engagement')
     }
-    engagementStore.update(updated)
-    setSelected(updated)
-    toast.success('Draft saved', { description: data.organization })
   }
 
-  const handleSubmit = (data: EngagementRecord) => {
-    const updated: EngagementRecord = {
-      ...data,
-      status: 'Pending Approval',
-      submittedAt: new Date().toISOString(),
-      submittedBy: 'Officer',
+  const handleSubmit = async (data: any) => {
+    try {
+      if (data.id && !data.id.startsWith('ENG-2026-')) {
+        await updateEngagement({ id: data.id, data }).unwrap()
+        await completeEngagement(data.id).unwrap()
+      } else {
+        const created = await createEngagement(data).unwrap()
+        await completeEngagement(created.id).unwrap()
+      }
+      setSelected(null)
+      toast.success('Engagement marked as completed.')
+    } catch (err) {
+      console.error(err)
+      toast.error('Failed to complete engagement')
     }
-    engagementStore.update(updated)
-    setSelected(null)
-    toast.success('Engagement submitted for approval', { description: data.organization })
   }
 
   // ── Form view ────────────────────────────────────────────────────────────────
@@ -123,11 +138,19 @@ export function OfficerEngagementPage() {
           },
           {
             label: 'Organization',
-            render: item => item.organization || '—',
+            render: item => item.externalParticipants?.[0]?.organizationName || '—',
             headClassName: 'bg-[#0b265a] text-white',
           },
-          { label: 'Type', render: item => item.type, headClassName: 'bg-[#0b265a] text-white' },
-          { label: 'Date', render: item => item.date, headClassName: 'bg-[#0b265a] text-white' },
+          {
+            label: 'Type',
+            render: item => item.engagementType?.typeName || '—',
+            headClassName: 'bg-[#0b265a] text-white',
+          },
+          {
+            label: 'Date',
+            render: item => item.engagementDate,
+            headClassName: 'bg-[#0b265a] text-white',
+          },
           {
             label: 'Status',
             render: item => <StatusBadge status={item.status} />,
@@ -140,12 +163,12 @@ export function OfficerEngagementPage() {
               <button
                 onClick={() => setSelected(item)}
                 className={
-                  item.status === 'Assigned'
+                  item.status === 'Draft' || item.status === 'In Progress'
                     ? 'rounded-lg bg-[#ff9500] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#e68a00]'
                     : 'rounded-lg bg-[#161A61] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#0f1347]'
                 }
               >
-                {item.status === 'Assigned' ? 'Fill Details' : 'View'}
+                {item.status === 'Draft' || item.status === 'In Progress' ? 'Edit Details' : 'View'}
               </button>
             ),
             headClassName: 'bg-[#0b265a] text-white text-center',

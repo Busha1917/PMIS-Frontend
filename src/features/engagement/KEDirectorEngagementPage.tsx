@@ -10,7 +10,7 @@ import type { FilterValues } from '../../components/FilterDrawer'
 import { Button, Modal } from '../../ui'
 import { EngagementTimeline } from '../../components/EngagementTimeline'
 import type { EngagementRecord } from '../../types'
-import { engagementStore } from './engagementStore'
+import { useGetEngagementsQuery } from '../../store/apiSlice'
 
 const DEPARTMENTS = [
   'Research & Innovation',
@@ -46,25 +46,24 @@ const FILTER_FIELDS = [
 ]
 
 export function KEDirectorEngagementPage() {
-  const [engagements, setEngagements] = useState<EngagementRecord[]>(() => engagementStore.getAll())
-  const [selected, setSelected] = useState<EngagementRecord | null>(null)
+  const { data: engagements = [] } = useGetEngagementsQuery()
+  const [selected, setSelected] = useState<any | null>(null)
   const [showFilter, setShowFilter] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilters, setActiveFilters] = useState<FilterValues>({})
 
-  // Assign officer modal
+  // Assign officer modal - Deprecated as unsupported by backend
   const [assignModalOpen, setAssignModalOpen] = useState(false)
   const [assignDept, setAssignDept] = useState('')
   const [assignOfficer, setAssignOfficer] = useState('')
   const [assignNotes, setAssignNotes] = useState('')
 
-  useEffect(() => engagementStore.subscribe(setEngagements), [])
-
   const filtered = useMemo(() => {
     return engagements.filter(item => {
+      const orgName = item.externalParticipants?.[0]?.organizationName || ''
       if (
         searchQuery &&
-        !item.organization?.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !orgName.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !item.id.toLowerCase().includes(searchQuery.toLowerCase())
       )
         return false
@@ -75,24 +74,8 @@ export function KEDirectorEngagementPage() {
 
   const handleConfirmAssign = () => {
     if (!selected || !assignOfficer || !assignDept) return
-    const updated: EngagementRecord = {
-      ...selected,
-      status: 'Assigned',
-      assignedOfficer: assignOfficer,
-      assignedDepartment: assignDept,
-      assignmentNotes: assignNotes,
-      assignedAt: new Date().toISOString(),
-      assignedBy: 'Knowledge & Ecosystem Director',
-    }
-    engagementStore.update(updated)
-    setSelected(updated)
-    toast.success('Officer assigned', {
-      description: `${assignOfficer} — ${selected.organization}`,
-    })
+    toast.error('Assignment feature not currently supported by backend API.')
     setAssignModalOpen(false)
-    setAssignDept('')
-    setAssignOfficer('')
-    setAssignNotes('')
   }
 
   const officerOptions = OFFICERS[assignDept] ?? []
@@ -136,27 +119,14 @@ export function KEDirectorEngagementPage() {
         </div>
 
         {/* Opportunity log panel */}
-        {selected.opportunityId && (
+        {selected.opportunityId && selected.opportunity && (
           <div className="rounded-xl border border-blue-200 bg-blue-50 p-5">
             <h2 className="mb-3 text-sm font-semibold text-blue-800">Linked Opportunity</h2>
             <div className="grid gap-3 text-[13px] sm:grid-cols-2 lg:grid-cols-4">
               {[
                 { label: 'Opportunity ID', value: selected.opportunityId },
-                { label: 'Title', value: selected.opportunityTitle || '—' },
-                { label: 'Source', value: selected.opportunitySource || '—' },
-                { label: 'Category', value: selected.opportunityCategory || '—' },
-                { label: 'Country', value: selected.opportunityCountry || '—' },
-                {
-                  label: 'Strategic Importance',
-                  value: selected.opportunityStrategicImportance || '—',
-                },
-                { label: 'Approved By', value: selected.opportunityApprovedBy || '—' },
-                {
-                  label: 'Approved At',
-                  value: selected.opportunityApprovedAt
-                    ? new Date(selected.opportunityApprovedAt).toLocaleDateString()
-                    : '—',
-                },
+                { label: 'Title', value: selected.opportunity?.title || '—' },
+                { label: 'Country', value: selected.opportunity?.country || '—' },
               ].map(item => (
                 <div key={item.label}>
                   <p className="text-blue-600 text-xs">{item.label}</p>
@@ -199,9 +169,12 @@ export function KEDirectorEngagementPage() {
                   <dl className="space-y-3 text-[13px]">
                     {[
                       { label: 'Engagement ID', value: selected.id },
-                      { label: 'Date', value: selected.date || '—' },
-                      { label: 'Organization Name', value: selected.organization || '—' },
-                      { label: 'Engagement Type', value: selected.type || '—' },
+                      { label: 'Date', value: selected.engagementDate || '—' },
+                      {
+                        label: 'Organization Name',
+                        value: selected.externalParticipants?.[0]?.organizationName || '—',
+                      },
+                      { label: 'Engagement Type', value: selected.engagementType?.typeName || '—' },
                     ].map(item => (
                       <div
                         key={item.label}
@@ -216,9 +189,9 @@ export function KEDirectorEngagementPage() {
 
                 <div className="rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm">
                   <h2 className="mb-5 text-sm font-semibold text-[#161A61]">Participants</h2>
-                  {selected.participants?.length ? (
+                  {selected.externalParticipants?.length ? (
                     <div className="space-y-2 text-[12px]">
-                      {selected.participants.map(p => (
+                      {selected.externalParticipants.map((p: any) => (
                         <div
                           key={p.id}
                           className="flex justify-between border-b border-slate-100 pb-2"
@@ -242,16 +215,14 @@ export function KEDirectorEngagementPage() {
                   </h2>
                   {selected.eaiiRepresentatives?.length ? (
                     <div className="space-y-2 text-[12px]">
-                      {selected.eaiiRepresentatives.map(r => (
+                      {selected.eaiiRepresentatives.map((r: any) => (
                         <div
                           key={r.id}
                           className="flex justify-between border-b border-slate-100 pb-2"
                         >
                           <span className="truncate">{r.fullName || '—'}</span>
-                          <span className="text-slate-500 mx-2 truncate">
-                            {r.departmentName || '—'}
-                          </span>
-                          <span className="font-semibold shrink-0">{r.position || '—'}</span>
+                          <span className="text-slate-500 mx-2 truncate">{r.division || '—'}</span>
+                          <span className="font-semibold shrink-0">{r.role || '—'}</span>
                         </div>
                       ))}
                     </div>
@@ -270,7 +241,9 @@ export function KEDirectorEngagementPage() {
                   </div>
                   <div>
                     <p className="font-semibold text-[#ff9500] mb-2">Agreed Action</p>
-                    <p className="text-slate-600 leading-relaxed">{selected.agreedAction || '—'}</p>
+                    <p className="text-slate-600 leading-relaxed">
+                      {selected.agreedActions || '—'}
+                    </p>
                   </div>
                   <div>
                     <p className="font-semibold text-[#ff9500] mb-2">Next Steps</p>
@@ -285,10 +258,9 @@ export function KEDirectorEngagementPage() {
           <div className="xl:col-span-1">
             <EngagementTimeline
               engagementStatus={selected.status}
-              assignedAt={selected.assignedAt}
-              submittedAt={selected.submittedAt}
-              approvedAt={selected.approvedAt}
-              rejectedAt={selected.rejectedAt}
+              assignedAt={selected.createdAt}
+              submittedAt={selected.createdAt}
+              approvedAt={selected.approvalDate}
             />
           </div>
         </div>
@@ -407,14 +379,17 @@ export function KEDirectorEngagementPage() {
           },
           {
             label: 'Organization',
-            render: item => item.organization || '—',
+            render: item => item.externalParticipants?.[0]?.organizationName || '—',
             headClassName: 'bg-[#0b265a] text-white',
           },
-          { label: 'Type', render: item => item.type, headClassName: 'bg-[#0b265a] text-white' },
-          { label: 'Date', render: item => item.date, headClassName: 'bg-[#0b265a] text-white' },
           {
-            label: 'Assigned Officer',
-            render: item => item.assignedOfficer || '—',
+            label: 'Type',
+            render: item => item.engagementType?.typeName || '—',
+            headClassName: 'bg-[#0b265a] text-white',
+          },
+          {
+            label: 'Date',
+            render: item => item.engagementDate,
             headClassName: 'bg-[#0b265a] text-white',
           },
           {

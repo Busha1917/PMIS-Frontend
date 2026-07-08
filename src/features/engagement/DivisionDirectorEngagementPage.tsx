@@ -10,7 +10,11 @@ import type { FilterValues } from '../../components/FilterDrawer'
 import { Button, Modal } from '../../ui'
 import { EngagementTimeline } from '../../components/EngagementTimeline'
 import type { EngagementRecord } from '../../types'
-import { engagementStore } from './engagementStore'
+import {
+  useGetEngagementsQuery,
+  useApproveEngagementMutation,
+  useCancelEngagementMutation,
+} from '../../store/apiSlice'
 import { agreementStore } from '../agreements/agreementStore'
 
 const FILTER_FIELDS = [
@@ -27,8 +31,11 @@ const FILTER_FIELDS = [
 ]
 
 export function DivisionDirectorEngagementPage() {
-  const [engagements, setEngagements] = useState<EngagementRecord[]>(() => engagementStore.getAll())
-  const [selected, setSelected] = useState<EngagementRecord | null>(null)
+  const { data: engagements = [] } = useGetEngagementsQuery()
+  const [approveEngagement] = useApproveEngagementMutation()
+  const [cancelEngagement] = useCancelEngagementMutation()
+
+  const [selected, setSelected] = useState<any | null>(null)
   const [showFilter, setShowFilter] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilters, setActiveFilters] = useState<FilterValues>({})
@@ -36,15 +43,14 @@ export function DivisionDirectorEngagementPage() {
   const [rejectModalOpen, setRejectModalOpen] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
 
-  useEffect(() => engagementStore.subscribe(setEngagements), [])
-
   // Only show engagements that have been submitted (Pending Approval, Approved, Rejected)
   const filtered = useMemo(() => {
     return engagements.filter(item => {
-      if (item.status === 'Draft' || item.status === 'Assigned') return false
+      if (item.status === 'Draft' || item.status === 'In Progress') return false
+      const orgName = item.externalParticipants?.[0]?.organizationName || ''
       if (
         searchQuery &&
-        !item.organization?.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !orgName.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !item.id.toLowerCase().includes(searchQuery.toLowerCase())
       )
         return false
@@ -53,36 +59,28 @@ export function DivisionDirectorEngagementPage() {
     })
   }, [engagements, searchQuery, activeFilters])
 
-  const handleConfirmApprove = () => {
+  const handleConfirmApprove = async () => {
     if (!selected) return
-    const updated: EngagementRecord = {
-      ...selected,
-      status: 'Approved',
-      approvedBy: 'Division Director',
-      approvedAt: new Date().toISOString(),
-      rejectionReason: '',
+    try {
+      await approveEngagement(selected.id).unwrap()
+      toast.success('Engagement approved')
+      setApproveModalOpen(false)
+      setSelected(null)
+    } catch (err) {
+      toast.error('Failed to approve engagement')
     }
-    engagementStore.update(updated)
-    // Automatically create an agreement record for this approved engagement
-    agreementStore.addFromEngagement(updated)
-    setSelected(updated)
-    toast.success('Engagement approved', { description: updated.organization })
-    setApproveModalOpen(false)
   }
 
-  const handleConfirmReject = () => {
+  const handleConfirmReject = async () => {
     if (!selected) return
-    const updated: EngagementRecord = {
-      ...selected,
-      status: 'Rejected',
-      rejectedBy: 'Division Director',
-      rejectedAt: new Date().toISOString(),
-      rejectionReason: rejectReason,
+    try {
+      await cancelEngagement(selected.id).unwrap()
+      toast.error('Engagement rejected')
+      setRejectModalOpen(false)
+      setSelected(null)
+    } catch (err) {
+      toast.error('Failed to reject engagement')
     }
-    engagementStore.update(updated)
-    setSelected(updated)
-    toast.error('Engagement rejected', { description: updated.organization })
-    setRejectModalOpen(false)
   }
 
   // ── Detail view ──────────────────────────────────────────────────────────────
@@ -150,9 +148,12 @@ export function DivisionDirectorEngagementPage() {
                 <dl className="space-y-3 text-[13px]">
                   {[
                     { label: 'Engagement ID', value: selected.id },
-                    { label: 'Date', value: selected.date || '—' },
-                    { label: 'Organization Name', value: selected.organization || '—' },
-                    { label: 'Engagement Type', value: selected.type || '—' },
+                    { label: 'Date', value: selected.engagementDate || '—' },
+                    {
+                      label: 'Organization Name',
+                      value: selected.externalParticipants?.[0]?.organizationName || '—',
+                    },
+                    { label: 'Engagement Type', value: selected.engagementType?.typeName || '—' },
                   ].map(item => (
                     <div
                       key={item.label}
@@ -167,9 +168,9 @@ export function DivisionDirectorEngagementPage() {
 
               <div className="p-6">
                 <h2 className="mb-5 text-sm font-semibold text-[#161A61]">Engagement Details</h2>
-                {selected.participants?.length ? (
+                {selected.externalParticipants?.length ? (
                   <div className="space-y-3 text-[13px]">
-                    {selected.participants.map(p => (
+                    {selected.externalParticipants.map((p: any) => (
                       <div key={p.id} className="flex gap-3 border-b border-slate-100 pb-2.5">
                         <span className="flex-1 font-medium text-slate-800">
                           {p.fullName || '—'}
@@ -192,16 +193,16 @@ export function DivisionDirectorEngagementPage() {
                 <h2 className="mb-5 text-sm font-semibold text-[#161A61]">EAII Representatives</h2>
                 {selected.eaiiRepresentatives?.length ? (
                   <div className="space-y-3 text-[13px]">
-                    {selected.eaiiRepresentatives.map(r => (
+                    {selected.eaiiRepresentatives.map((r: any) => (
                       <div key={r.id} className="flex gap-3 border-b border-slate-100 pb-2.5">
                         <span className="flex-1 font-medium text-slate-800">
                           {r.fullName || '—'}
                         </span>
                         <span className="flex-1 text-slate-500 text-center">
-                          {r.departmentName || '—'}
+                          {r.division || '—'}
                         </span>
                         <span className="flex-1 font-semibold text-slate-900 text-right">
-                          {r.position || '—'}
+                          {r.role || '—'}
                         </span>
                       </div>
                     ))}
@@ -221,7 +222,7 @@ export function DivisionDirectorEngagementPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-[#ff9500] mb-2">Agreed Action</p>
-                  <p className="text-slate-600 leading-relaxed">{selected.agreedAction || '—'}</p>
+                  <p className="text-slate-600 leading-relaxed">{selected.agreedActions || '—'}</p>
                 </div>
                 <div>
                   <p className="font-semibold text-[#ff9500] mb-2">Next Steps</p>
@@ -235,10 +236,9 @@ export function DivisionDirectorEngagementPage() {
           <div>
             <EngagementTimeline
               engagementStatus={selected.status}
-              assignedAt={selected.assignedAt}
-              submittedAt={selected.submittedAt}
-              approvedAt={selected.approvedAt}
-              rejectedAt={selected.rejectedAt}
+              assignedAt={selected.createdAt}
+              submittedAt={selected.createdAt}
+              approvedAt={selected.approvalDate}
             />
           </div>
         </div>
@@ -341,14 +341,22 @@ export function DivisionDirectorEngagementPage() {
           },
           {
             label: 'Organization',
-            render: item => item.organization || '—',
+            render: item => item.externalParticipants?.[0]?.organizationName || '—',
             headClassName: 'bg-[#0b265a] text-white',
           },
-          { label: 'Type', render: item => item.type, headClassName: 'bg-[#0b265a] text-white' },
-          { label: 'Date', render: item => item.date, headClassName: 'bg-[#0b265a] text-white' },
+          {
+            label: 'Type',
+            render: item => item.engagementType?.typeName || '—',
+            headClassName: 'bg-[#0b265a] text-white',
+          },
+          {
+            label: 'Date',
+            render: item => item.engagementDate,
+            headClassName: 'bg-[#0b265a] text-white',
+          },
           {
             label: 'Submitted By',
-            render: item => item.submittedBy || '—',
+            render: item => item.createdBy || '—',
             headClassName: 'bg-[#0b265a] text-white',
           },
           {

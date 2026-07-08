@@ -9,8 +9,11 @@ import type { FilterValues } from '../../components/FilterDrawer'
 import { Button, Modal } from '../../ui'
 import { OpportunityReviewView } from './OpportunityReviewView'
 import type { OpportunityRecord } from '../../types'
-import { opportunityStore } from './opportunityStore'
-import { engagementStore } from '../engagement/engagementStore'
+import {
+  useGetOpportunitiesQuery,
+  useApproveOpportunityMutation,
+  useRejectOpportunityMutation,
+} from '../../store/apiSlice'
 
 const FILTER_FIELDS = [
   {
@@ -18,9 +21,12 @@ const FILTER_FIELDS = [
     label: 'Status',
     type: 'select' as const,
     options: [
-      { label: 'Pending Approval', value: 'Pending Approval' },
+      { label: 'Under Review', value: 'Under Review' },
+      { label: 'Verified', value: 'Verified' },
+      { label: 'Reviewed', value: 'Reviewed' },
       { label: 'Approved', value: 'Approved' },
       { label: 'Rejected', value: 'Rejected' },
+      { label: 'Converted', value: 'Converted' },
     ],
   },
   {
@@ -39,9 +45,10 @@ const FILTER_FIELDS = [
 ]
 
 export function DivisionDirectorPage() {
-  const [opportunities, setOpportunities] = useState<OpportunityRecord[]>(() =>
-    opportunityStore.getAll()
-  )
+  const { data: opportunities = [], isLoading } = useGetOpportunitiesQuery({})
+  const [approveOpportunity] = useApproveOpportunityMutation()
+  const [rejectOpportunity] = useRejectOpportunityMutation()
+
   const [selected, setSelected] = useState<OpportunityRecord | null>(null)
   const [showFilter, setShowFilter] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -52,12 +59,10 @@ export function DivisionDirectorPage() {
   const [rejectModalOpen, setRejectModalOpen] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
 
-  useEffect(() => opportunityStore.subscribe(setOpportunities), [])
-
   // Show all opportunities that have been sent to Division Director (Pending Approval, Approved, Rejected)
   const queue = useMemo(() => {
     return opportunities.filter(item => {
-      if (item.status === 'Draft') return false
+      if (item.status !== 'Under Review') return false
       if (searchQuery && !item.title.toLowerCase().includes(searchQuery.toLowerCase())) return false
       if (activeFilters.status && item.status !== activeFilters.status) return false
       if (activeFilters.division && item.division !== activeFilters.division) return false
@@ -65,43 +70,37 @@ export function DivisionDirectorPage() {
     })
   }, [opportunities, searchQuery, activeFilters])
 
-  const updateOpportunity = (updated: OpportunityRecord) => {
-    opportunityStore.update(updated)
-    setSelected(updated)
-  }
-
-  const handleConfirmApprove = () => {
+  const handleConfirmApprove = async () => {
     if (!selected) return
-    const updated: OpportunityRecord = {
-      ...selected,
-      status: 'Approved',
-      approvedBy: 'Division Director',
-      approvedAt: new Date().toISOString(),
-      rejectionReason: '',
+    try {
+      const updated = await approveOpportunity(selected.id).unwrap()
+      toast.success('Opportunity approved', { description: updated.title })
+      setApproveModalOpen(false)
+      setSelected(null)
+    } catch (err: any) {
+      toast.error('Failed to approve opportunity', {
+        description: err?.data?.message || err.message,
+      })
     }
-    updateOpportunity(updated)
-    engagementStore.addFromOpportunity(updated)
-    toast.success('Opportunity approved — added to Engagement list', { description: updated.title })
-    setApproveModalOpen(false)
   }
 
-  const handleConfirmReject = () => {
+  const handleConfirmReject = async () => {
     if (!selected) return
-    const updated: OpportunityRecord = {
-      ...selected,
-      status: 'Rejected',
-      rejectionReason: rejectReason,
-      rejectedBy: 'Division Director',
-      rejectedAt: new Date().toISOString(),
+    try {
+      await rejectOpportunity(selected.id).unwrap()
+      toast.error('Opportunity rejected', { description: selected.title })
+      setRejectModalOpen(false)
+      setSelected(null)
+    } catch (err: any) {
+      toast.error('Failed to reject opportunity', {
+        description: err?.data?.message || err.message,
+      })
     }
-    updateOpportunity(updated)
-    toast.error('Opportunity rejected', { description: updated.title })
-    setRejectModalOpen(false)
   }
 
-  // Only show action buttons when the opportunity is still Pending Approval
+  // Only show action buttons when the opportunity is Under Review
   const actionButtons =
-    selected && selected.status === 'Pending Approval' ? (
+    selected && selected.status === 'Under Review' ? (
       <>
         <button
           type="button"
@@ -230,17 +229,17 @@ export function DivisionDirectorPage() {
               },
               {
                 label: 'Source',
-                render: item => item.source,
+                render: item => item.opportunitySource?.sourceName || item.source || '-',
                 headClassName: 'bg-[#0b265a] text-white',
               },
               {
                 label: 'Division',
-                render: item => item.division,
+                render: item => item.division || '-',
                 headClassName: 'bg-[#0b265a] text-white',
               },
               {
                 label: 'Date',
-                render: item => item.date,
+                render: item => item.dateIdentified || item.date || '-',
                 headClassName: 'bg-[#0b265a] text-white',
               },
               {

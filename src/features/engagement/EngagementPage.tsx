@@ -9,19 +9,13 @@ import { TableActionButtons } from '../../components/TableActionButtons'
 import { ConfirmationModal } from '../../components/ConfirmationModal'
 import { FilterDrawer } from '../../components/FilterDrawer'
 import type { FilterValues } from '../../components/FilterDrawer'
+import {
+  useGetEngagementsQuery,
+  useDeleteEngagementMutation,
+  useCreateEngagementMutation,
+  useUpdateEngagementMutation,
+} from '../../store/apiSlice'
 import type { EngagementRecord } from '../../types'
-import { opportunities } from '../../data'
-
-const initialEngagements: EngagementRecord[] = opportunities
-  .filter(opp => opp.status === 'Approved')
-  .map((opp, index) => ({
-    id: `ENG-${opp.id.split('-')[1] || opp.id}`,
-    no: index + 1,
-    organization: opp.partnerName || 'Unknown Organization',
-    type: opp.opportunityCategory || 'Partnership',
-    date: opp.date,
-    status: 'Draft',
-  }))
 
 const FILTER_FIELDS = [
   {
@@ -50,10 +44,14 @@ const FILTER_FIELDS = [
 ]
 
 export function EngagementPage() {
-  const [engagements, setEngagements] = useState<EngagementRecord[]>(initialEngagements)
+  const { data: engagements = [], isLoading, isFetching } = useGetEngagementsQuery()
+  const [deleteEngagement] = useDeleteEngagementMutation()
+  const [createEngagement] = useCreateEngagementMutation()
+  const [updateEngagement] = useUpdateEngagementMutation()
+
   const [showForm, setShowForm] = useState(false)
   const [showFilter, setShowFilter] = useState(false)
-  const [selectedEngagement, setSelectedEngagement] = useState<EngagementRecord | null>(null)
+  const [selectedEngagement, setSelectedEngagement] = useState<any | null>(null)
   const [formMode, setFormMode] = useState<'create' | 'edit' | 'preview'>('create')
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -61,9 +59,10 @@ export function EngagementPage() {
 
   const filteredEngagements = useMemo(() => {
     return engagements.filter(item => {
-      if (searchQuery && !item.type.toLowerCase().includes(searchQuery.toLowerCase())) return false
+      const typeStr = item.engagementType?.typeName || ''
+      if (searchQuery && !typeStr.toLowerCase().includes(searchQuery.toLowerCase())) return false
       if (activeFilters.status && item.status !== activeFilters.status) return false
-      if (activeFilters.type && item.type !== activeFilters.type) return false
+      if (activeFilters.type && typeStr !== activeFilters.type) return false
       return true
     })
   }, [engagements, searchQuery, activeFilters])
@@ -93,20 +92,19 @@ export function EngagementPage() {
     setShowDeleteModal(true)
   }
 
-  const handleSubmit = (formData: EngagementRecord) => {
-    if (formMode === 'edit' && selectedEngagement) {
-      setEngagements(current =>
-        current.map(item => (item.id === selectedEngagement.id ? formData : item))
-      )
-    } else {
-      setEngagements(current => [
-        ...current,
-        { ...formData, id: `eng-${Date.now()}`, no: current.length + 1 },
-      ])
+  const handleSubmit = async (formData: any) => {
+    try {
+      if (formMode === 'edit' && selectedEngagement) {
+        await updateEngagement({ id: selectedEngagement.id, data: formData }).unwrap()
+      } else {
+        await createEngagement(formData).unwrap()
+      }
+      setShowForm(false)
+      setSelectedEngagement(null)
+      setFormMode('create')
+    } catch (err) {
+      console.error('Failed to save engagement:', err)
     }
-    setShowForm(false)
-    setSelectedEngagement(null)
-    setFormMode('create')
   }
 
   const handleCancel = () => {
@@ -115,9 +113,13 @@ export function EngagementPage() {
     setFormMode('create')
   }
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!selectedEngagement) return
-    setEngagements(current => current.filter(item => item.id !== selectedEngagement.id))
+    try {
+      await deleteEngagement(selectedEngagement.id).unwrap()
+    } catch (err) {
+      console.error('Failed to delete engagement:', err)
+    }
     setShowDeleteModal(false)
     setSelectedEngagement(null)
     setFormMode('create')
@@ -181,17 +183,17 @@ export function EngagementPage() {
               },
               {
                 label: 'Organization',
-                render: item => item.organization || 'N/A',
+                render: item => item.externalParticipants?.[0]?.organizationName || 'N/A',
                 headClassName: 'bg-[#0b265a] text-white whitespace-nowrap',
               },
               {
                 label: 'Type',
-                render: item => item.type,
+                render: item => item.engagementType?.typeName || 'N/A',
                 headClassName: 'bg-[#0b265a] text-white whitespace-nowrap',
               },
               {
                 label: 'Date',
-                render: item => item.date,
+                render: item => item.engagementDate,
                 headClassName: 'bg-[#0b265a] text-white whitespace-nowrap',
               },
               {

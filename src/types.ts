@@ -276,123 +276,80 @@ export type EventRecord = {
   rejectionReason?: string
 }
 
-export type OpportunityStatus = 'Draft' | 'Pending Approval' | 'Approved' | 'Rejected'
+export type OpportunityStatus =
+  | 'Draft'
+  | 'Under Review'
+  | 'Verified'
+  | 'Reviewed'
+  | 'Approved'
+  | 'Rejected'
+  | 'Converted'
 
 export type OpportunityRole = 'officer' | 'knowledge-director' | 'division-director'
 
 export type OpportunityRecord = {
   id: string
-  no: number
+  no?: number
+  opportunityUid?: string
   title: string
-  source: string
-  date: string
-  division: string
-  status: OpportunityStatus
-
-  // Partner Info
+  dateIdentified?: string
   partnerName?: string
-  acronym?: string
+  partnerAcronym?: string
   organizationType?: string
-  organizationTypeSpecify?: string
   country?: string
-  regionState?: string
+  region?: string
   city?: string
   website?: string
   contactPersonName?: string
-  positionTitle?: string
-  email?: string
-  existingRelationship?: 'New Partner' | 'Exist Partner' | 'Former'
-  partnerInterestArea?: string
-  strategicImportance?: 'High' | 'Medium' | 'Low'
-  opportunityCategory?: string
-  opportunityCategorySpecify?: string
-  sourceSpecify?: string
-
-  // Description Fields
+  contactPosition?: string
+  contactEmail?: string
+  contactPhone?: string
+  existingRelationship?: string
+  interestArea?: string
+  strategicImportanceLevelId?: string
+  strategicImportanceLevel?: {
+    id: string
+    levelName: string
+    description?: string
+  }
+  opportunityCategoryId?: string
+  opportunityCategory?: {
+    id: string
+    name: string
+    description?: string
+  }
+  opportunitySourceId?: string
+  opportunitySource?: {
+    id: string
+    sourceName: string
+    description?: string
+  }
   opportunityBackground?: string
   opportunityDescription?: string
   proposedCollaborationArea?: string
+  expectedOutcome?: string
   strategicAlignment?: string
   expectedBenefits?: string
-  expectedOutcome?: string
-
-  // Workflow tracking
-  registeredBy?: string
-  registeredAt?: string
-  reviewedBy?: string // Knowledge & Ecosystem Director
-  reviewComment?: string // Director's note when sending for approval
-  sentForApprovalAt?: string
-  approvedBy?: string // Division Director
+  partnerId?: string
+  status: OpportunityStatus
+  verificationNotes?: string
+  reviewNotes?: string
+  approvalNotes?: string
+  screenedAt?: string
+  verifiedAt?: string
+  reviewedAt?: string
   approvedAt?: string
-  rejectedBy?: string
-  rejectedAt?: string
-  rejectionReason?: string
-}
-
-export type ParticipantRecord = {
-  id: string
-  organizationName: string
-  fullName: string
-  position: string
-}
-
-export type EaiiRepresentativeRecord = {
-  id: string
-  departmentName: string
-  fullName: string
-  position: string
-}
-
-export type EngagementStatus = 'Draft' | 'Assigned' | 'Pending Approval' | 'Approved' | 'Rejected'
-
-export type EngagementRecord = {
-  id: string
-  no: number
-  type: string
-  date: string
-  status: EngagementStatus
-  organization?: string
-  attachments?: string | File | null
-
-  // Linked opportunity
-  opportunityId?: string
-  opportunityTitle?: string
-  opportunitySource?: string
-  opportunityCategory?: string
-  opportunityCountry?: string
-  opportunityStrategicImportance?: string
-  opportunityApprovedAt?: string
-  opportunityApprovedBy?: string
-
-  // Participants
-  participants?: ParticipantRecord[]
-  eaiiRepresentatives?: EaiiRepresentativeRecord[]
-
-  // Discussion Summary fields (from design)
-  keyPoints?: string
-  agreedAction?: string
-  nextSteps?: string
-
-  // Legacy field kept for backward compat
-  discussionSummary?: string
-
-  // Assignment (KE Director assigns officer)
-  assignedOfficer?: string
-  assignedDepartment?: string
-  assignmentNotes?: string
-  assignedAt?: string
-  assignedBy?: string
-
-  // Officer submission
-  submittedAt?: string
-  submittedBy?: string
-
-  // Division Director decision
-  approvedBy?: string
-  approvedAt?: string
-  rejectedBy?: string
-  rejectedAt?: string
-  rejectionReason?: string
+  convertedToEntityType?: string
+  convertedToEntityId?: string
+  createdAt?: string
+  updatedAt?: string
+  createdBy?: Record<string, any>
+  reviewedBy?: Record<string, any>
+  verifiedBy?: Record<string, any>
+  // UI-specific mapped fields that may not be in the direct backend schema initially
+  division?: string
+  source?: string
+  date?: string
 }
 
 export type AgreementStatus =
@@ -901,4 +858,62 @@ export type ResourceContributionRecord = {
   rejectedBy?: string
   rejectedAt?: string
   rejectionReason?: string
+}
+
+// ----------------------------------------------------------------------------
+// Engagement API Schemas
+// ----------------------------------------------------------------------------
+
+export type ExternalParticipant = {
+  id?: string
+  fullName: string
+  organizationName: string
+  position?: string | null
+  email?: string | null
+  phoneNumber?: string | null
+}
+
+export type EaiiRepresentative = {
+  id?: string
+  fullName: string
+  userId?: string | null
+  division: string
+  email: string
+  role?: string | null
+}
+
+export type EngagementType = {
+  id: string
+  typeName: string
+  description?: string | null
+}
+
+export type EngagementRecord = {
+  id: string
+  engagementUid?: string
+  recordId?: string
+  opportunityId: string
+  engagementType?: EngagementType
+  engagementTypeId?: string // Used for creating/updating
+  engagementDate: string
+  title: string
+  location?: string | null
+  startTime?: string | null
+  endTime?: string | null
+  keyPoints: string
+  agreedActions: string
+  nextSteps: string
+  followUpRequired: boolean
+  followUpDate?: string | null
+  followUpNotes?: string | null
+  status: 'Draft' | 'In Progress' | 'Completed' | 'Cancelled'
+  approvalNotes?: string | null
+  approvalDate?: string | null
+  createdAt?: string
+  updatedAt?: string
+  externalParticipants?: ExternalParticipant[]
+  eaiiRepresentatives?: EaiiRepresentative[]
+  createdBy?: any
+  approvedBy?: any
+  opportunity?: OpportunityRecord | null
 }

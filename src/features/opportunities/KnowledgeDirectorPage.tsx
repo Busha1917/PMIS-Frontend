@@ -9,7 +9,11 @@ import type { FilterValues } from '../../components/FilterDrawer'
 import { Button, Modal } from '../../ui'
 import { OpportunityReviewView } from './OpportunityReviewView'
 import type { OpportunityRecord } from '../../types'
-import { opportunityStore } from './opportunityStore'
+import {
+  useGetOpportunitiesQuery,
+  useReviewOpportunityMutation,
+  useRejectOpportunityMutation,
+} from '../../store/apiSlice'
 
 const FILTER_FIELDS = [
   {
@@ -18,8 +22,12 @@ const FILTER_FIELDS = [
     type: 'select' as const,
     options: [
       { label: 'Draft', value: 'Draft' },
-      { label: 'Pending Approval', value: 'Pending Approval' },
+      { label: 'Under Review', value: 'Under Review' },
+      { label: 'Verified', value: 'Verified' },
+      { label: 'Reviewed', value: 'Reviewed' },
+      { label: 'Approved', value: 'Approved' },
       { label: 'Rejected', value: 'Rejected' },
+      { label: 'Converted', value: 'Converted' },
     ],
   },
   {
@@ -38,9 +46,10 @@ const FILTER_FIELDS = [
 ]
 
 export function KnowledgeDirectorPage() {
-  const [opportunities, setOpportunities] = useState<OpportunityRecord[]>(() =>
-    opportunityStore.getAll()
-  )
+  const { data: opportunities = [], isLoading } = useGetOpportunitiesQuery({})
+  const [reviewOpportunity] = useReviewOpportunityMutation()
+  const [rejectOpportunity] = useRejectOpportunityMutation()
+
   const [selected, setSelected] = useState<OpportunityRecord | null>(null)
   const [showFilter, setShowFilter] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -52,11 +61,10 @@ export function KnowledgeDirectorPage() {
   const [reviewComment, setReviewComment] = useState('')
   const [rejectReason, setRejectReason] = useState('')
 
-  useEffect(() => opportunityStore.subscribe(setOpportunities), [])
-
   // Show all opportunities to KE Director (not filtered by status)
   const queue = useMemo(() => {
     return opportunities.filter(item => {
+      if (item.status !== 'Under Review') return false
       if (searchQuery && !item.title.toLowerCase().includes(searchQuery.toLowerCase())) return false
       if (activeFilters.status && item.status !== activeFilters.status) return false
       if (activeFilters.division && item.division !== activeFilters.division) return false
@@ -64,43 +72,37 @@ export function KnowledgeDirectorPage() {
     })
   }, [opportunities, searchQuery, activeFilters])
 
-  const updateOpportunity = (updated: OpportunityRecord) => {
-    opportunityStore.update(updated)
-    setSelected(updated)
-  }
-
-  const handleConfirmSend = () => {
+  const handleConfirmSend = async () => {
     if (!selected) return
-    const updated: OpportunityRecord = {
-      ...selected,
-      status: 'Pending Approval',
-      reviewComment,
-      reviewedBy: 'Knowledge & Ecosystem Director',
-      sentForApprovalAt: new Date().toISOString(),
-      rejectionReason: '',
+    try {
+      await reviewOpportunity(selected.id).unwrap()
+      toast.success('Opportunity reviewed successfully', { description: selected.title })
+      setSendModalOpen(false)
+      setSelected(null)
+    } catch (err: any) {
+      toast.error('Failed to review opportunity', {
+        description: err?.data?.message || err.message,
+      })
     }
-    updateOpportunity(updated)
-    toast.success('Sent for approval', { description: updated.title })
-    setSendModalOpen(false)
   }
 
-  const handleConfirmReject = () => {
+  const handleConfirmReject = async () => {
     if (!selected) return
-    const updated: OpportunityRecord = {
-      ...selected,
-      status: 'Rejected',
-      rejectionReason: rejectReason,
-      rejectedBy: 'Knowledge & Ecosystem Director',
-      rejectedAt: new Date().toISOString(),
+    try {
+      await rejectOpportunity(selected.id).unwrap()
+      toast.error('Opportunity rejected', { description: selected.title })
+      setRejectModalOpen(false)
+      setSelected(null)
+    } catch (err: any) {
+      toast.error('Failed to reject opportunity', {
+        description: err?.data?.message || err.message,
+      })
     }
-    updateOpportunity(updated)
-    toast.error('Opportunity rejected', { description: updated.title })
-    setRejectModalOpen(false)
   }
 
-  // Only show action buttons when the opportunity is still in Draft
+  // Only show action buttons when the opportunity is Under Review
   const actionButtons =
-    selected && selected.status === 'Draft' ? (
+    selected && selected.status === 'Under Review' ? (
       <>
         <button
           type="button"
@@ -245,17 +247,17 @@ export function KnowledgeDirectorPage() {
               },
               {
                 label: 'Source',
-                render: item => item.source,
+                render: item => item.opportunitySource?.sourceName || item.source || '-',
                 headClassName: 'bg-[#0b265a] text-white',
               },
               {
                 label: 'Division',
-                render: item => item.division,
+                render: item => item.division || '-',
                 headClassName: 'bg-[#0b265a] text-white',
               },
               {
                 label: 'Date',
-                render: item => item.date,
+                render: item => item.dateIdentified || item.date || '-',
                 headClassName: 'bg-[#0b265a] text-white',
               },
               {

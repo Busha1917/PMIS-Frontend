@@ -11,8 +11,13 @@ import { ConfirmationModal } from '../../components/ConfirmationModal'
 import { FilterDrawer } from '../../components/FilterDrawer'
 import type { FilterValues } from '../../components/FilterDrawer'
 import type { OpportunityRecord } from '../../types'
-import { opportunities as initialOpportunities } from '../../data'
 import { exportToCsv } from '../../utils/exportCsv'
+import {
+  useGetOpportunitiesQuery,
+  useCreateOpportunityMutation,
+  useUpdateOpportunityMutation,
+  useDeleteOpportunityMutation,
+} from '../../store/apiSlice'
 
 const FILTER_FIELDS = [
   {
@@ -21,9 +26,12 @@ const FILTER_FIELDS = [
     type: 'select' as const,
     options: [
       { label: 'Draft', value: 'Draft' },
-      { label: 'Pending Approval', value: 'Pending Approval' },
+      { label: 'Under Review', value: 'Under Review' },
+      { label: 'Verified', value: 'Verified' },
+      { label: 'Reviewed', value: 'Reviewed' },
       { label: 'Approved', value: 'Approved' },
       { label: 'Rejected', value: 'Rejected' },
+      { label: 'Converted', value: 'Converted' },
     ],
   },
   {
@@ -45,7 +53,10 @@ const FILTER_FIELDS = [
 ]
 
 export function OpportunitiesPage() {
-  const [opportunities, setOpportunities] = useState<OpportunityRecord[]>(initialOpportunities)
+  const { data: opportunities = [], isLoading, isFetching } = useGetOpportunitiesQuery({})
+  const [createOpportunity] = useCreateOpportunityMutation()
+  const [updateOpportunity] = useUpdateOpportunityMutation()
+  const [deleteOpportunity] = useDeleteOpportunityMutation()
   const [showForm, setShowForm] = useState(false)
   const [showFilter, setShowFilter] = useState(false)
   const [selectedOpportunity, setSelectedOpportunity] = useState<OpportunityRecord | null>(null)
@@ -73,10 +84,10 @@ export function OpportunitiesPage() {
         items: filteredOpportunities.filter(op => op.status === 'Draft'),
       },
       {
-        id: 'Pending Approval',
-        title: 'Pending Approval',
+        id: 'Under Review',
+        title: 'Under Review',
         color: 'bg-amber-500',
-        items: filteredOpportunities.filter(op => op.status === 'Pending Approval'),
+        items: filteredOpportunities.filter(op => op.status === 'Under Review'),
       },
       {
         id: 'Approved',
@@ -119,23 +130,21 @@ export function OpportunitiesPage() {
     setShowDeleteModal(true)
   }
 
-  const handleSubmit = (formData: OpportunityRecord) => {
-    if ((formMode === 'edit' || formMode === 'preview') && selectedOpportunity) {
-      setOpportunities(current =>
-        current.map(item => (item.id === selectedOpportunity.id ? formData : item))
-      )
-      setSelectedOpportunity(formData)
-      toast.success('Opportunity updated', { description: formData.title })
-    } else {
-      setOpportunities(current => [
-        ...current,
-        { ...formData, id: `opp-${Date.now()}`, no: current.length + 1 },
-      ])
-      toast.success('Opportunity added', { description: formData.title })
+  const handleSubmit = async (formData: OpportunityRecord) => {
+    try {
+      if ((formMode === 'edit' || formMode === 'preview') && selectedOpportunity) {
+        await updateOpportunity({ id: selectedOpportunity.id, data: formData }).unwrap()
+        toast.success('Opportunity updated', { description: formData.title })
+      } else {
+        await createOpportunity(formData).unwrap()
+        toast.success('Opportunity added', { description: formData.title })
+      }
+      setShowForm(false)
+      setSelectedOpportunity(null)
+      setFormMode('create')
+    } catch (err: any) {
+      toast.error('Failed to save opportunity', { description: err?.data?.message || err.message })
     }
-    setShowForm(false)
-    setSelectedOpportunity(null)
-    setFormMode('create')
   }
 
   const handleCancel = () => {
@@ -144,13 +153,16 @@ export function OpportunitiesPage() {
     setFormMode('create')
   }
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!selectedOpportunity) return
-    setOpportunities(current => current.filter(item => item.id !== selectedOpportunity.id))
-    toast.error('Opportunity deleted', { description: selectedOpportunity.title })
-    setShowDeleteModal(false)
-    setSelectedOpportunity(null)
-    setFormMode('create')
+    try {
+      await deleteOpportunity(selectedOpportunity.id).unwrap()
+      toast.error('Opportunity deleted', { description: selectedOpportunity.title })
+      setShowDeleteModal(false)
+      setSelectedOpportunity(null)
+    } catch (err: any) {
+      toast.error('Failed to delete', { description: err?.data?.message || err.message })
+    }
   }
 
   const handleExport = () => {
@@ -160,11 +172,11 @@ export function OpportunitiesPage() {
       [
         filteredOpportunities.map((item, i) => [
           i + 1,
-          item.title,
-          item.source,
-          item.date,
-          item.division,
-          item.status,
+          item.title || '',
+          item.opportunitySource?.sourceName || '',
+          item.dateIdentified || '',
+          item.division || '',
+          item.status || '',
         ]),
       ]
     )
@@ -218,12 +230,18 @@ export function OpportunitiesPage() {
                       {item.no}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600 font-medium line-clamp-1">{item.source}</p>
+                  <p className="text-xs text-slate-600 font-medium line-clamp-1">
+                    {item.opportunitySource?.sourceName || 'Unknown Source'}
+                  </p>
                   <div className="flex justify-between items-center text-xs text-slate-500 mt-2">
                     <span className="bg-slate-50 px-2 py-1 rounded border border-slate-100">
                       {item.division}
                     </span>
-                    <span>{new Date(item.date).toLocaleDateString()}</span>
+                    <span>
+                      {item.dateIdentified
+                        ? new Date(item.dateIdentified).toLocaleDateString()
+                        : 'No date'}
+                    </span>
                   </div>
                 </div>
               )}
@@ -258,17 +276,17 @@ export function OpportunitiesPage() {
                 },
                 {
                   label: 'Source',
-                  render: item => item.source,
+                  render: item => item.opportunitySource?.sourceName || item.source || '-',
                   headClassName: 'bg-[#0b265a] text-white',
                 },
                 {
                   label: 'Division',
-                  render: item => item.division,
+                  render: item => item.division || '-',
                   headClassName: 'bg-[#0b265a] text-white',
                 },
                 {
                   label: 'Date',
-                  render: item => new Date(item.date).toLocaleDateString(),
+                  render: item => item.dateIdentified || item.date || '-',
                   headClassName: 'bg-[#0b265a] text-white',
                 },
                 {

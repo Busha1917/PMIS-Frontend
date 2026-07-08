@@ -13,6 +13,7 @@ type OpportunityFormProps = {
   onSubmit?: (opportunity: OpportunityRecord) => void
   onCancel?: () => void
   onEdit?: () => void
+  actions?: React.ReactNode
 }
 
 const organizationTypes = [
@@ -82,35 +83,38 @@ function buildInitialState(opportunity?: OpportunityRecord | null): OpportunityR
   return {
     ...base,
     partnerName: base.partnerName ?? '',
-    acronym: base.acronym ?? '',
+    partnerAcronym: base.partnerAcronym ?? '',
     organizationType: base.organizationType ?? '',
     country: base.country ?? '',
-    regionState: base.regionState ?? '',
+    region: base.region ?? '',
     city: base.city ?? '',
     website: base.website ?? '',
     contactPersonName: base.contactPersonName ?? '',
-    positionTitle: base.positionTitle ?? '',
-    email: base.email ?? '',
+    contactPosition: base.contactPosition ?? '',
+    contactEmail: base.contactEmail ?? '',
     existingRelationship: base.existingRelationship ?? undefined,
-    partnerInterestArea: base.partnerInterestArea ?? '',
-    strategicImportance: base.strategicImportance ?? undefined,
-    opportunityCategory: base.opportunityCategory ?? '',
-    sourceSpecify: base.sourceSpecify ?? '',
+    interestArea: base.interestArea ?? '',
+    // Just using any for the form values for now to avoid complex type casting
+    // without the actual UUIDs
+    strategicImportanceLevel: base.strategicImportanceLevel ?? undefined,
+    opportunityCategory: base.opportunityCategory ?? undefined,
+    opportunitySource: base.opportunitySource ?? undefined,
     opportunityBackground: base.opportunityBackground ?? '',
     opportunityDescription: base.opportunityDescription ?? '',
     proposedCollaborationArea: base.proposedCollaborationArea ?? '',
     strategicAlignment: base.strategicAlignment ?? '',
     expectedBenefits: base.expectedBenefits ?? '',
     expectedOutcome: base.expectedOutcome ?? '',
-    rejectionReason: base.rejectionReason ?? '',
-    reviewComment: base.reviewComment ?? '',
-  }
+    approvalNotes: base.approvalNotes ?? '',
+    reviewNotes: base.reviewNotes ?? '',
+  } as any
 }
 export function OpportunityForm({
   opportunity,
   mode = 'create',
   onSubmit,
   onCancel,
+  actions,
 }: OpportunityFormProps) {
   const [formState, setFormState] = useState<OpportunityRecord>(() =>
     buildInitialState(opportunity)
@@ -132,7 +136,7 @@ export function OpportunityForm({
     e.preventDefault()
     onSubmit?.({
       ...formState,
-      registeredAt: formState.registeredAt ?? new Date().toISOString(),
+      createdAt: formState.createdAt ?? new Date().toISOString(),
     })
   }
 
@@ -159,25 +163,26 @@ export function OpportunityForm({
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <StatusBadge status={formState.status} />
+            {actions}
           </div>
         </div>
 
-        {formState.status === 'Rejected' && formState.rejectionReason && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-            <p className="text-sm font-semibold text-red-700">Rejection Reason</p>
-            <p className="mt-1 text-sm text-red-600">{formState.rejectionReason}</p>
-            {formState.rejectedBy && (
-              <p className="mt-1 text-xs text-red-400">— {formState.rejectedBy}</p>
+        {opportunity?.status === 'Rejected' && opportunity.approvalNotes && (
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
+            <h4 className="mb-2 font-semibold text-red-800">Rejection Reason</h4>
+            <p className="text-sm text-red-700">{opportunity.approvalNotes}</p>
+            {opportunity.reviewedBy && (
+              <p className="mt-2 text-xs text-red-600">By: {String(opportunity.reviewedBy)}</p>
             )}
           </div>
         )}
 
-        {formState.status === 'Pending Approval' && formState.reviewComment && (
+        {opportunity?.status === 'Reviewed' && opportunity.reviewNotes && (
           <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
             <p className="text-sm font-semibold text-blue-700">
               Review Note — Knowledge &amp; Ecosystem Director
             </p>
-            <p className="mt-1 text-sm text-blue-600">{formState.reviewComment}</p>
+            <p className="mt-1 text-sm text-blue-600">{formState.reviewNotes}</p>
           </div>
         )}
 
@@ -194,12 +199,7 @@ export function OpportunityForm({
                   { label: 'Country', value: formState.country || 'N/A' },
                   { label: 'Website', value: formState.website || 'N/A' },
                   { label: 'Contact Person', value: formState.contactPersonName || 'N/A' },
-                  { label: 'Email', value: formState.email || 'N/A' },
-                  { label: 'Partner Interest Area', value: formState.partnerInterestArea || 'N/A' },
-                  { label: 'Opportunity Category', value: formState.opportunityCategory || 'N/A' },
-                  { label: 'Source', value: formState.source || 'N/A' },
                   { label: 'Division', value: formState.division || 'N/A' },
-                  { label: 'Strategic Importance', value: formState.strategicImportance || 'N/A' },
                 ].map((item, i, arr) => (
                   <div
                     key={item.label}
@@ -210,6 +210,20 @@ export function OpportunityForm({
                   </div>
                 ))}
               </dl>
+              <div className="py-4 border-b border-slate-100">
+                <dt className="text-xs font-medium text-slate-500">Contact Email</dt>
+                <dd className="text-sm text-slate-900">{opportunity?.contactEmail || '-'}</dd>
+              </div>
+              <div className="py-4 border-b border-slate-100">
+                <dt className="text-xs font-medium text-slate-500">Interest Area</dt>
+                <dd className="text-sm text-slate-900">{opportunity?.interestArea || '-'}</dd>
+              </div>
+              <div className="py-4">
+                <dt className="text-xs font-medium text-slate-500">Strategic Importance</dt>
+                <dd className="text-sm text-slate-900">
+                  {opportunity?.strategicImportanceLevel?.levelName || '-'}
+                </dd>
+              </div>
             </div>
             <div className="space-y-6">
               <div className="rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm">
@@ -240,19 +254,19 @@ export function OpportunityForm({
                     <span className="absolute -left-1.5 mt-0.5 h-3 w-3 rounded-full border-2 border-white bg-slate-400" />
                     <p className="font-semibold text-slate-700">Registered</p>
                     <p className="text-slate-500">
-                      {formState.registeredBy ?? 'Officer'} ·{' '}
-                      {formState.registeredAt
-                        ? new Date(formState.registeredAt).toLocaleDateString()
-                        : formState.date}
+                      {String(formState.createdBy ?? 'Officer')} ·{' '}
+                      {formState.createdAt
+                        ? new Date(formState.createdAt).toLocaleDateString()
+                        : 'N/A'}
                     </p>
                   </li>
-                  {formState.sentForApprovalAt && (
+                  {formState.screenedAt && (
                     <li>
                       <span className="absolute -left-1.5 mt-0.5 h-3 w-3 rounded-full border-2 border-white bg-blue-400" />
-                      <p className="font-semibold text-slate-700">Sent for Approval</p>
+                      <p className="font-semibold text-slate-700">Sent for Review</p>
                       <p className="text-slate-500">
-                        {formState.reviewedBy} ·{' '}
-                        {new Date(formState.sentForApprovalAt).toLocaleDateString()}
+                        {String(formState.reviewedBy || 'System')} ·{' '}
+                        {new Date(formState.screenedAt).toLocaleDateString()}
                       </p>
                     </li>
                   )}
@@ -261,18 +275,16 @@ export function OpportunityForm({
                       <span className="absolute -left-1.5 mt-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500" />
                       <p className="font-semibold text-slate-700">Approved</p>
                       <p className="text-slate-500">
-                        {formState.approvedBy} ·{' '}
-                        {new Date(formState.approvedAt).toLocaleDateString()}
+                        System · {new Date(formState.approvedAt).toLocaleDateString()}
                       </p>
                     </li>
                   )}
-                  {formState.rejectedAt && (
+                  {formState.status === 'Rejected' && formState.updatedAt && (
                     <li>
                       <span className="absolute -left-1.5 mt-0.5 h-3 w-3 rounded-full border-2 border-white bg-red-500" />
                       <p className="font-semibold text-slate-700">Rejected</p>
                       <p className="text-slate-500">
-                        {formState.rejectedBy} ·{' '}
-                        {new Date(formState.rejectedAt).toLocaleDateString()}
+                        System · {new Date(formState.updatedAt).toLocaleDateString()}
                       </p>
                     </li>
                   )}
@@ -355,8 +367,8 @@ export function OpportunityForm({
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">Acronym</label>
                 <Input
-                  value={formState.acronym}
-                  onChange={e => setFormState(s => ({ ...s, acronym: e.target.value }))}
+                  value={formState.partnerAcronym}
+                  onChange={e => setFormState(s => ({ ...s, partnerAcronym: e.target.value }))}
                   placeholder="Enter Acronym"
                 />
               </div>
@@ -390,8 +402,8 @@ export function OpportunityForm({
                   Region / State
                 </label>
                 <Input
-                  value={formState.regionState}
-                  onChange={e => setFormState(s => ({ ...s, regionState: e.target.value }))}
+                  value={formState.region || ''}
+                  onChange={e => setFormState(s => ({ ...s, region: e.target.value }))}
                   placeholder="Region / State"
                 />
               </div>
@@ -427,8 +439,8 @@ export function OpportunityForm({
                   Position / Title
                 </label>
                 <Input
-                  value={formState.positionTitle}
-                  onChange={e => setFormState(s => ({ ...s, positionTitle: e.target.value }))}
+                  value={formState.contactPosition || ''}
+                  onChange={e => setFormState(s => ({ ...s, contactPosition: e.target.value }))}
                   placeholder="Position / Title"
                 />
               </div>
@@ -436,8 +448,8 @@ export function OpportunityForm({
                 <label className="mb-2 block text-sm font-medium text-slate-700">Email</label>
                 <Input
                   type="email"
-                  value={formState.email}
-                  onChange={e => setFormState(s => ({ ...s, email: e.target.value }))}
+                  value={formState.contactEmail || ''}
+                  onChange={e => setFormState(s => ({ ...s, contactEmail: e.target.value }))}
                   placeholder="Email"
                 />
               </div>
@@ -468,8 +480,8 @@ export function OpportunityForm({
                   Partner Interest Area
                 </label>
                 <Input
-                  value={formState.partnerInterestArea}
-                  onChange={e => setFormState(s => ({ ...s, partnerInterestArea: e.target.value }))}
+                  value={formState.interestArea || ''}
+                  onChange={e => setFormState(s => ({ ...s, interestArea: e.target.value }))}
                   placeholder="Partner Interest Area"
                 />
               </div>
@@ -478,11 +490,11 @@ export function OpportunityForm({
                   Strategic Importance
                 </label>
                 <select
-                  value={formState.strategicImportance ?? ''}
+                  value={formState.strategicImportanceLevel?.levelName || ''}
                   onChange={e =>
                     setFormState(s => ({
                       ...s,
-                      strategicImportance: (e.target.value as any) || undefined,
+                      strategicImportanceLevel: { id: '', levelName: e.target.value } as any,
                     }))
                   }
                   className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
@@ -500,8 +512,13 @@ export function OpportunityForm({
                   Opportunity Category
                 </label>
                 <select
-                  value={formState.opportunityCategory}
-                  onChange={e => setFormState(s => ({ ...s, opportunityCategory: e.target.value }))}
+                  value={formState.opportunityCategory?.name || ''}
+                  onChange={e =>
+                    setFormState(s => ({
+                      ...s,
+                      opportunityCategory: { id: '', name: e.target.value } as any,
+                    }))
+                  }
                   className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
                 >
                   <option value="">Select category</option>
@@ -517,8 +534,13 @@ export function OpportunityForm({
                   Source of Opportunity <span className="text-red-500">*</span>
                 </label>
                 <select
-                  value={formState.source}
-                  onChange={e => setFormState(s => ({ ...s, source: e.target.value }))}
+                  value={formState.opportunitySource?.sourceName || ''}
+                  onChange={e =>
+                    setFormState(s => ({
+                      ...s,
+                      opportunitySource: { id: '', sourceName: e.target.value } as any,
+                    }))
+                  }
                   required
                   className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none focus:border-[#161A61] focus:ring-2 focus:ring-[#161A61]/10"
                 >

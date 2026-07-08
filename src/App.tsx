@@ -437,9 +437,18 @@ function App() {
       setPage(getPageFromPath(window.location.pathname))
     }
 
+    const handleUnauthorized = () => {
+      logout()
+    }
+
     window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
-  }, [])
+    window.addEventListener('auth:unauthorized', handleUnauthorized)
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+      window.removeEventListener('auth:unauthorized', handleUnauthorized)
+    }
+  }, [logout])
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -567,14 +576,7 @@ function App() {
   if (!isAuthenticated) {
     return (
       <Suspense fallback={<PageLoadingFallback />}>
-        <LoginPage
-          onLogin={() =>
-            login({
-              user: { id: 'local', name: 'Admin', email: 'admin@pmis.et', role: 'admin' },
-              token: 'mock-token',
-            })
-          }
-        />
+        <LoginPage onLogin={() => {}} />
       </Suspense>
     )
   }

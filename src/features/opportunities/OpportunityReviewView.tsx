@@ -42,21 +42,23 @@ export function OpportunityReviewView({
       </div>
 
       {/* Rejection banner */}
-      {opp.status === 'Rejected' && opp.rejectionReason && (
+      {opp.status === 'Rejected' && opp.approvalNotes && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4">
           <p className="text-sm font-semibold text-red-700">Rejection Reason</p>
-          <p className="mt-1 text-sm text-red-600">{opp.rejectionReason}</p>
-          {opp.rejectedBy && <p className="mt-1 text-xs text-red-400">— {opp.rejectedBy}</p>}
+          <p className="mt-1 text-sm text-red-600">{opp.approvalNotes}</p>
+          {opp.reviewedBy && (
+            <p className="mt-1 text-xs text-red-400">— {String(opp.reviewedBy)}</p>
+          )}
         </div>
       )}
 
       {/* Review comment banner */}
-      {opp.status === 'Pending Approval' && opp.reviewComment && (
+      {opp.status === 'Reviewed' && opp.reviewNotes && (
         <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
           <p className="text-sm font-semibold text-blue-700">
             Review Note — Knowledge &amp; Ecosystem Director
           </p>
-          <p className="mt-1 text-sm text-blue-600">{opp.reviewComment}</p>
+          <p className="mt-1 text-sm text-blue-600">{opp.reviewNotes}</p>
         </div>
       )}
 
@@ -75,13 +77,16 @@ export function OpportunityReviewView({
                   { label: 'Country', value: opp.country || 'N/A' },
                   { label: 'Website', value: opp.website || 'N/A' },
                   { label: 'Contact Person', value: opp.contactPersonName || 'N/A' },
-                  { label: 'Email', value: opp.email || 'N/A' },
-                  { label: 'Partner Interest Area', value: opp.partnerInterestArea || 'N/A' },
-                  { label: 'Opportunity Category', value: opp.opportunityCategory || 'N/A' },
-                  { label: 'Source', value: opp.source || 'N/A' },
+                  { label: 'Email', value: opp.contactEmail || 'N/A' },
+                  { label: 'Partner Interest Area', value: opp.interestArea || 'N/A' },
+                  { label: 'Opportunity Category', value: opp.opportunityCategory?.name || 'N/A' },
+                  { label: 'Source', value: opp.opportunitySource?.sourceName || 'N/A' },
                   { label: 'Division', value: opp.division || 'N/A' },
-                  { label: 'Strategic Importance', value: opp.strategicImportance || 'N/A' },
-                  { label: 'Date', value: opp.date || 'N/A' },
+                  {
+                    label: 'Strategic Importance',
+                    value: opp.strategicImportanceLevel?.levelName || 'N/A',
+                  },
+                  { label: 'Date', value: opp.dateIdentified || 'N/A' },
                 ].map((item, i, arr) => (
                   <div
                     key={item.label}
@@ -121,10 +126,12 @@ export function OpportunityReviewView({
           <div>
             <OpportunityTimeline
               opportunityStatus={opp.status}
-              registeredAt={opp.registeredAt}
-              sentForApprovalAt={opp.sentForApprovalAt}
+              createdAt={opp.createdAt}
+              screenedAt={opp.screenedAt}
+              verifiedAt={opp.verifiedAt}
+              reviewedAt={opp.reviewedAt}
               approvedAt={opp.approvedAt}
-              rejectedAt={opp.rejectedAt}
+              updatedAt={opp.updatedAt}
             />
           </div>
         </div>

@@ -42,10 +42,9 @@ apiClient.interceptors.response.use(
     switch (status) {
       case 401:
         // Unauthorized: token expired or missing
-        // In the future, trigger silent refresh token or redirect to Keycloak login
         toast.error('Session expired. Please log in again.')
         localStorage.removeItem('access_token')
-        // Optional redirect: window.location.href = '/login'
+        window.dispatchEvent(new Event('auth:unauthorized'))
         break
 
       case 403:
