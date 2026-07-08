@@ -9,6 +9,7 @@ import type {
   EngagementRecord,
   UserRecord,
   RoleRecord,
+  DivisionRecord,
 } from '@/types'
 
 const extractArray = (response: any) => {
@@ -22,7 +23,17 @@ const extractArray = (response: any) => {
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: axiosBaseQuery(),
-  tagTypes: ['Partner', 'Agreement', 'Opportunity', 'Event', 'Visit', 'Engagement', 'User', 'Role'],
+  tagTypes: [
+    'Partner',
+    'Agreement',
+    'Opportunity',
+    'Event',
+    'Visit',
+    'Engagement',
+    'User',
+    'Role',
+    'Division',
+  ],
   endpoints: builder => ({
     // --- Auth Endpoints ---
     login: builder.mutation<
@@ -288,11 +299,124 @@ export const apiSlice = createApi({
       transformResponse: extractArray,
     }),
 
+    // --- Divisions Endpoints ---
+    getDivisions: builder.query<DivisionRecord[], { includeDeleted?: boolean } | void>({
+      query: params => ({ url: '/divisions', method: 'GET', params: params ?? {} }),
+      providesTags: ['Division'],
+      transformResponse: extractArray,
+    }),
+    getDivisionById: builder.query<DivisionRecord, string>({
+      query: id => ({ url: `/divisions/${id}`, method: 'GET' }),
+      providesTags: (result, error, id) => [{ type: 'Division', id }],
+    }),
+    getDivisionUsers: builder.query<UserRecord[], string>({
+      query: id => ({ url: `/divisions/${id}/users`, method: 'GET' }),
+      providesTags: (result, error, id) => [{ type: 'Division', id }],
+      transformResponse: extractArray,
+    }),
+    createDivision: builder.mutation<DivisionRecord, { name: string; directorId?: string }>({
+      query: data => ({ url: '/divisions', method: 'POST', data }),
+      invalidatesTags: ['Division'],
+    }),
+    updateDivision: builder.mutation<
+      DivisionRecord,
+      { id: string; name?: string; directorId?: string }
+    >({
+      query: ({ id, ...data }) => ({ url: `/divisions/${id}`, method: 'PATCH', data }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Division', id }, 'Division'],
+    }),
+    deleteDivision: builder.mutation<void, string>({
+      query: id => ({ url: `/divisions/${id}`, method: 'DELETE' }),
+      invalidatesTags: ['Division'],
+    }),
+    permanentDeleteDivision: builder.mutation<void, string>({
+      query: id => ({ url: `/divisions/${id}/permanent`, method: 'DELETE' }),
+      invalidatesTags: ['Division'],
+    }),
+    restoreDivision: builder.mutation<DivisionRecord, string>({
+      query: id => ({ url: `/divisions/${id}/restore`, method: 'PATCH' }),
+      invalidatesTags: (result, error, id) => [{ type: 'Division', id }, 'Division'],
+    }),
+    assignDirector: builder.mutation<DivisionRecord, { id: string; userId: string }>({
+      query: ({ id, userId }) => ({ url: `/divisions/${id}/director/${userId}`, method: 'POST' }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Division', id }, 'Division'],
+    }),
+    removeDirector: builder.mutation<DivisionRecord, string>({
+      query: id => ({ url: `/divisions/${id}/director`, method: 'DELETE' }),
+      invalidatesTags: (result, error, id) => [{ type: 'Division', id }, 'Division'],
+    }),
+
     // --- Roles Endpoints ---
     getRoles: builder.query<RoleRecord[], void>({
       query: () => ({ url: '/roles', method: 'GET' }),
       providesTags: ['Role'],
       transformResponse: extractArray,
+    }),
+    getRoleById: builder.query<RoleRecord, string>({
+      query: id => ({ url: `/roles/${id}`, method: 'GET' }),
+      providesTags: (result, error, id) => [{ type: 'Role', id }],
+    }),
+    getRoleByName: builder.query<RoleRecord, string>({
+      query: name => ({ url: `/roles/name/${name}`, method: 'GET' }),
+    }),
+    createRole: builder.mutation<RoleRecord, { name: string; description?: string }>({
+      query: data => ({ url: '/roles', method: 'POST', data }),
+      invalidatesTags: ['Role'],
+    }),
+    updateRole: builder.mutation<RoleRecord, { id: string; name?: string; description?: string }>({
+      query: ({ id, ...data }) => ({ url: `/roles/${id}`, method: 'PATCH', data }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Role', id }, 'Role'],
+    }),
+    deleteRole: builder.mutation<void, string>({
+      query: id => ({ url: `/roles/${id}`, method: 'DELETE' }),
+      invalidatesTags: ['Role'],
+    }),
+    permanentDeleteRole: builder.mutation<void, string>({
+      query: id => ({ url: `/roles/${id}/permanent`, method: 'DELETE' }),
+      invalidatesTags: ['Role'],
+    }),
+    restoreRole: builder.mutation<RoleRecord, string>({
+      query: id => ({ url: `/roles/${id}/restore`, method: 'PATCH' }),
+      invalidatesTags: (result, error, id) => [{ type: 'Role', id }, 'Role'],
+    }),
+    addPermissionToRole: builder.mutation<RoleRecord, { roleId: string; permissionId: string }>({
+      query: ({ roleId, permissionId }) => ({
+        url: `/roles/${roleId}/permissions/${permissionId}`,
+        method: 'POST',
+      }),
+      invalidatesTags: (result, error, { roleId }) => [{ type: 'Role', id: roleId }, 'Role'],
+    }),
+    removePermissionFromRole: builder.mutation<
+      RoleRecord,
+      { roleId: string; permissionId: string }
+    >({
+      query: ({ roleId, permissionId }) => ({
+        url: `/roles/${roleId}/permissions/${permissionId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, { roleId }) => [{ type: 'Role', id: roleId }, 'Role'],
+    }),
+    bulkAddPermissionsToRole: builder.mutation<
+      RoleRecord,
+      { roleId: string; permissionIds: string[] }
+    >({
+      query: ({ roleId, permissionIds }) => ({
+        url: `/roles/${roleId}/permissions`,
+        method: 'POST',
+        data: { permissionIds },
+      }),
+      invalidatesTags: (result, error, { roleId }) => [{ type: 'Role', id: roleId }, 'Role'],
+    }),
+    bulkRemovePermissionsFromRole: builder.mutation<
+      RoleRecord,
+      { roleId: string; permissionIds: string[] }
+    >({
+      query: ({ roleId, permissionIds }) => ({
+        url: `/roles/${roleId}/permissions`,
+        method: 'DELETE',
+        data: { permissionIds },
+      }),
+      invalidatesTags: (result, error, { roleId }) => [{ type: 'Role', id: roleId }, 'Role'],
     }),
   }),
 })

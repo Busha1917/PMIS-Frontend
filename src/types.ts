@@ -82,6 +82,25 @@ export type UserRole =
 
 export type UserStatus = 'Active' | 'Pending' | 'Inactive'
 
+export type DivisionUserSummary = {
+  id: string
+  fullName: string
+  email: string
+  position: string
+  phone: string
+}
+
+export type DivisionRecord = {
+  id: string
+  name: string
+  directorId: string | null
+  director: DivisionUserSummary | null
+  users?: DivisionUserSummary[]
+  createdAt?: string
+  updatedAt?: string
+  deletedAt?: string | null
+}
+
 export type UserRecord = {
   id: string
   no: number
