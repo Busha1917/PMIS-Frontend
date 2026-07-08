@@ -16,7 +16,11 @@ import { StatusBadge } from '../../components/StatusBadge'
 import { FilterDrawer } from '../../components/FilterDrawer'
 import type { FilterValues } from '../../components/FilterDrawer'
 import type { AuditTrailEntry, EventRecord } from '../../types'
-import { eventsStore } from './eventsStore'
+import {
+  useGetEventsQuery,
+  useVerifyEventMutation,
+  useReviewEventMutation,
+} from '../../store/apiSlice'
 import { Button } from '../../ui'
 
 const FILTER_FIELDS = [
@@ -121,7 +125,9 @@ function AuditTimeline({ trail }: { trail: AuditTrailEntry[] }) {
 }
 
 export function DirectorGeneralEventsPage() {
-  const [records, setRecords] = useState<EventRecord[]>(eventsStore.getAll())
+  const { data: allRecords = [], isLoading } = useGetEventsQuery({})
+  const [verifyEvent] = useVerifyEventMutation()
+  const [reviewEvent] = useReviewEventMutation()
   const [selected, setSelected] = useState<EventRecord | null>(null)
   const [showFilter, setShowFilter] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -140,24 +146,16 @@ export function DirectorGeneralEventsPage() {
   // Final complete modal state
   const [showCompleteModal, setShowCompleteModal] = useState(false)
 
-  useEffect(() => {
-    return eventsStore.subscribe(() => setRecords(eventsStore.getAll()))
-  }, [])
-
-  // DG sees all records that have been submitted (not Draft)
   const queue = useMemo(() => {
-    return records.filter(item => {
-      if (item.status === 'Draft') return false
+    return allRecords.filter(item => {
+      if (item.status === 'Planned') return false
       if (searchQuery && !item.title.toLowerCase().includes(searchQuery.toLowerCase())) return false
-      if (activeFilters.category && (item.category ?? 'Event') !== activeFilters.category)
-        return false
       if (activeFilters.status && item.status !== activeFilters.status) return false
       return true
     })
-  }, [records, searchQuery, activeFilters])
+  }, [allRecords, searchQuery, activeFilters])
 
   const updateAndSync = (updated: EventRecord) => {
-    eventsStore.update(updated)
     setSelected(updated)
   }
 

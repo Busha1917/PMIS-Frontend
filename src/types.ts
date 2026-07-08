@@ -180,100 +180,190 @@ export type FeedbackEntry = {
   comment: string
 }
 
-export type EventRecord = {
-  id: string
-  no: number
-  title: string
-  type: string
-  date: string
-  endDate?: string
-  visitEndDate?: string
-  startTime?: string
-  endTime?: string
-  venue: string // Maps to Venue / Host Org / Location
-  status:
-    | 'Draft'
-    | 'Pending Review'
-    | 'Approved'
-    | 'Pending Final Review'
-    | 'Rejected'
-    | 'Completed'
+// ── Event Sub-types ────────────────────────────────────────────────────────
+export type EventParticipant = {
+  id?: number
+  participantUid?: string
+  fullName: string
+  organizationName: string
+  position?: string | null
+  email?: string | null
+  phoneNumber?: string | null
+  participantType?: string
+}
 
-  // DG Review Fields
-  assignedPerson?: string
-  assignedPersonId?: string
-  reviewComment?: string
-  outcomeDueDate?: string // ISO 8601 date-only YYYY-MM-DD
-  hasOutcomeDraft?: boolean
-  auditTrail?: AuditTrailEntry[]
-  feedbackEntries?: FeedbackEntry[]
+export type EventEaiiParticipant = {
+  id?: number
+  userId?: string | number
+  user?: any
+  name?: string
+  email?: string
+  division?: string
+}
 
-  // New Fields
-  category?: 'Event' | 'Visit'
-
-  // If Event details
-  eventCategory?: 'Internal' | 'Joint'
-  organizer?: string
-  coOrganizer?: string
-  eventMode?: 'Physically' | 'Virtual' | 'Hybrid'
-  partnerParticipants?: PartnerParticipant[]
-  eaiiParticipants?: EaiiParticipant[]
+export type EventBudget = {
+  id?: number
+  budgetUid?: string
   estimatedBudget?: number
   actualBudget?: number
-  fundingScore?: number
+  fundingSource?: string
+}
+
+export type EventOutcome = {
+  id?: number
+  outcomeUid?: string
   keyDiscussions?: string
   agreementsReached?: string
   actionPoints?: string
   objectivesAchieved?: string
   recommendations?: string
-  // Event Attachments (filenames, references, or uploaded files)
-  attachmentsAgenda?: AttachmentValue
-  attachmentsAttendanceSheet?: AttachmentValue
-  attachmentsPresentations?: AttachmentValue
-  attachmentsPhotos?: AttachmentValue
-  attachmentsVideos?: AttachmentValue
-  attachmentsEventReport?: AttachmentValue
+}
 
-  // If Visit details
-  visitType?:
-    | 'Incoming visit'
-    | 'outgoing visit'
-    | 'technical visit'
-    | 'courtesy visit'
-    | 'site visit'
-    | 'delegation visit'
-    | 'benchmarking visit'
-    | 'international visit'
-  visitCategory?: 'Internal' | 'external' | 'international'
+export type EventTypeRef = { id: number | string; typeName: string; description?: string | null }
+export type EventCategoryRef = {
+  id: number | string
+  categoryName: string
+  description?: string | null
+}
+export type EventModeRef = { id: number | string; modeName: string; description?: string | null }
+
+export type EventRecord = {
+  id: string | number
+  eventUid?: string
+  recordId?: string
+  title: string
+  eventName?: string
+  eventType?: EventTypeRef | string | any
+  eventTypeId?: string
+  eventCategory?: EventCategoryRef | string | any
+  eventCategoryId?: string
+  eventDate?: string
+  startTime?: string | null
+  endTime?: string | null
+  venue: string
+  organizer?: string | null
+  coOrganizer?: string | null
+  eventMode?: EventModeRef | string | any
+  eventModeId?: string
+  partnerId?: string | null
+  status:
+    | 'Planned'
+    | 'Ongoing'
+    | 'Completed'
+    | 'Cancelled'
+    | 'Follow-up Required'
+    | 'Draft'
+    | 'Pending Review'
+    | 'Approved'
+    | 'Pending Final Review'
+    | 'Rejected'
+  verifiedStatus?: string | null
+  reviewNotes?: string | null
+  verificationNotes?: string | null
+  participants?: EventParticipant[]
+  eaiiParticipants?: EventEaiiParticipant[]
+  budget?: EventBudget | null
+  outcomes?: EventOutcome[]
+  createdAt?: string
+  updatedAt?: string
+  createdBy?: any
+
+  // Legacy UI fields (kept for form compatibility)
+  no?: number
+  date?: string // alias for eventDate in old forms
+  type?: string // alias for eventType.typeName in old forms
+  category?: 'Event' | 'Visit'
+  auditTrail?: AuditTrailEntry[]
+  feedbackEntries?: FeedbackEntry[]
+  assignedPerson?: string
+  assignedPersonId?: string
+  reviewComment?: string
+  outcomeDueDate?: string
+  hasOutcomeDraft?: boolean
+  endDate?: string
+  visitType?: string | any
+  visitCategory?: string | any
   visitDate?: string
+  visitEndDate?: string
   hostOrganization?: string
   visitingOrganization?: string
   visitLocations?: string
   purposeOfVisit?: string
-
-  // Focal Person
-  focalPersonName?: string
-  focalPersonDivision?: string
-  focalPersonEmail?: string
-
-  // Delegation
-  delegations?: DelegationMember[]
-
-  // Discussion Summary (Visit)
+  estimatedBudget?: number
+  actualBudget?: number
+  fundingScore?: number
+  partnerParticipants?: any[]
+  keyDiscussions?: string
+  agreementsReached?: string
+  actionPoints?: string
+  objectivesAchieved?: string
+  recommendations?: string
   keyTopicsDiscussed?: string
   opportunitiesIdentified?: string
   visitAgreementsReached?: string
   followUpActions?: string
-
-  // Visit Attachments
-  visitAttachmentsSchedule?: AttachmentValue
-  visitAttachmentsAttendanceList?: AttachmentValue
-  visitAttachmentsMinutes?: AttachmentValue
-  visitAttachmentsPhotos?: AttachmentValue
-  visitAttachmentsVideos?: AttachmentValue
-  visitAttachmentsPresentations?: AttachmentValue
-  visitAttachmentsReport?: AttachmentValue
+  focalPersonName?: string
+  focalPersonDivision?: string
+  focalPersonEmail?: string
   rejectionReason?: string
+  attachmentsAgenda?: any
+  delegations?: any
+}
+
+// ── Visit Sub-types ────────────────────────────────────────────────────────
+export type VisitDelegate = {
+  id?: string
+  delegateUid?: string
+  fullName: string
+  position?: string | null
+  organizationName?: string | null
+  country?: string | null
+  email?: string | null
+  phoneNumber?: string | null
+  status?: string | null
+}
+
+export type VisitOutcome = {
+  id?: string
+  outcomeUid?: string
+  keyTopicsDiscussed?: string
+  opportunitiesIdentified?: string
+  agreementsReached?: string
+  followUpActions?: string
+}
+
+export type VisitTypeRef = { id: string; typeName: string; description?: string | null }
+export type VisitCategoryRef = { id: string; categoryName: string; description?: string | null }
+
+export type VisitRecord = {
+  id: string
+  visitUid?: string
+  recordId?: string
+  title: string
+  visitType?: VisitTypeRef
+  visitTypeId?: string
+  visitCategory?: VisitCategoryRef
+  visitCategoryId?: string
+  visitDate: string
+  hostOrganization?: string | null
+  visitingOrganization?: string | null
+  visitLocation?: string | null
+  purpose?: string | null
+  focalPerson?: any
+  focalPersonId?: string | null
+  partnerId?: string | null
+  status: 'Planned' | 'Ongoing' | 'Completed' | 'Cancelled' | 'Follow-up Required'
+  verifiedStatus?: string | null
+  reviewNotes?: string | null
+  verificationNotes?: string | null
+  delegates?: VisitDelegate[]
+  outcome?: VisitOutcome | null
+  createdAt?: string
+  updatedAt?: string
+  createdBy?: any
+
+  // Legacy UI fields
+  no?: number
 }
 
 export type OpportunityStatus =

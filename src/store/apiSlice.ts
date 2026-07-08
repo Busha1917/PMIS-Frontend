@@ -5,6 +5,7 @@ import type {
   AgreementRecord,
   OpportunityRecord,
   EventRecord,
+  VisitRecord,
   EngagementRecord,
   UserRecord,
   RoleRecord,
@@ -21,7 +22,7 @@ const extractArray = (response: any) => {
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: axiosBaseQuery(),
-  tagTypes: ['Partner', 'Agreement', 'Opportunity', 'Event', 'Engagement', 'User', 'Role'],
+  tagTypes: ['Partner', 'Agreement', 'Opportunity', 'Event', 'Visit', 'Engagement', 'User', 'Role'],
   endpoints: builder => ({
     // --- Auth Endpoints ---
     login: builder.mutation<
@@ -58,9 +59,24 @@ export const apiSlice = createApi({
       providesTags: ['Agreement'],
       transformResponse: extractArray,
     }),
-    createAgreement: builder.mutation<AgreementRecord, Omit<AgreementRecord, 'id' | 'no'>>({
+    createAgreement: builder.mutation<AgreementRecord, Partial<AgreementRecord>>({
       query: data => ({ url: '/agreements', method: 'POST', data }),
       invalidatesTags: ['Agreement'],
+    }),
+    getAgreementById: builder.query<AgreementRecord, string>({
+      query: id => ({ url: `/agreements/${id}`, method: 'GET' }),
+      providesTags: (result, error, id) => [{ type: 'Agreement', id }],
+    }),
+    updateAgreement: builder.mutation<
+      AgreementRecord,
+      { id: string | number } & Partial<AgreementRecord>
+    >({
+      query: ({ id, ...patch }) => ({
+        url: `/agreements/${id}`,
+        method: 'PATCH',
+        data: patch,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Agreement', id }, 'Agreement'],
     }),
 
     // --- Opportunities Endpoints ---
@@ -114,11 +130,89 @@ export const apiSlice = createApi({
     }),
 
     // --- Events Endpoints ---
-    getEvents: builder.query<EventRecord[], void>({
-      query: () => ({ url: '/events', method: 'GET' }),
+    getEvents: builder.query<EventRecord[], Record<string, any>>({
+      query: params => ({ url: '/events', method: 'GET', params }),
       providesTags: ['Event'],
       transformResponse: extractArray,
     }),
+    getEventById: builder.query<EventRecord, string>({
+      query: id => ({ url: `/events/${id}`, method: 'GET' }),
+      providesTags: (result, error, id) => [{ type: 'Event', id }],
+    }),
+    createEvent: builder.mutation<EventRecord, Partial<EventRecord>>({
+      query: data => ({ url: '/events', method: 'POST', data }),
+      invalidatesTags: ['Event'],
+    }),
+    updateEvent: builder.mutation<EventRecord, { id: string | number; data: Partial<EventRecord> }>(
+      {
+        query: ({ id, data }) => ({ url: `/events/${id}`, method: 'PATCH', data }),
+        invalidatesTags: (result, error, { id }) => [{ type: 'Event', id: String(id) }, 'Event'],
+      }
+    ),
+    deleteEvent: builder.mutation<void, string | number>({
+      query: id => ({ url: `/events/${id}`, method: 'DELETE' }),
+      invalidatesTags: ['Event'],
+    }),
+    verifyEvent: builder.mutation<EventRecord, string | number>({
+      query: id => ({ url: `/events/${id}/verify`, method: 'PATCH' }),
+      invalidatesTags: (result, error, id) => [{ type: 'Event', id: String(id) }, 'Event'],
+    }),
+    reviewEvent: builder.mutation<EventRecord, string | number>({
+      query: id => ({ url: `/events/${id}/review`, method: 'PATCH' }),
+      invalidatesTags: (result, error, id) => [{ type: 'Event', id: String(id) }, 'Event'],
+    }),
+    createEventOutcome: builder.mutation<EventRecord, { id: string | number; data: any }>({
+      query: ({ id, data }) => ({ url: `/events/${id}/outcomes`, method: 'POST', data }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Event', id: String(id) }, 'Event'],
+    }),
+    updateEventOutcome: builder.mutation<
+      EventRecord,
+      { id: string | number; outcomeId: string | number; data: any }
+    >({
+      query: ({ id, outcomeId, data }) => ({
+        url: `/events/${id}/outcomes/${outcomeId}`,
+        method: 'PATCH',
+        data,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Event', id: String(id) }, 'Event'],
+    }),
+
+    // --- Visits Endpoints ---
+    getVisits: builder.query<VisitRecord[], Record<string, any>>({
+      query: params => ({ url: '/visits', method: 'GET', params }),
+      providesTags: ['Visit'],
+      transformResponse: extractArray,
+    }),
+    getVisitById: builder.query<VisitRecord, string>({
+      query: id => ({ url: `/visits/${id}`, method: 'GET' }),
+      providesTags: (result, error, id) => [{ type: 'Visit', id }],
+    }),
+    createVisit: builder.mutation<VisitRecord, Partial<VisitRecord>>({
+      query: data => ({ url: '/visits', method: 'POST', data }),
+      invalidatesTags: ['Visit'],
+    }),
+    updateVisit: builder.mutation<VisitRecord, { id: string; data: Partial<VisitRecord> }>({
+      query: ({ id, data }) => ({ url: `/visits/${id}`, method: 'PATCH', data }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Visit', id }, 'Visit'],
+    }),
+    deleteVisit: builder.mutation<void, string>({
+      query: id => ({ url: `/visits/${id}`, method: 'DELETE' }),
+      invalidatesTags: ['Visit'],
+    }),
+    createVisitOutcome: builder.mutation<VisitRecord, { id: string; data: any }>({
+      query: ({ id, data }) => ({ url: `/visits/${id}/outcomes`, method: 'POST', data }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Visit', id }, 'Visit'],
+    }),
+    updateVisitOutcome: builder.mutation<VisitRecord, { id: string; outcomeId: string; data: any }>(
+      {
+        query: ({ id, outcomeId, data }) => ({
+          url: `/visits/${id}/outcomes/${outcomeId}`,
+          method: 'PATCH',
+          data,
+        }),
+        invalidatesTags: (result, error, { id }) => [{ type: 'Visit', id }, 'Visit'],
+      }
+    ),
 
     // --- Engagements Endpoints ---
     getEngagements: builder.query<EngagementRecord[], void>({
@@ -181,7 +275,9 @@ export const {
   useUpdatePartnerMutation,
   useDeletePartnerMutation,
   useGetAgreementsQuery,
+  useGetAgreementByIdQuery,
   useCreateAgreementMutation,
+  useUpdateAgreementMutation,
   useGetOpportunitiesQuery,
   useGetOpportunityByIdQuery,
   useCreateOpportunityMutation,
@@ -194,6 +290,21 @@ export const {
   useRejectOpportunityMutation,
   useConvertOpportunityMutation,
   useGetEventsQuery,
+  useGetEventByIdQuery,
+  useCreateEventMutation,
+  useUpdateEventMutation,
+  useDeleteEventMutation,
+  useVerifyEventMutation,
+  useReviewEventMutation,
+  useCreateEventOutcomeMutation,
+  useUpdateEventOutcomeMutation,
+  useGetVisitsQuery,
+  useGetVisitByIdQuery,
+  useCreateVisitMutation,
+  useUpdateVisitMutation,
+  useDeleteVisitMutation,
+  useCreateVisitOutcomeMutation,
+  useUpdateVisitOutcomeMutation,
   useGetEngagementsQuery,
   useGetEngagementByIdQuery,
   useCreateEngagementMutation,

@@ -9,7 +9,7 @@ import type { EmptyStateVariant } from './EmptyState'
 
 type DataColumn<T> = {
   label: string
-  render: (item: T, index?: number) => ReactNode
+  render: (item: T, index: number) => ReactNode
   headClassName?: string
   cellClassName?: string
 }
@@ -24,6 +24,7 @@ type DataTableProps<T> = {
   emptyMessage?: string
   emptyAction?: ReactNode
   showPagination?: boolean
+  isLoading?: boolean
 }
 
 export function DataTable<T>({
@@ -36,6 +37,7 @@ export function DataTable<T>({
   emptyMessage,
   emptyAction,
   showPagination = true,
+  isLoading,
 }: DataTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -79,7 +81,19 @@ export function DataTable<T>({
             </TableHeader>
 
             <TableBody>
-              {paginatedItems.length === 0 ? (
+              {isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-[400px] text-center text-slate-500 bg-white"
+                  >
+                    <div className="flex flex-col items-center justify-center gap-3">
+                      <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-[#161A61]" />
+                      <p className="text-sm font-medium">Loading data...</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : paginatedItems.length === 0 ? (
                 <tr>
                   <td colSpan={columns.length} className="bg-white">
                     <EmptyState

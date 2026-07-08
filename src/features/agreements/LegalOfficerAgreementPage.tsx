@@ -8,8 +8,8 @@ import { StatusBadge } from '../../components/StatusBadge'
 import { FilterDrawer } from '../../components/FilterDrawer'
 import type { FilterValues } from '../../components/FilterDrawer'
 import { Button, Modal } from '../../ui'
-import type { AgreementRecord, AgreementAmendment } from '../../types'
-import { agreementStore } from './agreementStore'
+import type { AgreementAmendment, AgreementRecord } from '../../types'
+import { useGetAgreementsQuery, useUpdateAgreementMutation } from '../../store/apiSlice'
 
 const FILTER_FIELDS = [
   {
@@ -490,13 +490,13 @@ function DetailView({ agreement, onVerify, onReject, onAmend, onBack }: DetailVi
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export function LegalOfficerAgreementPage() {
-  const [agreements, setAgreements] = useState<AgreementRecord[]>(() => agreementStore.getAll())
+  const { data: agreements = [], isLoading } = useGetAgreementsQuery()
+  const [updateAgreement] = useUpdateAgreementMutation()
+
   const [selected, setSelected] = useState<AgreementRecord | null>(null)
   const [showFilter, setShowFilter] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilters, setActiveFilters] = useState<FilterValues>({})
-
-  useEffect(() => agreementStore.subscribe(setAgreements), [])
 
   // Legal Officer only sees submitted agreements (Pending Verification, Verified, Rejected)
   const filtered = useMemo(() => {
@@ -513,7 +513,7 @@ export function LegalOfficerAgreementPage() {
     })
   }, [agreements, searchQuery, activeFilters])
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     if (!selected) return
     const updated: AgreementRecord = {
       ...selected,
@@ -521,12 +521,16 @@ export function LegalOfficerAgreementPage() {
       verifiedBy: 'Legal Officer',
       verifiedAt: new Date().toISOString(),
     }
-    agreementStore.update(updated)
-    setSelected(updated)
-    toast.success('Agreement verified', { description: updated.title })
+    try {
+      await updateAgreement(updated).unwrap()
+      setSelected(updated)
+      toast.success('Agreement verified', { description: updated.title })
+    } catch {
+      toast.error('Failed to verify agreement')
+    }
   }
 
-  const handleReject = (reason: string) => {
+  const handleReject = async (reason: string) => {
     if (!selected) return
     const updated: AgreementRecord = {
       ...selected,
@@ -535,12 +539,16 @@ export function LegalOfficerAgreementPage() {
       legalRejectedAt: new Date().toISOString(),
       legalRejectionReason: reason,
     }
-    agreementStore.update(updated)
-    setSelected(updated)
-    toast.error('Agreement rejected', { description: updated.title })
+    try {
+      await updateAgreement(updated).unwrap()
+      setSelected(updated)
+      toast.error('Agreement rejected', { description: updated.title })
+    } catch {
+      toast.error('Failed to reject agreement')
+    }
   }
 
-  const handleAmend = (comments: string, files: File[]) => {
+  const handleAmend = async (comments: string, files: File[]) => {
     if (!selected) return
 
     // Convert files to attachment names/references
@@ -564,11 +572,15 @@ export function LegalOfficerAgreementPage() {
       currentVersion: newAmendment.versionNumber,
     }
 
-    agreementStore.update(updated)
-    setSelected(updated)
-    toast.success('Amendment sent to officer', {
-      description: `Version ${newAmendment.versionNumber} amendments requested${files.length > 0 ? ` with ${files.length} attachment(s)` : ''}`,
-    })
+    try {
+      await updateAgreement(updated).unwrap()
+      setSelected(updated)
+      toast.success('Amendment sent to officer', {
+        description: `Version ${newAmendment.versionNumber} amendments requested${files.length > 0 ? ` with ${files.length} attachment(s)` : ''}`,
+      })
+    } catch {
+      toast.error('Failed to send amendment')
+    }
   }
 
   if (selected) {
@@ -597,6 +609,7 @@ export function LegalOfficerAgreementPage() {
       />
       <DataTable
         items={filtered}
+        isLoading={isLoading}
         rowKey={item => item.id}
         emptyVariant="agreements"
         columns={[

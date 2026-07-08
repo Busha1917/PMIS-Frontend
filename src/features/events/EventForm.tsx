@@ -14,9 +14,9 @@ import { OutcomeDraftPanel, type OutcomeDraftPanelHandle } from '../../component
 type EventFormMode = 'create' | 'edit' | 'preview'
 
 type EventFormProps = {
-  event?: EventRecord | null
+  event?: any
   mode?: EventFormMode
-  onSubmit?: (event: EventRecord) => void
+  onSubmit?: (event: any) => void
   onCancel?: () => void
   onEdit?: () => void
   userRole?: 'Officer' | 'Director General' | 'Assigned Person'
@@ -1303,7 +1303,7 @@ export function EventForm({
                   <Button
                     variant="outline"
                     type="button"
-                    onClick={() => handleRemoveEaiiParticipant(participant.email)}
+                    onClick={() => handleRemoveEaiiParticipant(participant.email!)}
                   >
                     Remove
                   </Button>

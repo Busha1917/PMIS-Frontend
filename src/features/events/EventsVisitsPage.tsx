@@ -1,8 +1,6 @@
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { DataTable } from '../../components/DataTable'
-import { EventForm } from './EventForm'
-import { KanbanBoard } from '../../components/KanbanBoard'
 import { PageToolbar } from '../../components/PageToolbar'
 import { PageHeaderCard } from '../../components/PageHeaderCard'
 import { StatusBadge } from '../../components/StatusBadge'
@@ -10,332 +8,275 @@ import { TableActionButtons } from '../../components/TableActionButtons'
 import { ConfirmationModal } from '../../components/ConfirmationModal'
 import { FilterDrawer } from '../../components/FilterDrawer'
 import type { FilterValues } from '../../components/FilterDrawer'
-import type { EventRecord } from '../../types'
-import { events as initialEvents } from '../../data'
-import { exportToCsv } from '../../utils/exportCsv'
-import { useAuth } from '../../hooks/useAuth'
+import type { EventRecord, VisitRecord } from '../../types'
+import {
+  useGetEventsQuery,
+  useGetVisitsQuery,
+  useDeleteEventMutation,
+  useDeleteVisitMutation,
+} from '../../store/apiSlice'
 
-const FILTER_FIELDS = [
-  {
-    key: 'category',
-    label: 'Category',
-    type: 'select' as const,
-    options: [
-      { label: 'Event', value: 'Event' },
-      { label: 'Visit', value: 'Visit' },
-    ],
-  },
+const EVENT_FILTER_FIELDS = [
   {
     key: 'status',
     label: 'Status',
     type: 'select' as const,
     options: [
-      { label: 'Draft', value: 'Draft' },
-      { label: 'Pending Review', value: 'Pending Review' },
-      { label: 'Approved', value: 'Approved' },
-      { label: 'Pending Final Review', value: 'Pending Final Review' },
-      { label: 'Rejected', value: 'Rejected' },
+      { label: 'Planned', value: 'Planned' },
+      { label: 'Ongoing', value: 'Ongoing' },
       { label: 'Completed', value: 'Completed' },
+      { label: 'Cancelled', value: 'Cancelled' },
+      { label: 'Follow-up Required', value: 'Follow-up Required' },
     ],
-  },
-  {
-    key: 'type',
-    label: 'Type',
-    type: 'text' as const,
-    placeholder: 'e.g. Workshop, delegation visit...',
-  },
-  {
-    key: 'venue',
-    label: 'Venue / Location',
-    type: 'text' as const,
-    placeholder: 'Search by venue...',
   },
 ]
 
+const VISIT_FILTER_FIELDS = [
+  {
+    key: 'status',
+    label: 'Status',
+    type: 'select' as const,
+    options: [
+      { label: 'Planned', value: 'Planned' },
+      { label: 'Ongoing', value: 'Ongoing' },
+      { label: 'Completed', value: 'Completed' },
+      { label: 'Cancelled', value: 'Cancelled' },
+      { label: 'Follow-up Required', value: 'Follow-up Required' },
+    ],
+  },
+]
+
+type Tab = 'events' | 'visits'
+
 export function EventsVisitsPage() {
-  const [events, setEvents] = useState<EventRecord[]>(initialEvents)
-  const { role } = useAuth()
-  const userRole = role as 'Officer' | 'Director General'
-  const [showForm, setShowForm] = useState(false)
+  const [activeTab, setActiveTab] = useState<Tab>('events')
   const [showFilter, setShowFilter] = useState(false)
-  const [selectedEvent, setSelectedEvent] = useState<EventRecord | null>(null)
-  const [formMode, setFormMode] = useState<'create' | 'edit' | 'preview'>('create')
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list')
   const [activeFilters, setActiveFilters] = useState<FilterValues>({})
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [selectedId, setSelectedId] = useState<string | number | null>(null)
+  const [deleteType, setDeleteType] = useState<'event' | 'visit'>('event')
+
+  const { data: events = [], isLoading: eventsLoading } = useGetEventsQuery({})
+  const { data: visits = [], isLoading: visitsLoading } = useGetVisitsQuery({})
+  const [deleteEvent] = useDeleteEventMutation()
+  const [deleteVisit] = useDeleteVisitMutation()
 
   const filteredEvents = useMemo(() => {
     return events.filter(item => {
       if (searchQuery && !item.title.toLowerCase().includes(searchQuery.toLowerCase())) return false
-      if (activeFilters.category && (item.category ?? 'Event') !== activeFilters.category)
-        return false
       if (activeFilters.status && item.status !== activeFilters.status) return false
-      if (activeFilters.type && !item.type.toLowerCase().includes(activeFilters.type.toLowerCase()))
-        return false
-      if (
-        activeFilters.venue &&
-        !item.venue.toLowerCase().includes(activeFilters.venue.toLowerCase())
-      )
-        return false
       return true
     })
   }, [events, searchQuery, activeFilters])
 
-  const isFiltering = searchQuery !== '' || Object.keys(activeFilters).length > 0
+  const filteredVisits = useMemo(() => {
+    return visits.filter(item => {
+      if (searchQuery && !item.title.toLowerCase().includes(searchQuery.toLowerCase())) return false
+      if (activeFilters.status && item.status !== activeFilters.status) return false
+      return true
+    })
+  }, [visits, searchQuery, activeFilters])
 
-  const handleAddNew = () => {
-    setSelectedEvent(null)
-    setFormMode('create')
-    setShowForm(true)
-  }
-
-  const handleView = (event: EventRecord) => {
-    setSelectedEvent(event)
-    setFormMode('preview')
-    setShowForm(true)
-  }
-
-  const handleEdit = (event: EventRecord) => {
-    setSelectedEvent(event)
-    setFormMode('edit')
-    setShowForm(true)
-  }
-
-  const handleDelete = (event: EventRecord) => {
-    setSelectedEvent(event)
+  const handleDeleteEvent = (item: EventRecord) => {
+    setSelectedId(item.id)
+    setDeleteType('event')
     setShowDeleteModal(true)
   }
 
-  const handleSubmit = (eventData: EventRecord) => {
-    if ((formMode === 'edit' || formMode === 'preview') && selectedEvent) {
-      setEvents(current => current.map(item => (item.id === selectedEvent.id ? eventData : item)))
-      setSelectedEvent(eventData)
-      toast.success('Record updated', { description: eventData.title })
-    } else {
-      setEvents(current => [
-        ...current,
-        { ...eventData, id: `evt-${Date.now()}`, no: current.length + 1 },
-      ])
-      toast.success('Record added', { description: eventData.title })
+  const handleDeleteVisit = (item: VisitRecord) => {
+    setSelectedId(item.id)
+    setDeleteType('visit')
+    setShowDeleteModal(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!selectedId) return
+    try {
+      if (deleteType === 'event') {
+        await deleteEvent(selectedId).unwrap()
+        toast.success('Event deleted')
+      } else {
+        await deleteVisit(String(selectedId)).unwrap()
+        toast.success('Visit deleted')
+      }
+    } catch {
+      toast.error('Failed to delete record')
     }
-    setShowForm(false)
-    setSelectedEvent(null)
-    setFormMode('create')
-  }
-
-  const handleCancel = () => {
-    setShowForm(false)
-    setSelectedEvent(null)
-    setFormMode('create')
-  }
-
-  const confirmDelete = () => {
-    if (!selectedEvent) return
-    setEvents(current => current.filter(item => item.id !== selectedEvent.id))
     setShowDeleteModal(false)
-    setSelectedEvent(null)
-    setFormMode('create')
+    setSelectedId(null)
   }
 
-  const handleExport = () => {
-    exportToCsv(
-      'events-visits',
-      ['#', 'Title', 'Category', 'Type', 'Date & Time', 'Venue / Location', 'Status'],
-      [
-        filteredEvents.map((item, i) => [
-          i + 1,
-          item.title,
-          item.category || 'Event',
-          item.type,
-          item.date,
-          item.venue,
-          item.status,
-        ]),
-      ]
-    )
-    toast.success('Exported to CSV', { description: `${filteredEvents.length} records` })
-  }
+  const tabCls = (tab: Tab) =>
+    `px-6 py-2.5 text-sm font-semibold rounded-lg transition-colors ${
+      activeTab === tab ? 'bg-[#161A61] text-white shadow' : 'text-slate-600 hover:bg-slate-100'
+    }`
 
   return (
     <div className="space-y-6">
-      {!showForm && (
-        <PageHeaderCard
-          title="Events & Visits"
-          subtitle="Partnership Management Information System — Overview"
-        />
-      )}
-      <PageToolbar
-        searchPlaceholder="Search events & visits..."
-        addLabel="Add Record"
-        onSearch={setSearchQuery}
-        onFilter={() => setShowFilter(true)}
-        onAdd={showForm ? undefined : handleAddNew}
-        onExport={showForm ? undefined : handleExport}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        showSearchAndFilters={!showForm}
+      <PageHeaderCard
+        title="Events & Visits"
+        subtitle="Partnership Management Information System — Overview"
       />
 
-      {showForm ? (
-        <EventForm
-          event={selectedEvent}
-          mode={formMode}
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
-          onEdit={() => setFormMode('edit')}
-          userRole={userRole}
+      {/* Tab switcher */}
+      <div className="flex gap-2 bg-slate-50 border border-slate-200 rounded-xl p-1 w-fit">
+        <button
+          className={tabCls('events')}
+          onClick={() => {
+            setActiveTab('events')
+            setSearchQuery('')
+            setActiveFilters({})
+          }}
+        >
+          Events
+        </button>
+        <button
+          className={tabCls('visits')}
+          onClick={() => {
+            setActiveTab('visits')
+            setSearchQuery('')
+            setActiveFilters({})
+          }}
+        >
+          Visits
+        </button>
+      </div>
+
+      <PageToolbar
+        searchPlaceholder={activeTab === 'events' ? 'Search events...' : 'Search visits...'}
+        onSearch={setSearchQuery}
+        onFilter={() => setShowFilter(true)}
+        showSearchAndFilters
+      />
+
+      {activeTab === 'events' ? (
+        <DataTable
+          items={filteredEvents}
+          rowKey={item => item.id}
+          emptyVariant={searchQuery || activeFilters.status ? 'search' : 'events'}
+          isLoading={eventsLoading}
+          columns={[
+            {
+              label: 'No.',
+              render: (_item, index) => (
+                <span className="font-semibold text-slate-900">{index}</span>
+              ),
+              headClassName: 'bg-[#0b265a] text-white text-center',
+            },
+            {
+              label: 'Title',
+              render: (item: EventRecord) => item.title,
+              headClassName: 'bg-[#0b265a] text-white',
+            },
+            {
+              label: 'Type',
+              render: (item: EventRecord) => item.eventType?.typeName || '—',
+              headClassName: 'bg-[#0b265a] text-white',
+            },
+            {
+              label: 'Date',
+              render: (item: EventRecord) => item.eventDate || '—',
+              headClassName: 'bg-[#0b265a] text-white',
+            },
+            {
+              label: 'Venue',
+              render: (item: EventRecord) => item.venue || '—',
+              headClassName: 'bg-[#0b265a] text-white',
+            },
+            {
+              label: 'Organizer',
+              render: (item: EventRecord) => item.organizer || '—',
+              headClassName: 'bg-[#0b265a] text-white',
+            },
+            {
+              label: 'Status',
+              render: (item: EventRecord) => <StatusBadge status={item.status} />,
+              headClassName: 'bg-[#0b265a] text-white text-center',
+              cellClassName: 'text-center',
+            },
+            {
+              label: 'Action',
+              render: (item: EventRecord) => (
+                <TableActionButtons onDelete={() => handleDeleteEvent(item)} />
+              ),
+              headClassName: 'bg-[#0b265a] text-white text-center',
+              cellClassName: 'text-center',
+            },
+          ]}
         />
       ) : (
-        <>
-          {viewMode === 'kanban' ? (
-            <KanbanBoard
-              columns={[
-                {
-                  id: 'Draft',
-                  title: 'Draft',
-                  color: 'bg-slate-400',
-                  items: filteredEvents.filter(event => event.status === 'Draft'),
-                },
-                {
-                  id: 'Pending Review',
-                  title: 'Pending Review',
-                  color: 'bg-yellow-500',
-                  items: filteredEvents.filter(event => event.status === 'Pending Review'),
-                },
-                {
-                  id: 'Approved',
-                  title: 'Approved',
-                  color: 'bg-blue-500',
-                  items: filteredEvents.filter(event => event.status === 'Approved'),
-                },
-                {
-                  id: 'Pending Final Review',
-                  title: 'Pending Final Review',
-                  color: 'bg-purple-500',
-                  items: filteredEvents.filter(event => event.status === 'Pending Final Review'),
-                },
-                {
-                  id: 'Rejected',
-                  title: 'Rejected',
-                  color: 'bg-red-500',
-                  items: filteredEvents.filter(event => event.status === 'Rejected'),
-                },
-                {
-                  id: 'Completed',
-                  title: 'Completed',
-                  color: 'bg-green-500',
-                  items: filteredEvents.filter(event => event.status === 'Completed'),
-                },
-              ]}
-              onAddCard={() => handleAddNew()}
-              renderCard={event => (
-                <div
-                  onClick={() => handleView(event)}
-                  className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md cursor-pointer transition flex flex-col gap-3"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h4 className="font-semibold text-sm text-slate-900 leading-tight">
-                        {event.title}
-                      </h4>
-                      <p className="text-xs text-slate-500 mt-1">{event.type}</p>
-                    </div>
-                    <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded">
-                      {event.no}
-                    </span>
-                  </div>
-                  <div className="text-sm text-slate-600">
-                    <p>{event.venue}</p>
-                    <p className="mt-1 text-xs text-slate-500">{event.date}</p>
-                  </div>
-                </div>
-              )}
-            />
-          ) : (
-            <DataTable
-              items={filteredEvents}
-              rowKey={event => event.id}
-              emptyVariant={isFiltering ? 'search' : 'events'}
-              emptyAction={
-                !isFiltering && (
-                  <button
-                    onClick={handleAddNew}
-                    className="rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#e68a00]"
-                  >
-                    Add Record
-                  </button>
-                )
-              }
-              columns={[
-                {
-                  label: 'No.',
-                  render: (_event, index) => (
-                    <span className="font-semibold text-slate-900">{index}</span>
-                  ),
-                  headClassName: 'bg-[#0b265a] text-white text-center',
-                },
-                {
-                  label: 'Name / Title',
-                  render: (event: EventRecord) => event.title,
-                  headClassName: 'bg-[#0b265a] text-white',
-                },
-                {
-                  label: 'Category',
-                  render: (event: EventRecord) => event.category || 'Event',
-                  headClassName: 'bg-[#0b265a] text-white text-center',
-                  cellClassName: 'text-center',
-                },
-                {
-                  label: 'Type',
-                  render: (event: EventRecord) => event.type,
-                  headClassName: 'bg-[#0b265a] text-white',
-                },
-                {
-                  label: 'Date & Time',
-                  render: (event: EventRecord) => event.date,
-                  headClassName: 'bg-[#0b265a] text-white',
-                },
-                {
-                  label: 'Venue / Location',
-                  render: (event: EventRecord) => event.venue,
-                  headClassName: 'bg-[#0b265a] text-white',
-                },
-                {
-                  label: 'Status',
-                  render: (event: EventRecord) => <StatusBadge status={event.status} />,
-                  headClassName: 'bg-[#0b265a] text-white text-center',
-                  cellClassName: 'text-center',
-                },
-                {
-                  label: 'Action',
-                  render: (event: EventRecord) => (
-                    <TableActionButtons
-                      onView={() => handleView(event)}
-                      onDelete={() => handleDelete(event)}
-                    />
-                  ),
-                  headClassName: 'bg-[#0b265a] text-white text-center',
-                  cellClassName: 'text-center',
-                },
-              ]}
-            />
-          )}
-        </>
+        <DataTable
+          items={filteredVisits}
+          rowKey={item => item.id}
+          emptyVariant={searchQuery || activeFilters.status ? 'search' : 'events'}
+          isLoading={visitsLoading}
+          columns={[
+            {
+              label: 'No.',
+              render: (_item, index) => (
+                <span className="font-semibold text-slate-900">{index}</span>
+              ),
+              headClassName: 'bg-[#0b265a] text-white text-center',
+            },
+            {
+              label: 'Title',
+              render: (item: VisitRecord) => item.title,
+              headClassName: 'bg-[#0b265a] text-white',
+            },
+            {
+              label: 'Type',
+              render: (item: VisitRecord) => item.visitType?.typeName || '—',
+              headClassName: 'bg-[#0b265a] text-white',
+            },
+            {
+              label: 'Date',
+              render: (item: VisitRecord) => item.visitDate || '—',
+              headClassName: 'bg-[#0b265a] text-white',
+            },
+            {
+              label: 'Host Organization',
+              render: (item: VisitRecord) => item.hostOrganization || '—',
+              headClassName: 'bg-[#0b265a] text-white',
+            },
+            {
+              label: 'Visiting Organization',
+              render: (item: VisitRecord) => item.visitingOrganization || '—',
+              headClassName: 'bg-[#0b265a] text-white',
+            },
+            {
+              label: 'Status',
+              render: (item: VisitRecord) => <StatusBadge status={item.status} />,
+              headClassName: 'bg-[#0b265a] text-white text-center',
+              cellClassName: 'text-center',
+            },
+            {
+              label: 'Action',
+              render: (item: VisitRecord) => (
+                <TableActionButtons onDelete={() => handleDeleteVisit(item)} />
+              ),
+              headClassName: 'bg-[#0b265a] text-white text-center',
+              cellClassName: 'text-center',
+            },
+          ]}
+        />
       )}
 
       <FilterDrawer
         open={showFilter}
         onClose={() => setShowFilter(false)}
-        onApply={setActiveFilters}
-        fields={FILTER_FIELDS}
-        title="Filter Events"
+        onApply={f => {
+          setActiveFilters(f)
+          setShowFilter(false)
+        }}
+        fields={activeTab === 'events' ? EVENT_FILTER_FIELDS : VISIT_FILTER_FIELDS}
+        title={activeTab === 'events' ? 'Filter Events' : 'Filter Visits'}
       />
 
       <ConfirmationModal
         open={showDeleteModal}
-        title="Delete Event"
-        message="Are you sure you want to delete this event? This action cannot be undone."
+        title={`Delete ${deleteType === 'event' ? 'Event' : 'Visit'}`}
+        message="Are you sure you want to delete this record? This action cannot be undone."
         onCancel={() => setShowDeleteModal(false)}
         onConfirm={confirmDelete}
       />

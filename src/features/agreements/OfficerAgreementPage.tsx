@@ -9,7 +9,11 @@ import { FilterDrawer } from '../../components/FilterDrawer'
 import type { FilterValues } from '../../components/FilterDrawer'
 import { Button, Modal } from '../../ui'
 import type { AgreementEaiiDivision, AgreementRecord } from '../../types'
-import { agreementStore } from './agreementStore'
+import {
+  useGetAgreementsQuery,
+  useCreateAgreementMutation,
+  useUpdateAgreementMutation,
+} from '../../store/apiSlice'
 
 const AGREEMENT_TYPES = ['MoU', 'MoA', 'Contract', 'Framework Agreement', 'Letter of Intent']
 const DIVISIONS = [
@@ -85,7 +89,8 @@ function AgreementFormView({ agreement, onSaveDraft, onSubmit, onCancel }: Agree
 
   const isReadOnly = agreement.status !== 'Draft'
 
-  // Check if there are pending amendments from legal officer
+  const [updateAgreement] = useUpdateAgreementMutation()
+
   const pendingAmendments =
     agreement.amendments?.filter(a => a.createdBy === 'Legal Officer' && a.status === 'Pending') ??
     []
@@ -674,13 +679,18 @@ function AgreementFormView({ agreement, onSaveDraft, onSubmit, onCancel }: Agree
                   status: 'Pending Verification',
                 }
 
-                agreementStore.update(updatedAgreement)
-                setAmendmentModalOpen(false)
-                setAmendmentResponse('')
-                setResponseFiles([])
-                toast.success('Response sent to legal officer', {
-                  description: `With ${responseFiles.length > 0 ? responseFiles.length + ' attachment(s)' : 'no attachments'}`,
-                })
+                updateAgreement(updatedAgreement)
+                  .unwrap()
+                  .then(() => {
+                    setAmendmentModalOpen(false)
+                    setAmendmentResponse('')
+                    setResponseFiles([])
+                    toast.success('Response sent to legal officer', {
+                      description: `With ${responseFiles.length > 0 ? responseFiles.length + ' attachment(s)' : 'no attachments'}`,
+                    })
+                    onCancel() // Close the view to refresh
+                  })
+                  .catch(() => toast.error('Failed to submit response'))
               }}
             >
               Submit Response
@@ -695,17 +705,35 @@ function AgreementFormView({ agreement, onSaveDraft, onSubmit, onCancel }: Agree
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export function OfficerAgreementPage() {
-  const [agreements, setAgreements] = useState<AgreementRecord[]>(() => agreementStore.getAll())
+  const { data: agreements = [], isLoading } = useGetAgreementsQuery()
+  const [createAgreement] = useCreateAgreementMutation()
+  const [updateAgreement] = useUpdateAgreementMutation()
+
   const [selected, setSelected] = useState<AgreementRecord | null>(null)
   const [showFilter, setShowFilter] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilters, setActiveFilters] = useState<FilterValues>({})
 
-  useEffect(() => agreementStore.subscribe(setAgreements), [])
-
-  const handleCreateNew = () => {
-    const newAgreement = agreementStore.create()
-    setSelected(newAgreement)
+  const handleCreateNew = async () => {
+    try {
+      const newAgreement = await createAgreement({
+        title: '',
+        type: 'MoU',
+        status: 'Draft',
+        date: '',
+        startDate: '',
+        endDate: '',
+        partnerOrganization: '',
+        contactPerson: '',
+        contactPosition: '',
+        eaiiDivisions: [],
+        description: '',
+        attachments: [],
+      }).unwrap()
+      setSelected(newAgreement)
+    } catch (error) {
+      toast.error('Failed to create draft agreement')
+    }
   }
 
   const filtered = useMemo(() => {
@@ -721,24 +749,32 @@ export function OfficerAgreementPage() {
     })
   }, [agreements, searchQuery, activeFilters])
 
-  const handleSaveDraft = (updated: AgreementRecord) => {
-    agreementStore.update(updated)
-    setSelected(updated)
-    toast.success('Draft saved', { description: updated.title })
+  const handleSaveDraft = async (updated: AgreementRecord) => {
+    try {
+      await updateAgreement(updated).unwrap()
+      setSelected(updated)
+      toast.success('Draft saved', { description: updated.title })
+    } catch (error) {
+      toast.error('Failed to save draft')
+    }
   }
 
-  const handleSubmit = (updated: AgreementRecord) => {
+  const handleSubmit = async (updated: AgreementRecord) => {
     const final: AgreementRecord = {
       ...updated,
       status: 'Pending Verification',
       submittedBy: 'Officer',
       submittedAt: new Date().toISOString(),
     }
-    agreementStore.update(final)
-    setSelected(null)
-    toast.success('Agreement submitted for Legal Officer verification', {
-      description: final.title,
-    })
+    try {
+      await updateAgreement(final).unwrap()
+      setSelected(null)
+      toast.success('Agreement submitted for Legal Officer verification', {
+        description: final.title,
+      })
+    } catch (error) {
+      toast.error('Failed to submit agreement')
+    }
   }
 
   if (selected) {
@@ -768,6 +804,7 @@ export function OfficerAgreementPage() {
       />
       <DataTable
         items={filtered}
+        isLoading={isLoading}
         rowKey={item => item.id}
         emptyVariant="agreements"
         columns={[

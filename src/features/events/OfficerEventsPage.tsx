@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { DataTable } from '../../components/DataTable'
 import { EventForm } from './EventForm'
@@ -9,71 +9,74 @@ import { TableActionButtons } from '../../components/TableActionButtons'
 import { ConfirmationModal } from '../../components/ConfirmationModal'
 import { FilterDrawer } from '../../components/FilterDrawer'
 import type { FilterValues } from '../../components/FilterDrawer'
-import type { EventRecord } from '../../types'
-import { eventsStore } from './eventsStore'
-import { exportToCsv } from '../../utils/exportCsv'
-import { KanbanBoard } from '../../components/KanbanBoard'
+import type { EventRecord, VisitRecord } from '../../types'
+import {
+  useGetEventsQuery,
+  useGetVisitsQuery,
+  useCreateEventMutation,
+  useUpdateEventMutation,
+  useDeleteEventMutation,
+  useCreateVisitMutation,
+  useUpdateVisitMutation,
+  useDeleteVisitMutation,
+} from '../../store/apiSlice'
 
 const FILTER_FIELDS = [
-  {
-    key: 'category',
-    label: 'Category',
-    type: 'select' as const,
-    options: [
-      { label: 'Event', value: 'Event' },
-      { label: 'Visit', value: 'Visit' },
-    ],
-  },
   {
     key: 'status',
     label: 'Status',
     type: 'select' as const,
     options: [
-      { label: 'Draft', value: 'Draft' },
-      { label: 'Pending Review', value: 'Pending Review' },
-      { label: 'Approved', value: 'Approved' },
-      { label: 'Rejected', value: 'Rejected' },
+      { label: 'Planned', value: 'Planned' },
+      { label: 'Ongoing', value: 'Ongoing' },
       { label: 'Completed', value: 'Completed' },
+      { label: 'Cancelled', value: 'Cancelled' },
     ],
-  },
-  {
-    key: 'type',
-    label: 'Type',
-    type: 'text' as const,
-    placeholder: 'e.g. Workshop, delegation visit...',
   },
 ]
 
+type Tab = 'events' | 'visits'
+
 export function OfficerEventsPage() {
-  const [records, setRecords] = useState<EventRecord[]>(eventsStore.getAll())
+  const [activeTab, setActiveTab] = useState<Tab>('events')
   const [showForm, setShowForm] = useState(false)
   const [showFilter, setShowFilter] = useState(false)
   const [selected, setSelected] = useState<EventRecord | null>(null)
   const [formMode, setFormMode] = useState<'create' | 'edit' | 'preview'>('create')
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list')
   const [activeFilters, setActiveFilters] = useState<FilterValues>({})
 
-  // Subscribe to store so this page reflects changes made from other pages
-  useEffect(() => {
-    return eventsStore.subscribe(() => setRecords(eventsStore.getAll()))
-  }, [])
+  const { data: events = [], isLoading: eventsLoading } = useGetEventsQuery({})
+  const { data: visits = [], isLoading: visitsLoading } = useGetVisitsQuery({})
+  const [createEvent] = useCreateEventMutation()
+  const [updateEvent] = useUpdateEventMutation()
+  const [deleteEvent] = useDeleteEventMutation()
+  const [createVisit] = useCreateVisitMutation()
+  const [updateVisit] = useUpdateVisitMutation()
+  const [deleteVisit] = useDeleteVisitMutation()
 
-  // Officers see all records they submitted (all statuses for tracking)
-  const filtered = useMemo(() => {
-    return records.filter(item => {
-      if (searchQuery && !item.title.toLowerCase().includes(searchQuery.toLowerCase())) return false
-      if (activeFilters.category && (item.category ?? 'Event') !== activeFilters.category)
-        return false
-      if (activeFilters.status && item.status !== activeFilters.status) return false
-      if (activeFilters.type && !item.type.toLowerCase().includes(activeFilters.type.toLowerCase()))
-        return false
-      return true
-    })
-  }, [records, searchQuery, activeFilters])
+  const filteredEvents = useMemo(
+    () =>
+      events.filter(item => {
+        if (searchQuery && !item.title.toLowerCase().includes(searchQuery.toLowerCase()))
+          return false
+        if (activeFilters.status && item.status !== activeFilters.status) return false
+        return true
+      }),
+    [events, searchQuery, activeFilters]
+  )
 
-  const isFiltering = searchQuery !== '' || Object.keys(activeFilters).length > 0
+  const filteredVisits = useMemo(
+    () =>
+      (visits as any[]).filter(item => {
+        if (searchQuery && !item.title.toLowerCase().includes(searchQuery.toLowerCase()))
+          return false
+        if (activeFilters.status && item.status !== activeFilters.status) return false
+        return true
+      }),
+    [visits, searchQuery, activeFilters]
+  )
 
   const handleAddNew = () => {
     setSelected(null)
@@ -104,55 +107,170 @@ export function OfficerEventsPage() {
     setFormMode('create')
   }
 
-  const handleSubmit = (data: EventRecord) => {
-    if ((formMode === 'edit' || formMode === 'preview') && selected) {
-      eventsStore.update(data)
-      toast.success('Record updated', { description: data.title })
-    } else {
-      const newRecord: EventRecord = {
-        ...data,
-        id: `evt-${Date.now()}`,
-        no: eventsStore.getAll().length + 1,
+  const handleSubmit = async (data: EventRecord) => {
+    try {
+      if (data.category === 'Visit') {
+        const visitPayload: Partial<VisitRecord> = {
+          title: data.title,
+          visitDate: data.eventDate || data.date || '',
+          hostOrganization: data.hostOrganization ?? undefined,
+          visitingOrganization: data.visitingOrganization ?? undefined,
+          visitLocation: data.visitLocations ?? undefined,
+          purpose: data.purposeOfVisit ?? undefined,
+          status: 'Planned' as const,
+        }
+        if (selected?.id && formMode === 'edit') {
+          await updateVisit({ id: String(selected.id), data: visitPayload }).unwrap()
+          toast.success('Visit updated', { description: data.title })
+        } else {
+          await createVisit(visitPayload).unwrap()
+          toast.success('Visit created', { description: data.title })
+        }
+      } else {
+        const eventPayload: Partial<EventRecord> = {
+          title: data.title,
+          eventDate: data.eventDate || data.date || '',
+          venue: data.venue || '',
+          organizer: data.organizer ?? undefined,
+          coOrganizer: data.coOrganizer ?? undefined,
+          status: 'Planned' as const,
+        }
+        if (selected?.id && formMode === 'edit') {
+          await updateEvent({ id: selected.id, data: eventPayload }).unwrap()
+          toast.success('Event updated', { description: data.title })
+        } else {
+          await createEvent(eventPayload).unwrap()
+          toast.success('Event created', { description: data.title })
+        }
       }
-      eventsStore.add(newRecord)
-      toast.success('Record created', { description: data.title })
+      handleCancel()
+    } catch (err: any) {
+      toast.error('Failed to save record', { description: err?.data?.message })
     }
-    handleCancel()
   }
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!selected) return
-    eventsStore.remove(selected.id)
-    toast.error('Record deleted', { description: selected.title })
+    try {
+      if (selected.category === 'Visit') {
+        await deleteVisit(String(selected.id)).unwrap()
+      } else {
+        await deleteEvent(selected.id).unwrap()
+      }
+      toast.error('Record deleted', { description: selected.title })
+    } catch {
+      toast.error('Failed to delete record')
+    }
     setShowDeleteModal(false)
     setSelected(null)
   }
 
-  const handleExport = () => {
-    exportToCsv(
-      'events-visits-officer',
-      ['#', 'Title', 'Category', 'Type', 'Date & Time', 'Venue / Location', 'Status'],
-      [
-        filtered.map((item, i) => [
-          i + 1,
-          item.title,
-          item.category || 'Event',
-          item.type,
-          item.date,
-          item.venue,
-          item.status,
-        ]),
-      ]
-    )
-    toast.success('Exported to CSV', { description: `${filtered.length} records` })
-  }
+  const tabCls = (tab: Tab) =>
+    `px-6 py-2.5 text-sm font-semibold rounded-lg transition-colors ${
+      activeTab === tab ? 'bg-[#161A61] text-white shadow' : 'text-slate-600 hover:bg-slate-100'
+    }`
 
-  const statusGroups: EventRecord['status'][] = [
-    'Draft',
-    'Pending Review',
-    'Approved',
-    'Rejected',
-    'Completed',
+  const eventColumns = [
+    {
+      label: 'No.',
+      render: (_item: EventRecord, index: number) => (
+        <span className="font-semibold text-slate-900">{index}</span>
+      ),
+      headClassName: 'bg-[#0b265a] text-white text-center',
+    },
+    {
+      label: 'Title',
+      render: (item: EventRecord) => item.title,
+      headClassName: 'bg-[#0b265a] text-white',
+    },
+    {
+      label: 'Type',
+      render: (item: EventRecord) => item.eventType?.typeName || '—',
+      headClassName: 'bg-[#0b265a] text-white',
+    },
+    {
+      label: 'Date',
+      render: (item: EventRecord) => item.eventDate || '—',
+      headClassName: 'bg-[#0b265a] text-white',
+    },
+    {
+      label: 'Venue',
+      render: (item: EventRecord) => item.venue || '—',
+      headClassName: 'bg-[#0b265a] text-white',
+    },
+    {
+      label: 'Status',
+      render: (item: EventRecord) => <StatusBadge status={item.status} />,
+      headClassName: 'bg-[#0b265a] text-white text-center',
+      cellClassName: 'text-center',
+    },
+    {
+      label: 'Action',
+      render: (item: EventRecord) => (
+        <TableActionButtons
+          onView={() => handleView(item)}
+          onEdit={
+            item.status === 'Planned' || item.status === 'Cancelled'
+              ? () => handleEdit(item)
+              : undefined
+          }
+          onDelete={item.status === 'Planned' ? () => handleDelete(item) : undefined}
+        />
+      ),
+      headClassName: 'bg-[#0b265a] text-white text-center',
+      cellClassName: 'text-center',
+    },
+  ]
+
+  const visitColumns = [
+    {
+      label: 'No.',
+      render: (_item: any, index: number) => (
+        <span className="font-semibold text-slate-900">{index}</span>
+      ),
+      headClassName: 'bg-[#0b265a] text-white text-center',
+    },
+    {
+      label: 'Title',
+      render: (item: any) => item.title,
+      headClassName: 'bg-[#0b265a] text-white',
+    },
+    {
+      label: 'Type',
+      render: (item: any) => item.visitType?.typeName || '—',
+      headClassName: 'bg-[#0b265a] text-white',
+    },
+    {
+      label: 'Date',
+      render: (item: any) => item.visitDate || '—',
+      headClassName: 'bg-[#0b265a] text-white',
+    },
+    {
+      label: 'Host Organization',
+      render: (item: any) => item.hostOrganization || '—',
+      headClassName: 'bg-[#0b265a] text-white',
+    },
+    {
+      label: 'Status',
+      render: (item: any) => <StatusBadge status={item.status} />,
+      headClassName: 'bg-[#0b265a] text-white text-center',
+      cellClassName: 'text-center',
+    },
+    {
+      label: 'Action',
+      render: (item: any) => (
+        <TableActionButtons
+          onView={() => handleView({ ...item, category: 'Visit' as const })}
+          onDelete={
+            item.status === 'Planned'
+              ? () => handleDelete({ ...item, category: 'Visit' as const })
+              : undefined
+          }
+        />
+      ),
+      headClassName: 'bg-[#0b265a] text-white text-center',
+      cellClassName: 'text-center',
+    },
   ]
 
   return (
@@ -160,19 +278,28 @@ export function OfficerEventsPage() {
       {!showForm && (
         <PageHeaderCard
           title="Events & Visits — Officer"
-          subtitle="Create and submit event or visit records for Director General review"
+          subtitle="Create and submit event or visit records"
         />
       )}
 
+      {/* Tab switcher */}
+      {!showForm && (
+        <div className="flex gap-2 bg-slate-50 border border-slate-200 rounded-xl p-1 w-fit">
+          <button className={tabCls('events')} onClick={() => setActiveTab('events')}>
+            Events
+          </button>
+          <button className={tabCls('visits')} onClick={() => setActiveTab('visits')}>
+            Visits
+          </button>
+        </div>
+      )}
+
       <PageToolbar
-        searchPlaceholder="Search events & visits..."
+        searchPlaceholder={`Search ${activeTab}...`}
         addLabel="Add Record"
         onSearch={setSearchQuery}
         onFilter={() => setShowFilter(true)}
         onAdd={showForm ? undefined : handleAddNew}
-        onExport={showForm ? undefined : handleExport}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
         showSearchAndFilters={!showForm}
       />
 
@@ -185,122 +312,22 @@ export function OfficerEventsPage() {
           onEdit={() => setFormMode('edit')}
           userRole="Officer"
         />
+      ) : activeTab === 'events' ? (
+        <DataTable
+          items={filteredEvents}
+          rowKey={item => item.id}
+          emptyVariant={searchQuery || activeFilters.status ? 'search' : 'events'}
+          isLoading={eventsLoading}
+          columns={eventColumns}
+        />
       ) : (
-        <>
-          {viewMode === 'kanban' ? (
-            <KanbanBoard
-              columns={statusGroups.map(s => ({
-                id: s,
-                title: s,
-                color:
-                  s === 'Draft'
-                    ? 'bg-slate-400'
-                    : s === 'Pending Review'
-                      ? 'bg-yellow-500'
-                      : s === 'Approved'
-                        ? 'bg-blue-500'
-                        : s === 'Rejected'
-                          ? 'bg-red-500'
-                          : 'bg-green-500',
-                items: filtered.filter(e => e.status === s),
-              }))}
-              onAddCard={handleAddNew}
-              renderCard={item => (
-                <div
-                  onClick={() => handleView(item)}
-                  className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md cursor-pointer transition flex flex-col gap-3"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h4 className="font-semibold text-sm text-slate-900 leading-tight">
-                        {item.title}
-                      </h4>
-                      <p className="text-xs text-slate-500 mt-1">{item.type}</p>
-                    </div>
-                    <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded">
-                      {item.no}
-                    </span>
-                  </div>
-                  <p className="text-sm text-slate-600">{item.venue}</p>
-                  <p className="text-xs text-slate-500">{item.date?.split('T')[0]}</p>
-                </div>
-              )}
-            />
-          ) : (
-            <DataTable
-              items={filtered}
-              rowKey={item => item.id}
-              emptyVariant={isFiltering ? 'search' : 'events'}
-              emptyAction={
-                !isFiltering && (
-                  <button
-                    onClick={handleAddNew}
-                    className="rounded-lg bg-[#ff9500] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#e68a00]"
-                  >
-                    Add Record
-                  </button>
-                )
-              }
-              columns={[
-                {
-                  label: 'No.',
-                  render: (_item, index) => (
-                    <span className="font-semibold text-slate-900">{index}</span>
-                  ),
-                  headClassName: 'bg-[#0b265a] text-white text-center',
-                },
-                {
-                  label: 'Name / Title',
-                  render: (item: EventRecord) => item.title,
-                  headClassName: 'bg-[#0b265a] text-white',
-                },
-                {
-                  label: 'Category',
-                  render: (item: EventRecord) => item.category || 'Event',
-                  headClassName: 'bg-[#0b265a] text-white text-center',
-                  cellClassName: 'text-center',
-                },
-                {
-                  label: 'Type',
-                  render: (item: EventRecord) => item.type,
-                  headClassName: 'bg-[#0b265a] text-white',
-                },
-                {
-                  label: 'Date',
-                  render: (item: EventRecord) => item.date?.split('T')[0] || '—',
-                  headClassName: 'bg-[#0b265a] text-white',
-                },
-                {
-                  label: 'Venue',
-                  render: (item: EventRecord) => item.venue,
-                  headClassName: 'bg-[#0b265a] text-white',
-                },
-                {
-                  label: 'Status',
-                  render: (item: EventRecord) => <StatusBadge status={item.status} />,
-                  headClassName: 'bg-[#0b265a] text-white text-center',
-                  cellClassName: 'text-center',
-                },
-                {
-                  label: 'Action',
-                  render: (item: EventRecord) => (
-                    <TableActionButtons
-                      onView={() => handleView(item)}
-                      onEdit={
-                        item.status === 'Draft' || item.status === 'Rejected'
-                          ? () => handleEdit(item)
-                          : undefined
-                      }
-                      onDelete={item.status === 'Draft' ? () => handleDelete(item) : undefined}
-                    />
-                  ),
-                  headClassName: 'bg-[#0b265a] text-white text-center',
-                  cellClassName: 'text-center',
-                },
-              ]}
-            />
-          )}
-        </>
+        <DataTable
+          items={filteredVisits}
+          rowKey={item => item.id}
+          emptyVariant={searchQuery || activeFilters.status ? 'search' : 'events'}
+          isLoading={visitsLoading}
+          columns={visitColumns}
+        />
       )}
 
       <FilterDrawer
@@ -308,7 +335,7 @@ export function OfficerEventsPage() {
         onClose={() => setShowFilter(false)}
         onApply={setActiveFilters}
         fields={FILTER_FIELDS}
-        title="Filter Events & Visits"
+        title="Filter Records"
       />
 
       <ConfirmationModal

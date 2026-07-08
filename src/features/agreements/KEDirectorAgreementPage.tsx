@@ -9,8 +9,8 @@ import { FilterDrawer } from '../../components/FilterDrawer'
 import type { FilterValues } from '../../components/FilterDrawer'
 import { Button, Modal } from '../../ui'
 import type { AgreementRecord } from '../../types'
-import { agreementStore } from './agreementStore'
 import { partnerStore } from '../partners/partnerStore'
+import { useGetAgreementsQuery, useUpdateAgreementMutation } from '../../store/apiSlice'
 
 const FILTER_FIELDS = [
   {
@@ -373,13 +373,13 @@ function DetailView({ agreement, onApprove, onReject, onBack }: DetailViewProps)
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export function KEDirectorAgreementPage() {
-  const [agreements, setAgreements] = useState<AgreementRecord[]>(() => agreementStore.getAll())
+  const { data: agreements = [], isLoading } = useGetAgreementsQuery()
+  const [updateAgreement] = useUpdateAgreementMutation()
+
   const [selected, setSelected] = useState<AgreementRecord | null>(null)
   const [showFilter, setShowFilter] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilters, setActiveFilters] = useState<FilterValues>({})
-
-  useEffect(() => agreementStore.subscribe(setAgreements), [])
 
   // KE Director only sees verified (and already decided) agreements
   const filtered = useMemo(() => {
@@ -396,7 +396,7 @@ export function KEDirectorAgreementPage() {
     })
   }, [agreements, searchQuery, activeFilters])
 
-  const handleApprove = () => {
+  const handleApprove = async () => {
     if (!selected) return
     const updated: AgreementRecord = {
       ...selected,
@@ -405,14 +405,18 @@ export function KEDirectorAgreementPage() {
       approvedAt: new Date().toISOString(),
       rejectionReason: '',
     }
-    agreementStore.update(updated)
-    // Automatically create a partner record for this approved agreement
-    partnerStore.addFromAgreement(updated)
-    setSelected(updated)
-    toast.success('Agreement approved', { description: updated.title })
+    try {
+      await updateAgreement(updated).unwrap()
+      // Automatically create a partner record for this approved agreement
+      partnerStore.addFromAgreement(updated)
+      setSelected(updated)
+      toast.success('Agreement approved', { description: updated.title })
+    } catch {
+      toast.error('Failed to approve agreement')
+    }
   }
 
-  const handleReject = (reason: string) => {
+  const handleReject = async (reason: string) => {
     if (!selected) return
     const updated: AgreementRecord = {
       ...selected,
@@ -421,9 +425,13 @@ export function KEDirectorAgreementPage() {
       rejectedAt: new Date().toISOString(),
       rejectionReason: reason,
     }
-    agreementStore.update(updated)
-    setSelected(updated)
-    toast.error('Agreement rejected', { description: updated.title })
+    try {
+      await updateAgreement(updated).unwrap()
+      setSelected(updated)
+      toast.error('Agreement rejected', { description: updated.title })
+    } catch {
+      toast.error('Failed to reject agreement')
+    }
   }
 
   if (selected) {
@@ -451,6 +459,7 @@ export function KEDirectorAgreementPage() {
       />
       <DataTable
         items={filtered}
+        isLoading={isLoading}
         rowKey={item => item.id}
         emptyVariant="agreements"
         columns={[
