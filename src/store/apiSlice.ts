@@ -31,8 +31,37 @@ export const apiSlice = createApi({
     >({
       query: data => ({ url: '/auth/login', method: 'POST', data }),
     }),
+    register: builder.mutation<
+      any,
+      {
+        fullName: string
+        email: string
+        password: string
+        phone?: string
+        position?: string
+        divisionId?: string
+      }
+    >({
+      query: data => ({ url: '/auth/register', method: 'POST', data }),
+      invalidatesTags: ['User'],
+    }),
+    refreshToken: builder.mutation<
+      { accessToken: string; refreshToken: string },
+      { refreshToken: string }
+    >({
+      query: data => ({ url: '/auth/refresh', method: 'POST', data }),
+    }),
+    logoutApi: builder.mutation<void, void>({
+      query: () => ({ url: '/auth/logout', method: 'POST' }),
+    }),
     getProfile: builder.query<any, void>({
       query: () => ({ url: '/auth/profile', method: 'GET' }),
+    }),
+    changePassword: builder.mutation<void, { currentPassword: string; newPassword: string }>({
+      query: data => ({ url: '/auth/change-password', method: 'PATCH', data }),
+    }),
+    verifyEmail: builder.mutation<void, { token?: string }>({
+      query: data => ({ url: '/auth/verify-email', method: 'POST', data }),
     }),
     // --- Partners Endpoints ---
     getPartners: builder.query<PartnerRecord[], void>({
@@ -316,5 +345,10 @@ export const {
   useGetUsersQuery,
   useGetRolesQuery,
   useLoginMutation,
+  useRegisterMutation,
+  useRefreshTokenMutation,
+  useLogoutApiMutation,
+  useChangePasswordMutation,
+  useVerifyEmailMutation,
   useGetProfileQuery,
 } = apiSlice

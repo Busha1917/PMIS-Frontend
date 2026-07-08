@@ -41,7 +41,8 @@ const authSlice = createSlice({
       state.isAuthenticated = false
       state.user = null
       state.accessToken = null
-      localStorage.removeItem(TOKEN_KEY)
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
     },
     updateUser(state, action: PayloadAction<Partial<AuthUser>>) {
       if (state.user) {

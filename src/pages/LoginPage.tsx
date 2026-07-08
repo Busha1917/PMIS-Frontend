@@ -32,11 +32,17 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       const result = (rawResult as any)?.data || rawResult
 
       const token = result?.accessToken || result?.access_token || result?.token
+      const refreshToken = result?.refreshToken || result?.refresh_token
 
       if (!token) {
         console.error('No token found in response:', rawResult)
         toast.error('Login failed: Invalid server response format')
         return
+      }
+
+      // Persist refresh token for silent renewal
+      if (refreshToken) {
+        localStorage.setItem('refresh_token', refreshToken)
       }
 
       // Store the token and user in Redux + localStorage

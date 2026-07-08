@@ -1,11 +1,19 @@
 import { useState } from 'react'
-import { Mail, Building, Shield, Key, CheckCircle } from 'lucide-react'
+import { Mail, Building, Shield, Key, CheckCircle, Loader2 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { Button, Card, CardContent, RightModal, Input, Label } from '../ui'
+import { useChangePasswordMutation, useLogoutApiMutation } from '../store/apiSlice'
+import { toast } from 'sonner'
 
 export function ProfilePage() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const [showPasswordModal, setShowPasswordModal] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
+  const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation()
+  const [logoutApi] = useLogoutApiMutation()
 
   // Generate user initials
   const initials = user?.name
@@ -17,10 +25,37 @@ export function ProfilePage() {
         .slice(0, 2)
     : 'U'
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Mock successful password change
-    setShowPasswordModal(false)
+    if (newPassword !== confirmPassword) {
+      toast.error('New passwords do not match')
+      return
+    }
+    if (newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters')
+      return
+    }
+    try {
+      await changePassword({ currentPassword, newPassword }).unwrap()
+      toast.success('Password changed successfully')
+      setShowPasswordModal(false)
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+    } catch (err: any) {
+      const msg = err?.data?.message ?? 'Failed to change password'
+      toast.error(msg)
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      await logoutApi().unwrap()
+    } catch {
+      // Ignore backend errors on logout — still clear local state
+    } finally {
+      logout()
+    }
   }
 
   return (
@@ -89,6 +124,13 @@ export function ProfilePage() {
               >
                 Change Password
               </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-center mt-2 text-red-600 border-red-200 hover:bg-red-50"
+                onClick={handleLogout}
+              >
+                Logout
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -151,21 +193,44 @@ export function ProfilePage() {
           <form className="space-y-4" onSubmit={handlePasswordSubmit}>
             <div className="space-y-2">
               <Label>Current Password</Label>
-              <Input type="password" required />
+              <Input
+                type="password"
+                required
+                value={currentPassword}
+                onChange={e => setCurrentPassword(e.target.value)}
+                placeholder="Enter current password"
+              />
             </div>
             <div className="space-y-2">
               <Label>New Password</Label>
-              <Input type="password" required />
+              <Input
+                type="password"
+                required
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                placeholder="Enter new password"
+              />
             </div>
             <div className="space-y-2">
               <Label>Confirm New Password</Label>
-              <Input type="password" required />
+              <Input
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                placeholder="Confirm new password"
+              />
             </div>
             <div className="pt-4 flex gap-3 justify-end border-t border-slate-100">
               <Button type="button" variant="outline" onClick={() => setShowPasswordModal(false)}>
                 Cancel
               </Button>
-              <Button type="submit" className="bg-[#ff9500] hover:bg-[#e68a00] text-white">
+              <Button
+                type="submit"
+                disabled={isChangingPassword}
+                className="bg-[#ff9500] hover:bg-[#e68a00] text-white flex items-center gap-2"
+              >
+                {isChangingPassword && <Loader2 className="h-4 w-4 animate-spin" />}
                 Save Changes
               </Button>
             </div>
